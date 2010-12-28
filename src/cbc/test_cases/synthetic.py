@@ -23,6 +23,12 @@ def saturate(f, x): return f(np.maximum(0, x))
 def identity(x): return x
 @k
 def identity_sat(x): return saturate(identity, x)
+
+@k
+def linear01(x): return (x + 1) / 2
+@k
+def linear01_sat(x): return saturate(linear01, x)
+
 @k
 def pow3(x): return x ** 3
 @k

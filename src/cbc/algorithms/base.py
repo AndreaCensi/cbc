@@ -24,7 +24,8 @@ class CalibAlgorithm(object):
         
         last_iteration = self.iterations[-1]
         results = {}
-        copy_fields = ['error', 'error_deg', 'S', 'S_aligned']
+        copy_fields = ['rel_error' , 'rel_error_deg',
+                       'error', 'error_deg', 'S', 'S_aligned']
         for f in copy_fields:
             results[f] = last_iteration[f]
         

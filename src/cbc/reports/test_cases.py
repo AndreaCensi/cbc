@@ -1,7 +1,8 @@
 from reprep import Report
 import numpy as np
-from cbc.tools.math_utils import scale_score
-from cbc.tools.plot_utils import create_histogram_2d
+
+from ..tools import scale_score, create_histogram_2d
+from . import plot_coords
 
 def create_report_test_case(tcid, tc):
     r = Report(tcid)
@@ -33,6 +34,10 @@ def tc_ground_truth_plots(tc, rid='ground_truth'):
         cols += 1
     
     f = r.figure(cols=cols, caption='Ground truth plots.')
+
+
+    with r.data('coordinates', tc.true_S).data_pylab('plot') as pylab:
+        plot_coords(pylab, tc.true_S)
 
     n = r.data('true_C', tc.true_C).display('posneg')  
     f.sub(n, 'Actual cosine matrix')

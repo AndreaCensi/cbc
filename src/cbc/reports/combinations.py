@@ -1,50 +1,41 @@
 from reprep import Report
-from contracts.main import new_contract
-from cbc.tools.natsort import natsorted
+
+from ..tools import natsorted
 
 def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
-
     r = Report(comb_id)
     
-#    data, rlabels, clabels = algo_stats_A(results.values())
-    
-    data, rlabels, clabels = algo_stats_error_table(deps)
-    
-    r.table('stats', data, rows=rlabels, cols=clabels)
-    
-    return r
-
-
-new_contract('header', 'None|str')
-new_contract('table_desc', '''tuple(list[R](list[C]),list[R](header),list[C](header))''')
-
-#@contracts(results='list(dict)', returns='table_desc')
-#def algo_stats_A(results):
-#    rows_labels = []
-#    data = []
-#    cols_labels = ['combination', 'average error (deg)']
-#    for r in results:
-#        row = [r['combid'],
-#               "%.2f" % r['results']['error_deg']]
-#        rows_labels.append(None)
-#        data.append(row)
-#        
-#    return data, rows_labels, cols_labels 
-    
-def algo_stats_error_table(results):
-    all_tc = natsorted(set([tc for tc, algo in results.keys()]), key=lambda x: str(x))
-    all_algo = natsorted(set([algo for tc, algo in results.keys()]))
-
-#    rows = [tc.tcid for tc in all_tc]
-#    cols = ['%s-%s' % (algo[0].__name__, algo[1]) for algo in all_algo]
-    rows = all_tc
-    cols = all_algo
-    
-    def element(res):
+    def el_error_deg(tc_id, alg_id):
+        res = deps[(tc_id, alg_id)]
         return '%.2f' % res['error_deg']
     
-    data = [ [ element(results[(tc, algo)]) 
-               for algo in all_algo ] 
-             for tc in all_tc]
+    def el_rel_error_deg(tc_id, alg_id):
+        res = deps[(tc_id, alg_id)]
+        return '%.2f' % res['rel_error_deg']
+
+    
+    r.table('abs_error_deg', caption='Final average absolute error (deg)',
+            **generic_table(tc_ids, alg_ids, el_error_deg))
+    
+    r.table('abs_rel_error_deg', caption='Final average relative error (deg)',
+            **generic_table(tc_ids, alg_ids, el_rel_error_deg))
+
+    return r
+    
+def generic_table(tc_ids, alg_ids, get_element, sorted=True):
+    if sorted:
+        tc_ids = natsorted(tc_ids)
+        alg_ids = natsorted(alg_ids)
+    
+    rows = tc_ids
+    cols = alg_ids
+    
+    make_row = lambda tc_id: [ get_element(tc_id, alg_id) for alg_id in alg_ids ]
+    data = [  make_row(tc_id) for tc_id in tc_ids] 
      
-    return data, rows, cols        
+    return dict(data=data, rows=rows, cols=cols)        
+
+
+#new_contract('header', 'None|str')
+#new_contract('table_desc', '''tuple(list[R](list[C]),list[R](header),list[C](header))''')
+

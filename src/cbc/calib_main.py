@@ -3,7 +3,7 @@ import itertools
 import cPickle as pickle
 from collections import namedtuple
 from optparse import OptionParser
-from compmake import comp, compmake_console
+from compmake import comp, compmake_console, batch_command
 
 from contracts import check
 
@@ -12,6 +12,8 @@ from .test_cases import (get_syntethic_test_cases, get_real_test_cases)
 from .reports import (create_report_test_case, create_report_comb_stats,
                       create_report_iterations)
 from .tools import expand_string
+from cbc.tools.natsort import natsorted
+from compmake import use_filesystem
 
 
 join = os.path.join
@@ -27,6 +29,12 @@ def main():
 
     parser.add_option("--outdir", help='Directory with variables.pickle and where '
                                     'the output will be placed.')
+
+    parser.add_option("--report", default=False, action='store_true',
+                      help='Cleans and redoes all reports (non interactive).')
+
+    parser.add_option("--report_stats", default=False, action='store_true',
+                      help='Cleans and redoes the reports for the stats. (non interactive)')
 
     (options, args) = parser.parse_args() #@UnusedVariable
     assert not args
@@ -47,7 +55,13 @@ def main():
     print('Creating list of algorithms..')
     algorithms = get_list_of_algorithms()    
     check('dict(str: tuple(Callable, dict))', algorithms)
-
+    
+    print('Available %d test cases and %d algorithms' % 
+          (len(test_cases), len(algorithms)))
+#    print('Available algos: %s.' % ", ".join(natsorted(algorithms.keys())))
+#    print('Available testcases: %s.' % ", ".join(natsorted(test_cases.keys())))
+    
+    
     test_case_reports = {} 
     def stage_test_case_report(tcid):
         if not tcid in  test_case_reports:
@@ -79,7 +93,7 @@ def main():
             report = comp(create_report_iterations, results, job_id=job_id)
             
             job_id += '-write'
-            filename = join(options.outdir, 'executions', '%s.html' % comb_id)
+            filename = join(options.outdir, 'executions', '%s-%s.html' % (tcid, algid))
             comp(write_report, report, filename, job_id=job_id)
             
         return executions[key]
@@ -89,16 +103,31 @@ def main():
     Combination = namedtuple('Combination', 'algorithms test_cases')
     combinations['all'] = Combination('*', '*')
     combinations['CBC'] = Combination(['cbc'], '*')
+    combinations['CBC_vs_oneshot'] = Combination(['cbc', 'oneshot'], '*')
     combinations['CBCt'] = Combination('cbct*', '*')
-    combinations['tmp'] = Combination('cbc*', ['fov180-pow7*', 'fov360-pow7*'])
+#    combinations['tmp'] = Combination('cbct*', ['fov180-pow7*', 'fov360-pow7*'])
+    combinations['tmp'] = Combination('cbct2', ['fov180-pow7_sat'])
 
-    which = expand_string(options.set, list(combinations.keys()))
+    combinations['real'] = Combination(['rand', 'cheat', 'cbc', 'cbc_t50'],
+                                            'sick_*')
     
+    which = expand_string(options.set, list(combinations.keys()))
+    print('I will use the sets: %s' % which)
+    if len(which) == 1:    
+        compmake_storage = join(options.outdir, 'compmake', which[0])
+    else:
+        compmake_storage = join(options.outdir, 'compmake', 'common_storage')
+    
+    use_filesystem(compmake_storage)
+
     for comb_id in which:
         comb = combinations[comb_id]
         alg_ids = expand_string(comb.algorithms, algorithms.keys())
         tc_ids = expand_string(comb.test_cases, test_cases.keys())
         
+        print('Set %r has %d test cases and %d algorithms (~%d jobs in total).' % 
+          (comb_id, len(alg_ids), len(tc_ids), len(alg_ids) * len(tc_ids) * 2))
+
         deps = {}
         for t, a in itertools.product(tc_ids, alg_ids):
             deps[(t, a)] = stage_execution(t, a)
@@ -111,7 +140,16 @@ def main():
         filename = join(options.outdir, 'stats', '%s.html' % comb_id)
         comp(write_report, report, filename, job_id=job_id)
 
-    compmake_console()
+
+    batch_mode = options.report or options.report_stats
+    if batch_mode:
+        if options.report:
+            batch_command('clean *-report-*')
+        elif options.report_stats:
+            batch_command('clean set-*-report-*')
+        batch_command('parmake')
+    else:
+        compmake_console()
 
 
 

@@ -9,9 +9,9 @@ from cbc.test_cases.base import CalibTestCase
 @contracts(data=dict, returns='dict(str: test_case)')
 def get_real_test_cases(data):
     # two types
-    selections = [ ('front', np.array(range(181))),
-                   ('rear', np.array(range(181, 362))),
-                   ('both', np.array(range(362))) ]
+    selections = [ ('sick_front', np.array(range(181))),
+                   ('sick_rear', np.array(range(181, 362))),
+                   ('sick_both', np.array(range(362))) ]
     
     # four different statistics
     def stat(var):
