@@ -5,7 +5,9 @@ from ..tools import cov2corr
 import itertools
 from cbc.tools.math_utils import create_s_from_theta
 from cbc.test_cases.base import CalibTestCase
+from nose.tools import nottest
 
+@nottest
 @contracts(data=dict, returns='dict(str: test_case)')
 def get_real_test_cases(data):
     # two types

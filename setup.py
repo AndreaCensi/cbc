@@ -12,7 +12,8 @@ setup(name='CBC',
            'cbc_main  = cbc.calib_main:main',
            ]
         },
-        install_requires=['reprep', 'numpy', 'PyContracts', 'snp_geometry'],
+        install_requires=['reprep', 'numpy', 'PyContracts', 'snp_geometry',
+                          'nose'],
         extras_require={},
 #    include_package_data=True,
 #    package_data={
