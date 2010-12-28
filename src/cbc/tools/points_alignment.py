@@ -1,6 +1,7 @@
 import numpy as np
 from contracts import contracts, check, new_contract
 from snp_geometry.random_geometry import geodesic_distance_on_S2
+from snp_geometry.utils import assert_allclose
 
 @new_contract
 @contracts(X='array[KxN],K>0,N>0')
@@ -9,7 +10,7 @@ def directions(X):
     K = X.shape[1]
     for i in range(K):
         v = X[:, i]
-        np.testing.assert_allclose(1, np.linalg.norm(v))
+        assert_allclose(1, np.linalg.norm(v))
 
 @contracts(X='array[KxN],K>=2', Y='array[KxN]', returns='array[KxK],orthogonal')
 def find_best_orthogonal_transform(X, Y):
