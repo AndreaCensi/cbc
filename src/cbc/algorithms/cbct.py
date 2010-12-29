@@ -20,7 +20,6 @@ class CBCt(CalibAlgorithm):
         R_percentile = R_order * 100.0 / R_order.size
         
         M = (R_order * 2.0 / (R.size - 1)) - 1
-#        M = ((R_order + 1) * 2.0 / R.size) - 1.0
         np.testing.assert_almost_equal(M.max(), +1)
         np.testing.assert_almost_equal(M.min(), -1)
 
@@ -33,8 +32,8 @@ class CBCt(CalibAlgorithm):
             
             careful_C = new_estimated_C.copy()
             dont_trust = R_percentile < (100 - trust_R_top_perc)
-            if iteration > 0:
-                careful_C[dont_trust] = guess_for_C[dont_trust]
+#            if iteration > 0:
+            careful_C[dont_trust] = guess_for_C[dont_trust]
 #                careful_C[dont_trust] = -1 # good for fov 360
 #                careful_C[dont_trust] = 0
                 

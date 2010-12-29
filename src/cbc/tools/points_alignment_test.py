@@ -7,7 +7,7 @@ from .points_alignment import (find_best_orthogonal_transform,
                                overlap_error_after_orthogonal_transform)
 from snp_geometry.utils import assert_allclose
 
-N = 100
+N = 10
     
 class UtilsTests(unittest.TestCase):
         

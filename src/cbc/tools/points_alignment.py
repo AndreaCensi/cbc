@@ -40,8 +40,6 @@ def average_geodesic_error(X, Y):
     for i in range(N):
         x, y = X[:, i], Y[:, i]
         total_error += geodesic_distance_on_S2(x, y) 
-    return total_error / N
-
-    
+    return total_error / N 
     
     

@@ -2,7 +2,7 @@ import os
 import itertools
 import cPickle as pickle
 from collections import namedtuple
-from optparse import OptionParser
+from optparse import OptionParser, OptionGroup
 from compmake import comp, compmake_console, batch_command
 
 from contracts import check
@@ -11,32 +11,56 @@ from .algorithms import get_list_of_algorithms
 from .test_cases import (get_syntethic_test_cases, get_real_test_cases)
 from .reports import (create_report_test_case, create_report_comb_stats,
                       create_report_iterations)
-from .tools import expand_string
-from cbc.tools.natsort import natsorted
+from .tools import expand_string 
+
 from compmake import use_filesystem
+import numpy
 
 
 join = os.path.join
 
 def main():
-    
     parser = OptionParser()
 
-    parser.add_option("--data", help='.pickle file containing data.')
+    group = OptionGroup(parser, "Files and directories")
 
-    parser.add_option("--set", default='*',
-                      help='Which combinations to run.')
+    group.add_option("--outdir",
+                      help='Directory with variables.pickle and where '
+                           'the output will be placed.')
 
-    parser.add_option("--outdir", help='Directory with variables.pickle and where '
-                                    'the output will be placed.')
+    group.add_option("--data", help='.pickle file containing data.')
+    
+    parser.add_option_group(group)
 
-    parser.add_option("--report", default=False, action='store_true',
+    group = OptionGroup(parser, "Experiments options")
+    
+    group.add_option("--set", default='*',
+                      help='[= %default] Which combinations to run.')
+
+    group.add_option("--seed", default=42, type='int',
+                      help='[= %default] Seed for random number generator.')
+    
+    parser.add_option_group(group)
+
+    group = OptionGroup(parser, "Compmake options")
+
+    group.add_option("--remake", default=False, action='store_true',
+                      help='Remakes all (non interactive).')
+
+    group.add_option("--report", default=False, action='store_true',
                       help='Cleans and redoes all reports (non interactive).')
 
-    parser.add_option("--report_stats", default=False, action='store_true',
+    group.add_option("--report_stats", default=False, action='store_true',
                       help='Cleans and redoes the reports for the stats. (non interactive)')
 
+    parser.add_option_group(group)
+
+
+
     (options, args) = parser.parse_args() #@UnusedVariable
+    
+    numpy.random.seed(options.seed)    
+
     assert not args
     assert options.data is not None 
     assert options.outdir is not None 
@@ -61,6 +85,8 @@ def main():
 #    print('Available algos: %s.' % ", ".join(natsorted(algorithms.keys())))
 #    print('Available testcases: %s.' % ", ".join(natsorted(test_cases.keys())))
     
+    print('Random1: %f' % numpy.random.rand())
+    print('Random2: %f' % numpy.random.randn())
     
     test_case_reports = {} 
     def stage_test_case_report(tcid):
@@ -88,9 +114,10 @@ def main():
                             job_id=job_id)
             executions[key] = results
             
+            exc_id = '%s-%s' % (tcid, algid)
             # Create iterations report
-            job_id = 'calib-%s-%s-report' % (tcid, algid)
-            report = comp(create_report_iterations, results, job_id=job_id)
+            job_id = 'calib-%s-report' % exc_id
+            report = comp(create_report_iterations, exc_id, results, job_id=job_id)
             
             job_id += '-write'
             filename = join(options.outdir, 'executions', '%s-%s.html' % (tcid, algid))
@@ -103,11 +130,53 @@ def main():
     Combination = namedtuple('Combination', 'algorithms test_cases')
     combinations['all'] = Combination('*', '*')
     combinations['CBC'] = Combination(['cbc'], '*')
-    combinations['CBC_vs_oneshot'] = Combination(['cbc', 'oneshot'], '*')
+    combinations['CBC_vs_embed2'] = Combination(['cbc', 'embed2'], '*')
     combinations['CBCt'] = Combination('cbct*', '*')
 #    combinations['tmp'] = Combination('cbct*', ['fov180-pow7*', 'fov360-pow7*'])
-    combinations['tmp'] = Combination('cbct2', ['fov180-pow7_sat'])
+    combinations['tmp'] = Combination(['embed2', 'cbc'], ['fov135-identity'])
+    combinations['tmp2'] = Combination(['cheat', #'rand',
+                                        'embed2', 'cbc', 'cbct2'],
+                                       ['fov135-linear01',
+                                        'fov135-pow3_sat',
+                                        'fov360-pow3_sat'])
 
+    combinations['pow3'] = Combination(['cheat', #'rand',
+                                        'embed2', 'cbc', 'cbct2'],
+                                       ['fov135-pow3_sat',
+                                        'fov180-pow3_sat',
+                                        'fov225-pow3_sat',
+                                        'fov360-pow3_sat'])
+    
+    combinations['tmp3'] = Combination(['cbc1pi', 'cbc2pi', 'embed2', 'cheat'],
+                                       ['fov45-pow3_sat',
+                                        'fov90-pow3_sat',
+                                        'fov135-linear01',
+                                        'fov270-linear01',
+                                        'fov135-pow3_sat',
+                                        'fov180-pow3_sat',
+                                        'fov225-pow3_sat',
+                                        'fov270-pow3_sat',
+                                        'fov360-pow3_sat'])
+    
+    combinations['tmp4'] = Combination(['cbc2pia', 'embed2', 'cheat'],
+                        ['fov135-pow3_sat', 'fov225-pow3_sat', 'fov270-pow3_sat']
+                        + ['fov45-pow3_sat', 'fov90-pow3_sat'])
+
+    combinations['tmp5'] = Combination(['cbc1pi', 'cbc2pi', 'cbc1pia', 'cbc2pia',
+                                        'embed2', 'cheat'],
+                                       ['fov45-pow3_sat',
+                                        'fov90-pow3_sat',
+                                        'fov135-linear01',
+                                        'fov270-linear01',
+                                        'fov135-pow3_sat',
+                                        'fov180-pow3_sat',
+                                        'fov225-pow3_sat',
+                                        'fov270-pow3_sat',
+                                        'fov360-pow3_sat'])
+    
+    combinations['cbc2pi1'] = Combination(['cbc2pi1', 'embed2', 'cheat', 'rand'],
+                                           '*')
+    
     combinations['real'] = Combination(['rand', 'cheat', 'cbc', 'cbc_t50'],
                                             'sick_*')
     
@@ -141,20 +210,22 @@ def main():
         comp(write_report, report, filename, job_id=job_id)
 
 
-    batch_mode = options.report or options.report_stats
-    if batch_mode:
+    if options.report or options.report_stats:
         if options.report:
-            batch_command('clean *-report-*')
+            batch_command('clean *-report*')
         elif options.report_stats:
-            batch_command('clean set-*-report-*')
+            batch_command('clean set-*-report*')
         batch_command('parmake')
+    elif options.remake:
+        batch_command('clean *')
+        batch_command('make')
     else:
         compmake_console()
 
 
 
 def write_report(report, filename):
-    print('Writing to %r.' % filename)
+    print('Writing report %r to %r.' % (report.id, filename))
     rd = join(os.path.dirname(filename), 'images')
     report.to_html(filename, resources_dir=rd)
 

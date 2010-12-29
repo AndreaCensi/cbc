@@ -8,7 +8,7 @@ from . import plot_coords
 
 @nottest
 def create_report_test_case(tcid, tc):
-    r = Report(tcid)
+    r = Report('test_case-%s' % tcid)
     r.add_child(tc_problem_plots(tc)) 
     if tc.has_ground_truth:
         r.add_child(tc_ground_truth_plots(tc))
