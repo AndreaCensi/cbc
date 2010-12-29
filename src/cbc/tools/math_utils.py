@@ -10,6 +10,10 @@ def create_histogram_2d(x, y, resolution):
 def create_s_from_theta(theta):
     return np.vstack((np.cos(theta), np.sin(theta), 0 * theta))
 
+def get_angles_from_S(S):
+    if S.shape[0] > 2:
+        assert (S[2, :] == 0).all()  
+    return np.arctan2(S[1, :], S[0, :])
 
 @contracts(S='array[KxN],K<N', returns='array[NxN]')
 def get_cosine_matrix_from_s(S):
@@ -19,6 +23,15 @@ def get_cosine_matrix_from_s(S):
 @contracts(C='array[NxN](>=-1,<=1)', returns='array[NxN]')
 def get_distance_matrix_from_cosine(C):
     return np.real(np.arccos(C))
+
+
+directions_to_angles = get_angles_from_S
+angles_to_directions = create_s_from_theta
+directions_to_cosines = get_cosine_matrix_from_s
+cosines_to_distances = get_distance_matrix_from_cosine
+
+def distances_to_cosines(x):
+    return np.cos(x)
 
 
 @contracts(R='array[NxN]', ndim='int,K', returns='array[KxN],directions')
@@ -97,3 +110,47 @@ def cov2corr(covariance, zero_diagonal=False):
             correlation[i, i] = 0
     
     return correlation
+
+
+
+@contracts(S='directions', returns='float,>0,<=6.29')
+def compute_diameter(S):
+    # Find "center" of distribution:
+    x = S[0, :].mean()
+    y = S[1, :].mean()
+    center = np.arctan2(y, x)
+    
+    angles = directions_to_angles(S)
+    differences = normalize_pi(angles - center)
+    diameter = differences.max() - differences.min()
+    return diameter
+    
+    
+def normalize_pi(x):
+    return np.arctan2(np.sin(x), np.cos(x))
+         
+@contracts(x='array[N]', ref='array[N]', mod='int', returns='array[N]')
+def find_closest_multiple(x, ref, mod):
+    ''' Find the closest multiple of x (wrt mod) to the element in ref. '''
+    def neg_mod(c, mod):
+        c = c % mod
+        if c > mod / 2:
+            c -= mod
+        return c
+    
+    res = np.empty_like(x)
+    for i in range(x.size):
+        xi = x.flat[i]
+        refi = ref.flat[i]
+        res.flat[i] = refi + neg_mod(xi - refi, mod)   
+    return res
+    
+
+@contracts(x='array,shape(x)', y='array,shape(x)', returns='float,<=1,>=-1')
+def correlation_coefficient(x, y):
+    ''' Returns the correlation between two sequences. '''
+    correlation_matrix = np.corrcoef(x.flat, y.flat)
+    assert correlation_matrix.shape == (2, 2)
+    return correlation_matrix[0, 1]
+
+
