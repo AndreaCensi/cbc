@@ -27,7 +27,7 @@ class CalibAlgorithm(object):
         
         last_iteration = self.iterations[-1]
         results = {}
-        copy_fields = ['rel_error' , 'rel_error_deg', 'spearman',
+        copy_fields = ['rel_error' , 'rel_error_deg', 'spearman', 'spearman_robust',
                        'error', 'error_deg', 'S', 'S_aligned', 'diameter',
                        'diameter_deg', 'angles_corr']
         for f in copy_fields:
@@ -84,6 +84,8 @@ class CalibAlgorithm(object):
             C = get_cosine_matrix_from_s(S)
             C_order = scale_score(C)
             data['spearman'] = correlation_coefficient(C_order, self.R_order)
+#            data['spearman_robust'] = np.abs(C_order - self.R_order).mean() 
+            data['spearman_robust'] = np.abs((C_order - self.R_order) * C_order).mean() 
             
             data['diameter'] = compute_diameter(S)
             data['diameter_deg'] = np.degrees(data['diameter'])
@@ -110,6 +112,7 @@ class CalibAlgorithm(object):
             status = ('It: %d' % len(self.iterations) + 
                       varstat('diameter_deg', '%d') + 
                       varstat('spearman', '%.8f') + 
+                      varstat('spearman_robust', '%.8f') + 
                       varstat('error_deg', '%.3f') + 
                       varstat('rel_error_deg', '%.3f') + 
                       varstat('angles_corr', '%.8f'))

@@ -111,15 +111,24 @@ def cov2corr(covariance, zero_diagonal=False):
     
     return correlation
 
-
+@contracts(S='directions', returns='direction')
+def mean_directions(S):
+    # Find "center" of distribution:
+#    x = S[0, :].mean()
+#    y = S[1, :].mean()
+#    center = np.arctan2(y, x)
+    x = S.mean(axis=1)
+    xn = np.linalg.norm(x)
+    if xn == 0:
+        return np.array([1, 0, 0])
+    else:
+        return x / xn
 
 @contracts(S='directions', returns='float,>0,<=6.29')
 def compute_diameter(S):
-    # Find "center" of distribution:
     x = S[0, :].mean()
     y = S[1, :].mean()
     center = np.arctan2(y, x)
-    
     angles = directions_to_angles(S)
     differences = normalize_pi(angles - center)
     diameter = differences.max() - differences.min()

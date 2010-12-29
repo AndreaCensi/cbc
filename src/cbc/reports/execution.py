@@ -2,16 +2,14 @@ import numpy as np
 
 from reprep import Report 
 
-from ..algorithms import CBCt, CBCt2 , CBC
-from ..tools import get_cosine_matrix_from_s
-from snp_geometry.utils import assert_allclose
-from cbc.tools.math_utils import create_s_from_theta, get_angles_from_S, \
-    scale_score, find_closest_multiple
+from ..algorithms import CBCt, CBCt2 , CBC, CBCa
+from ..tools import get_cosine_matrix_from_s, get_angles_from_S, \
+    scale_score, find_closest_multiple 
 
 def create_report_iterations(exc_id, results):
     r = Report(exc_id)
     algo_class = results['algo_class'] 
-    if algo_class in [ CBCt, CBCt2, CBC]:
+    if algo_class in [ CBCt, CBCt2, CBC]: #, CBCa]:
         r.add_child(create_report_CBCt_iterations(results))
 
     r.add_child(create_report_final_solution(results))
