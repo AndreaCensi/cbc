@@ -7,14 +7,28 @@ from ..tools import natsorted
 def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     r = Report('set-%s' % comb_id)
     
-    # create new log(1-spear) variable
+    has_ground_truth = 'cheat' in alg_ids
     
+    if has_ground_truth:
+        for tc_id in tc_ids:
+            max_spearman = deps[(tc_id, 'cheat')]['spearman']
+            for alg_id in alg_ids:
+                res = deps[(tc_id, alg_id)]
+                res['spearman_score'] = res['spearman'] / max_spearman
     
     def tablevar(var, format='%.2f'):
         def getter(tc_id, alg_id):
             res = deps[(tc_id, alg_id)]
             return format % res[var]
         return getter
+
+    if has_ground_truth:
+        r.table('spearman_score', caption='Spearman correlation (normalized)',
+            **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.6f')))
+    
+    r.table('angles_corr', caption='Angle correlation',
+            **generic_table(tc_ids, alg_ids, tablevar('angles_corr', '%.4f')))
+
 
     r.table('abs_error_deg', caption='Final average absolute error (deg)',
             **generic_table(tc_ids, alg_ids, tablevar('error_deg')))
@@ -30,6 +44,7 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
 
     r.table('diameter', caption='Diameter of solution',
             **generic_table(tc_ids, alg_ids, tablevar('diameter_deg', '%.1f')))
+
 
     for tc_id in tc_ids:
         rtc = r.node(tc_id)

@@ -21,9 +21,12 @@ def get_list_of_algorithms():
             ('cbc', (CBC, {'ndim': 2, 'pie': 2, 'num_iterations': its})),
             ('cbc1pi', (CBC, {'pie':1, 'ndim': 2, 'num_iterations': its})),
             ('cbc2pi', (CBC, {'pie':2, 'ndim': 2, 'num_iterations': its})),
+            ('cbc1pia', (CBCa, {'pie':1, 'ndim': 2, 'num_iterations': 5,
+                                'num_extra_iterations': 15})),
             ('cbc2pia', (CBCa, {'pie':2, 'ndim': 2, 'num_iterations': 5,
                                 'num_extra_iterations': 15})),
             ('embed2', (OneShotEmbedding, {'ndim': 2})),
+            ('cbc2pi1', (CBC, {'pie':2, 'ndim': 2, 'num_iterations': 1})),
         ])
     
     

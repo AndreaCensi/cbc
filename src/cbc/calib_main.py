@@ -159,8 +159,24 @@ def main():
                                         'fov360-pow3_sat'])
     
     combinations['tmp4'] = Combination(['cbc2pia', 'embed2', 'cheat'],
-                        ['fov135-pow3_sat', 'fov225-pow3_sat', 'fov270-pow3_sat'])
+                        ['fov135-pow3_sat', 'fov225-pow3_sat', 'fov270-pow3_sat']
+                        + ['fov45-pow3_sat', 'fov90-pow3_sat'])
 
+    combinations['tmp5'] = Combination(['cbc1pi', 'cbc2pi', 'cbc1pia', 'cbc2pia',
+                                        'embed2', 'cheat'],
+                                       ['fov45-pow3_sat',
+                                        'fov90-pow3_sat',
+                                        'fov135-linear01',
+                                        'fov270-linear01',
+                                        'fov135-pow3_sat',
+                                        'fov180-pow3_sat',
+                                        'fov225-pow3_sat',
+                                        'fov270-pow3_sat',
+                                        'fov360-pow3_sat'])
+    
+    combinations['cbc2pi1'] = Combination(['cbc2pi1', 'embed2', 'cheat', 'rand'],
+                                           '*')
+    
     combinations['real'] = Combination(['rand', 'cheat', 'cbc', 'cbc_t50'],
                                             'sick_*')
     
