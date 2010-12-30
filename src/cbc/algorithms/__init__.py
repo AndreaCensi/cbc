@@ -18,6 +18,8 @@ def get_list_of_algorithms():
             ('cbc_t50', (CBCt, {'ndim': 2, 'num_iterations': its, 'trust_R_top_perc': 50})),
             ('cbc_t20', (CBCt, {'ndim': 2, 'num_iterations': its, 'trust_R_top_perc': 20})),
             ('cbc_t10', (CBCt, {'ndim': 2, 'num_iterations': its, 'trust_R_top_perc': 10})),
+            
+            ('CBCb', (CBCchoose, {'ndim': 2, 'num_iterations': 5})),
             ('cbc', (CBC, {'ndim': 2, 'pie': 2, 'num_iterations': its})),
             ('cbc1pi', (CBC, {'pie':1, 'ndim': 2, 'num_iterations': its})),
             ('cbc2pi', (CBC, {'pie':2, 'ndim': 2, 'num_iterations': its})),

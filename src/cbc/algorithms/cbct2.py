@@ -1,7 +1,6 @@
 import numpy as np
 
-from ..tools  import (scale_score, best_embedding_on_sphere,
-                      get_cosine_matrix_from_s)    
+from ..tools  import (scale_score, best_embedding_on_sphere, cosines_from_directions)    
 from . import CalibAlgorithm
 
 
@@ -23,7 +22,7 @@ class CBCt2(CalibAlgorithm):
         
         time = [100, 10, 20, 30, 40, 0, 0, 0, 0, 0, 0, 0]# 50, 60, 70, 80, 90, 100, 100, 100]
         for iteration in range(len(time)):
-            guess_for_C = get_cosine_matrix_from_s(current_guess_for_S)
+            guess_for_C = cosines_from_directions(current_guess_for_S)
             guess_for_C_sorted = np.sort(guess_for_C.flat)
             new_estimated_C = guess_for_C_sorted[R_order]
             

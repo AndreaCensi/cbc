@@ -1,7 +1,7 @@
 from contracts import contracts
 from contracts.main import new_contract
-from cbc.tools.math_utils import get_distance_matrix_from_cosine, \
-    get_cosine_matrix_from_s
+from ..tools.math_utils import cosines_from_directions, distances_from_cosines
+
 
 # TODO: decorator
 class CalibTestCase(object):
@@ -16,8 +16,8 @@ class CalibTestCase(object):
     def set_ground_truth(self, S, kernel):
         self.has_ground_truth = True
         self.true_S = S
-        self.true_C = get_cosine_matrix_from_s(self.true_S)
-        self.true_D = get_distance_matrix_from_cosine(self.true_C)
+        self.true_C = cosines_from_directions(self.true_S)
+        self.true_D = distances_from_cosines(self.true_C)
         self.true_kernel = kernel
 
 new_contract('test_case', CalibTestCase)

@@ -4,11 +4,10 @@ from contracts import check_multiple, check
 
 from ..tools import (find_best_orthogonal_transform,
                     overlap_error_after_orthogonal_transform,
-                    get_cosine_matrix_from_s,
-                    get_distance_matrix_from_cosine,
                     compute_relative_error, scale_score, compute_diameter,
-                    correlation_coefficient, directions_to_angles,
-                    find_closest_multiple)
+                    correlation_coefficient,
+                                        find_closest_multiple, angles_from_directions,
+                    distances_from_cosines, cosines_from_directions)
 
 class CalibAlgorithm(object):
     
@@ -33,16 +32,16 @@ class CalibAlgorithm(object):
         for f in copy_fields:
             results[f] = last_iteration[f]
         
-        results['R'] = R    
+        results['R'] = R
+        results['R_order'] = scale_score(R)        
         results['n'] = R.shape[0]
         results['params'] = self.params
         results['true_S'] = true_S
         
 
         if true_S is not None:
-            results['true_C'] = get_cosine_matrix_from_s(true_S)
-            results['true_dist'] = \
-                get_distance_matrix_from_cosine(results['true_C'])
+            results['true_C'] = cosines_from_directions(true_S)
+            results['true_dist'] = distances_from_cosines(results['true_C'])
             
         results['iterations'] = self.iterations
             
@@ -81,17 +80,21 @@ class CalibAlgorithm(object):
 
 
             # Observable error
-            C = get_cosine_matrix_from_s(S)
+            C = cosines_from_directions(S)
             C_order = scale_score(C)
             data['spearman'] = correlation_coefficient(C_order, self.R_order)
-#            data['spearman_robust'] = np.abs(C_order - self.R_order).mean() 
-            data['spearman_robust'] = np.abs((C_order - self.R_order) * C_order).mean() 
+            
+            valid = self.R_order > self.R.size * 0.6
+            data['spearman_robust'] = correlation_coefficient(C_order[valid],
+                                                              self.R_order[valid])
+#            data['spearman_robust'] = np.abs(C_order - self.R_order).mean()
+#            data['spearman_robust'] = np.abs((C_order - self.R_order) * C_order).mean() 
             
             data['diameter'] = compute_diameter(S)
             data['diameter_deg'] = np.degrees(data['diameter'])
             
-            true_angles_deg = np.degrees(directions_to_angles(self.true_S))
-            angles_deg = np.degrees(directions_to_angles(S))
+            true_angles_deg = np.degrees(angles_from_directions(self.true_S))
+            angles_deg = np.degrees(angles_from_directions(data['S_aligned']))
             angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)
             data['angles_corr'] = correlation_coefficient(true_angles_deg, angles_deg)
             

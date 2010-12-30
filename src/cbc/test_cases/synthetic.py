@@ -3,7 +3,7 @@ from contracts import contracts, decorate
 import numpy as np
 import itertools
 from nose.tools import nottest
-from cbc.tools.math_utils import create_s_from_theta, get_cosine_matrix_from_s
+from cbc.tools.math_utils import directions_from_angles, cosines_from_directions
 from cbc.test_cases.base import CalibTestCase
 
 
@@ -18,11 +18,11 @@ def k(f):
 # Kernels are functions from cosine -> correlation ([-1,1]->[-1,1])
 # The should be able to operate on arrays and return arrays
 def saturate(f, x): return f(np.maximum(0, x))
-
-@k
-def identity(x): return x
-@k
-def identity_sat(x): return saturate(identity, x)
+#
+#@k
+#def identity(x): return x
+#@k
+#def identity_sat(x): return saturate(identity, x)
 
 @k
 def linear01(x): return (x + 1) / 2
@@ -88,9 +88,9 @@ def generate_circular_test_case(tcid, fov, num, kernel,
     # wiggles the angles a little bit
     angles += np.random.randn(num) * np.radians(wiggle_std_deg)
         
-    S = create_s_from_theta(angles)
+    S = directions_from_angles(angles)
     
-    C = get_cosine_matrix_from_s(S)
+    C = cosines_from_directions(S)
     # get real distances
     D = np.arccos(C)
     # Multiplicative noise

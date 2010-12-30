@@ -1,5 +1,6 @@
 from contracts import contracts, check_multiple
 import numpy as np
+from contracts.main import new_contract
 
 
 def create_histogram_2d(x, y, resolution):
@@ -7,31 +8,37 @@ def create_histogram_2d(x, y, resolution):
     H, xe, ye = np.histogram2d(x.flatten(), y.flatten(), bins=(edges, edges)) #@UnusedVariable
     return H
 
-def create_s_from_theta(theta):
+new_contract('cosines', 'array[NxN](>=-1,<=+1)')
+new_contract('angles', 'array[N](>=-3.15,<+3.15)')
+new_contract('distances', 'array[NxN](>=0,<=+3.16)')
+
+@contracts(theta='array[N]', returns='array[3xN], directions')
+def directions_from_angles(theta):
     return np.vstack((np.cos(theta), np.sin(theta), 0 * theta))
 
-def get_angles_from_S(S):
-    if S.shape[0] > 2:
+@contracts(S='array[KxN], directions', returns='array[N], angles')
+def angles_from_directions(S):
+    if S.shape[0] > 2: # TODO: make contract
         assert (S[2, :] == 0).all()  
     return np.arctan2(S[1, :], S[0, :])
 
-@contracts(S='array[KxN],K<N', returns='array[NxN]')
-def get_cosine_matrix_from_s(S):
+@contracts(S='array[KxN], directions', returns='array[NxN], cosines')
+def cosines_from_directions(S):
     C = np.dot(S.T, S)
     return np.clip(C, -1, 1, C)
 
-@contracts(C='array[NxN](>=-1,<=1)', returns='array[NxN]')
-def get_distance_matrix_from_cosine(C):
+@contracts(C='array[NxN], cosines', returns='array[NxN], distances')
+def distances_from_cosines(C):
     return np.real(np.arccos(C))
 
+@contracts(D='distances', returns='cosines')
+def cosines_from_distances(D): 
+    return np.cos(D)
 
-directions_to_angles = get_angles_from_S
-angles_to_directions = create_s_from_theta
-directions_to_cosines = get_cosine_matrix_from_s
-cosines_to_distances = get_distance_matrix_from_cosine
-
-def distances_to_cosines(x):
-    return np.cos(x)
+@contracts(S='directions', returns='distances')
+def distances_from_directions(S):
+    C = cosines_from_directions(S)
+    return distances_from_cosines(C)
 
 
 @contracts(R='array[NxN]', ndim='int,K', returns='array[KxN],directions')
@@ -62,11 +69,11 @@ def scale_score(x):
 
 def compute_relative_error(true_S, S, neighbours_deg=20):
     ''' Returns the average error in radians between points. '''
-    true_C = get_cosine_matrix_from_s(true_S)
+    true_C = cosines_from_directions(true_S)
     true_D = np.arccos(true_C)
     valid = true_D < np.radians(neighbours_deg)
 
-    C = get_cosine_matrix_from_s(S)
+    C = cosines_from_directions(S)
     D = np.arccos(C)
     
     nvalid = (1 * valid).sum()
@@ -129,7 +136,7 @@ def compute_diameter(S):
     x = S[0, :].mean()
     y = S[1, :].mean()
     center = np.arctan2(y, x)
-    angles = directions_to_angles(S)
+    angles = angles_from_directions(S)
     differences = normalize_pi(angles - center)
     diameter = differences.max() - differences.min()
     return diameter

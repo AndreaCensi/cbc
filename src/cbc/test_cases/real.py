@@ -1,11 +1,11 @@
 import numpy as np
+from nose.tools import nottest
+import itertools
 
 from contracts import contracts, check
-from ..tools import cov2corr
-import itertools
-from cbc.tools.math_utils import create_s_from_theta
-from cbc.test_cases.base import CalibTestCase
-from nose.tools import nottest
+
+from ..tools import cov2corr, directions_from_angles
+from . import CalibTestCase
 
 @nottest
 @contracts(data=dict, returns='dict(str: test_case)')
@@ -39,7 +39,7 @@ def get_real_test_cases(data):
         R = bigR[select, :][:, select]
         
         angles = ground_truth[select]
-        S = create_s_from_theta(angles)
+        S = directions_from_angles(angles)
         
         tcid = '%s-%s' % (selid, statid)
         tc = CalibTestCase(tcid, R)

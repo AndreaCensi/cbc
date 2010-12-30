@@ -2,10 +2,8 @@ import numpy as np
 
 from contracts import check
 
-from ..tools  import (scale_score, best_embedding_on_sphere,
-                      get_cosine_matrix_from_s)    
+from ..tools  import (scale_score, best_embedding_on_sphere, cosines_from_directions)    
 from . import CalibAlgorithm
-
 
 
 class CBCt(CalibAlgorithm):
@@ -26,7 +24,7 @@ class CBCt(CalibAlgorithm):
         current_guess_for_S = best_embedding_on_sphere(M, ndim)
         
         for iteration in range(num_iterations):
-            guess_for_C = get_cosine_matrix_from_s(current_guess_for_S)
+            guess_for_C = cosines_from_directions(current_guess_for_S)
             guess_for_C_sorted = np.sort(guess_for_C.flat)
             new_estimated_C = guess_for_C_sorted[R_order]
             
