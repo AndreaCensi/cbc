@@ -1,10 +1,11 @@
-from contracts import contracts, decorate
- 
 import numpy as np
 import itertools
 from nose.tools import nottest
-from cbc.tools.math_utils import directions_from_angles, cosines_from_directions
-from cbc.test_cases.base import CalibTestCase
+
+from contracts import contracts, decorate
+ 
+from ..tools import directions_from_angles, cosines_from_directions
+from . import CalibTestCase
 
 
 kernels = []
@@ -18,11 +19,6 @@ def k(f):
 # Kernels are functions from cosine -> correlation ([-1,1]->[-1,1])
 # The should be able to operate on arrays and return arrays
 def saturate(f, x): return f(np.maximum(0, x))
-#
-#@k
-#def identity(x): return x
-#@k
-#def identity_sat(x): return saturate(identity, x)
 
 @k
 def linear01(x): return (x + 1) / 2
