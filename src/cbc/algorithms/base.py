@@ -30,7 +30,8 @@ class CalibAlgorithm(object):
                        'error', 'error_deg', 'S', 'S_aligned', 'diameter',
                        'diameter_deg', 'angles_corr']
         for f in copy_fields:
-            results[f] = last_iteration[f]
+            if f in last_iteration:
+                results[f] = last_iteration[f]
         
         results['R'] = R
         results['R_order'] = scale_score(R)        
@@ -93,12 +94,15 @@ class CalibAlgorithm(object):
             data['diameter'] = compute_diameter(S)
             data['diameter_deg'] = np.degrees(data['diameter'])
             
-            true_angles_deg = np.degrees(angles_from_directions(self.true_S))
-            angles_deg = np.degrees(angles_from_directions(data['S_aligned']))
-            angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)
-            data['angles_corr'] = correlation_coefficient(true_angles_deg, angles_deg)
+            if (S.shape[0] == 2) and self.true_S.shape[0] == 2:
+                true_angles_deg = np.degrees(angles_from_directions(self.true_S))
+                angles_deg = np.degrees(angles_from_directions(data['S_aligned']))
+                angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)
+                data['angles_corr'] = correlation_coefficient(true_angles_deg, angles_deg)
             
             def varstat(x, format='%.3f'):
+                if not x in data:
+                    return ' %s: /' % x
                 label = x
 #                if label.endswith('_deg'):
 #                    label = label[:-len('_deg')]

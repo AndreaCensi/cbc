@@ -56,6 +56,7 @@ class CBCchoose(CalibAlgorithm):
     def _solve(self, R):
         ndim = self.params['ndim']
         num_iterations = self.params['num_iterations']
+        warp = self.params['warp']
         
         # Score of each datum -- must be computed only once
         R_order = scale_score(R).astype('int32')
@@ -77,12 +78,13 @@ class CBCchoose(CalibAlgorithm):
         best_iteration = self.get_best_so_far() 
         self.iteration(best_iteration)
         
-        self.warp(ndim, best_iteration['S'],
+        if warp:
+            self.warp(ndim, best_iteration['S'],
                   min_ratio=0.25, divisions=15, depths=1)
-
-        self.get_best_so_far('spearman_robust')
-        best_iteration = self.get_best_so_far() 
-        self.iteration(best_iteration)
+    
+            self.get_best_so_far('spearman_robust')
+            best_iteration = self.get_best_so_far() 
+            self.iteration(best_iteration)
     
     def get_best_so_far(self, measure='spearman', measure_sign= -1):
         all_spearman = list(x[measure] for x in self.iterations)
@@ -111,6 +113,7 @@ class CBCchoose(CalibAlgorithm):
     def warp(self, ndim, base_S, min_ratio=0.25, divisions=10, depths=2):
         base_D = distances_from_directions(base_S)
         
+        ## XXX: this is not entirely correct
         max_ratio = np.pi * 2 / self.iterations[-1]['diameter']
         print('Detected max D = %f, max ratio = %f' % (base_D.max(), max_ratio))
         

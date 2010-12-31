@@ -25,11 +25,13 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     if has_ground_truth:
         r.table('spearman_score', caption='Spearman correlation (normalized)',
             **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.6f')))
-    
-    r.table('angles_corr', caption='Angle correlation',
+
+    try:    
+        r.table('angles_corr', caption='Angle correlation',
             **generic_table(tc_ids, alg_ids, tablevar('angles_corr', '%.4f')))
-
-
+    except:
+        pass
+    
     r.table('abs_error_deg', caption='Final average absolute error (deg)',
             **generic_table(tc_ids, alg_ids, tablevar('error_deg')))
     
@@ -67,8 +69,13 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
                                caption='Spearman correlation (rob)')
         generic_iteration_plot(rtc, ftc, 'diameter', alg_ids, variable('diameter_deg'),
                                caption='Diameter of solution')
-        generic_iteration_plot(rtc, ftc, 'angles_corr', alg_ids, variable('angles_corr'),
-                               caption='Correlation of angles')
+        
+        try:    
+            generic_iteration_plot(rtc, ftc, 'angles_corr', alg_ids, variable('angles_corr'),
+                                   caption='Correlation of angles')
+        except:
+            pass
+        
     
     return r
     

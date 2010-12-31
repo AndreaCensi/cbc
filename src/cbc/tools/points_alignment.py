@@ -9,7 +9,7 @@ def directions(X):
     K = X.shape[1]
     for i in range(K):
         v = X[:, i]
-        assert_allclose(1, np.linalg.norm(v))
+        assert_allclose(1, np.linalg.norm(v) , rtol=1e-5)
 
 @contracts(X='array[KxN],K>=2', Y='array[KxN]', returns='array[KxK],orthogonal')
 def find_best_orthogonal_transform(X, Y):

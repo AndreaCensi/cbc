@@ -133,14 +133,20 @@ def mean_directions(S):
 
 @contracts(S='directions', returns='float,>0,<=6.29')
 def compute_diameter(S):
-    x = S[0, :].mean()
-    y = S[1, :].mean()
-    center = np.arctan2(y, x)
-    angles = angles_from_directions(S)
-    differences = normalize_pi(angles - center)
-    diameter = differences.max() - differences.min()
-    return diameter
-    
+    D = distances_from_directions(S)
+    # Find median:
+    distances = D.max(axis=0)
+    center = np.argmin(distances)
+    return 2 * distances[center]
+#    
+#    x = S[0, :].mean()
+#    y = S[1, :].mean()
+#    center = np.arctan2(y, x)
+#    angles = angles_from_directions(S)
+#    differences = normalize_pi(angles - center)
+#    diameter = differences.max() - differences.min()
+#    return diameter
+#    
     
 def normalize_pi(x):
     return np.arctan2(np.sin(x), np.cos(x))

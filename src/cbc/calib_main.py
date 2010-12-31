@@ -3,7 +3,9 @@ import itertools
 import cPickle as pickle
 from collections import namedtuple
 from optparse import OptionParser, OptionGroup
-from compmake import comp, compmake_console, batch_command
+from compmake import comp, compmake_console, batch_command, use_filesystem
+
+import numpy
 
 from contracts import check
 
@@ -13,8 +15,7 @@ from .reports import (create_report_test_case, create_report_comb_stats,
                       create_report_iterations)
 from .tools import expand_string 
 
-from compmake import use_filesystem
-import numpy
+from cbc.test_cases.fly import get_fly_testcase
 
 
 join = os.path.join
@@ -55,8 +56,6 @@ def main():
 
     parser.add_option_group(group)
 
-
-
     (options, args) = parser.parse_args() #@UnusedVariable
     
     numpy.random.seed(options.seed)    
@@ -74,6 +73,7 @@ def main():
     test_cases = {}
     test_cases.update(synthetic)
     test_cases.update(real)
+    test_cases.update(get_fly_testcase())
     check('dict(str: test_case)', test_cases)
 
     print('Creating list of algorithms..')
@@ -191,6 +191,9 @@ def main():
     
     combinations['real'] = Combination(['embed2', 'cheat', 'CBCb'],
                                             'sick_*')
+
+    combinations['fly1'] = Combination(['embed3', 'cheat', 'CBCb3'],
+                                            'fly')
     
     which = expand_string(options.set, list(combinations.keys()))
     print('I will use the sets: %s' % which)

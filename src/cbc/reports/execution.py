@@ -32,8 +32,9 @@ def create_report_final_solution(results):
     
     f = r.figure('unobservable_measures',
                  caption='Comparisons with ground truth (unobservable)', cols=4)
-    solutions_comparison_plots(r, f, true_S, S_aligned)
     
+    if S_aligned.shape[0] == 2:
+        solutions_comparison_plots(r, f, true_S, S_aligned)
     
     f2 = r.figure('observable_measures', cols=3, caption='Computable measures')
     C_order = scale_score(cosines_from_directions(S_aligned))
@@ -79,6 +80,7 @@ def create_report_CBCt_iterations(results):
 
     R = results['R']
     true_C = results['true_C']
+    true_S = results['true_S']
     iterations = results['iterations']
     R_order = iterations[0]['R_order']
 
@@ -155,15 +157,16 @@ def create_report_CBCt_iterations(results):
                             it['spearman'])
         
         # if groundtruth
-        with rit.data_pylab('theta_compare') as pylab:
-            true_theta = np.degrees(angles_from_directions(results['true_S']))
-            theta = np.degrees(angles_from_directions(it['S_aligned']))
-            theta = find_closest_multiple(theta, true_theta, 360)
-            pylab.plot(true_theta, theta, '.')
-            pylab.xlabel('true angles (deg)')
-            pylab.ylabel('estimated angles (deg)')
-            pylab.axis('equal')
-        fit.sub(rit.resolve_url('theta_compare'), 'True vs estimated angles.')
+        if true_S.shape[0] == 2:
+            with rit.data_pylab('theta_compare') as pylab:
+                true_theta = np.degrees(angles_from_directions(results['true_S']))
+                theta = np.degrees(angles_from_directions(it['S_aligned']))
+                theta = find_closest_multiple(theta, true_theta, 360)
+                pylab.plot(true_theta, theta, '.')
+                pylab.xlabel('true angles (deg)')
+                pylab.ylabel('estimated angles (deg)')
+                pylab.axis('equal')
+            fit.sub(rit.resolve_url('theta_compare'), 'True vs estimated angles.')
 
         if False: # too fancy 
             with rit.data_pylab('sol_compare') as pylab:
@@ -182,7 +185,10 @@ def create_report_generic_iterations(results):
 
     R = results['R']
     true_S = results['true_S']
-    true_theta_deg = np.degrees(angles_from_directions(true_S))
+    twod = true_S.shape[0] == 2
+    
+    if twod:
+        true_theta_deg = np.degrees(angles_from_directions(true_S))
     true_C = results['true_C']
     iterations = results['iterations']
     R_order = results['R_order']
@@ -206,8 +212,10 @@ def create_report_generic_iterations(results):
     r.data('true_C', true_C).display('posneg', max_value=1).add_to(f, 'ground truth cosine matrix')
     r.data('gt_dist', true_dist).display('scale').add_to(f, 'ground truth distance matrix')
 
+    cols = 3
+    if twod: cols += 1
     
-    fit = r.figure(cols=4)
+    fit = r.figure(cols=cols)
     
     for i, it in enumerate(iterations): 
         S = it['S']
@@ -216,8 +224,9 @@ def create_report_generic_iterations(results):
         rel_error_deg = it['rel_error_deg']
         C = cosines_from_directions(S)
         C_order = scale_score(C)
-        theta_deg = np.degrees(angles_from_directions(S_aligned))
-        theta_deg = find_closest_multiple(theta_deg, true_theta_deg, 360)
+        if S.shape[0] == 2:
+            theta_deg = np.degrees(angles_from_directions(S_aligned))
+            theta_deg = find_closest_multiple(theta_deg, true_theta_deg, 360)
 
         rit = r.node('iteration%d' % i) 
 
@@ -246,14 +255,15 @@ def create_report_generic_iterations(results):
                             it['spearman'])
 
         # if groundtruth
-        with rit.data_pylab('theta_compare') as pylab:
-            pylab.plot(true_theta_deg, true_theta_deg, 'k--')
-            pylab.plot(true_theta_deg, theta_deg, '.')
-            pylab.xlabel('true angles (deg)')
-            pylab.ylabel('estimated angles (deg)')
-            pylab.axis('equal')
-        rit.last().add_to(fit, 'True vs estimated angles.')
-      
+        if twod:
+            with rit.data_pylab('theta_compare') as pylab:
+                pylab.plot(true_theta_deg, true_theta_deg, 'k--')
+                pylab.plot(true_theta_deg, theta_deg, '.')
+                pylab.xlabel('true angles (deg)')
+                pylab.ylabel('estimated angles (deg)')
+                pylab.axis('equal')
+            rit.last().add_to(fit, 'True vs estimated angles.')
+          
     return r
 
 
