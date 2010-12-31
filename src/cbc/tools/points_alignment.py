@@ -1,7 +1,6 @@
 import numpy as np
 from contracts import contracts, check, new_contract
-from snp_geometry.random_geometry import geodesic_distance_on_S2
-from snp_geometry.utils import assert_allclose
+from snp_geometry import geodesic_distance_on_S2, assert_allclose
 
 @new_contract
 @contracts(X='array[KxN],K>0,N>0')

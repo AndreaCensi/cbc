@@ -75,7 +75,7 @@ def main():
         r.last().add_to(f,
             caption='Singular value for warped distances (ndim=%d)' % ndim)
     
-    filename = 'warp_tests.html'
+    filename = 'cbc_demos/warp.html'
     print("Writing to %r." % filename) 
     r.to_html(filename)
 

@@ -11,7 +11,7 @@ from ..tools  import (scale_score, best_embedding_on_sphere,
                       angles_from_directions,
                       cosines_from_distances)
 
-from snp_geometry.utils import assert_allclose 
+from snp_geometry import assert_allclose 
 
 
 

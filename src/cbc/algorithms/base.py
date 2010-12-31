@@ -6,7 +6,7 @@ from ..tools import (find_best_orthogonal_transform,
                     overlap_error_after_orthogonal_transform,
                     compute_relative_error, scale_score, compute_diameter,
                     correlation_coefficient,
-                                        find_closest_multiple, angles_from_directions,
+                    find_closest_multiple, angles_from_directions,
                     distances_from_cosines, cosines_from_directions)
 
 class CalibAlgorithm(object):

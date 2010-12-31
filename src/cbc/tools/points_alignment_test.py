@@ -1,11 +1,11 @@
 import unittest
 import numpy as np
 
-from snp_geometry import random_rotation, random_directions
+from snp_geometry import random_rotation, random_directions, assert_allclose
 
 from .points_alignment import (find_best_orthogonal_transform,
                                overlap_error_after_orthogonal_transform)
-from snp_geometry.utils import assert_allclose
+
 
 N = 10
     
