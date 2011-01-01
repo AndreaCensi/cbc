@@ -83,7 +83,7 @@ def compute_relative_error(true_S, S, neighbours_deg=20):
     average_error = errors_sum / nvalid
     return average_error
     
-@contracts(S='array[KxN],K<N', returns='array[KxN]')
+@contracts(S='array[KxN],K>=2', returns='array[KxN]')
 def project_vectors_onto_sphere(S, atol=1e-7):
     K, N = S.shape
     coords_proj = np.zeros((K, N))
