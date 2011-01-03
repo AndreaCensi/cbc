@@ -224,7 +224,7 @@ def create_report_generic_iterations(results):
         rel_error_deg = it['rel_error_deg']
         C = cosines_from_directions(S)
         C_order = scale_score(C)
-        if S.shape[0] == 2:
+        if twod:
             theta_deg = np.degrees(angles_from_directions(S_aligned))
             theta_deg = find_closest_multiple(theta_deg, true_theta_deg, 360)
 

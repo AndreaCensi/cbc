@@ -16,6 +16,7 @@ from .reports import (create_report_test_case, create_report_comb_stats,
 from .tools import expand_string 
 
 from cbc.test_cases.fly import get_fly_testcase
+from contracts.enabling import disable_all
 
 
 join = os.path.join
@@ -34,6 +35,9 @@ def main():
     parser.add_option_group(group)
 
     group = OptionGroup(parser, "Experiments options")
+
+    group.add_option("--fast", default=False, action='store_true',
+                      help='Disables sanity checks.')
     
     group.add_option("--set", default='*',
                       help='[= %default] Which combinations to run.')
@@ -59,6 +63,9 @@ def main():
     (options, args) = parser.parse_args() #@UnusedVariable
     
     numpy.random.seed(options.seed)    
+    
+    if options.fast:
+        disable_all()
 
     assert not args
     assert options.data is not None 
@@ -73,7 +80,7 @@ def main():
     test_cases = {}
     test_cases.update(synthetic)
     test_cases.update(real)
-    test_cases.update(get_fly_testcase())
+#    test_cases.update(get_fly_testcase())
     check('dict(str: test_case)', test_cases)
 
     print('Creating list of algorithms..')
@@ -191,6 +198,12 @@ def main():
     
     combinations['real'] = Combination(['embed2', 'cheat', 'CBCb'],
                                             'sick_*')
+
+    combinations['dev'] = Combination(['CBCr*', 'embed2', 'cheat', 'CBCb'],
+                                        'sick_front-y')
+
+    combinations['devreal'] = Combination(['CBCr*', 'embed2', 'cheat', 'CBCb'],
+                                          'sick_*')
 
     combinations['fly1'] = Combination(['embed3', 'cheat', 'CBCb3'],
                                             'fly')

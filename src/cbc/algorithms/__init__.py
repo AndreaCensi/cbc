@@ -6,6 +6,7 @@ from .cbct2 import *
 from .cheat import *
 from .oneshot import *
 from .random import *
+from .cbc_robust import *
 
 
 def get_list_of_algorithms():
@@ -18,6 +19,14 @@ def get_list_of_algorithms():
             ('embed3', (OneShotEmbedding, {'ndim': 3})),
             ('CBCb3', (CBCchoose, {'ndim': 3, 'num_iterations': 3, 'warp': False})),
 
+            
+            ('CBCr20', (CBC_robust, {'ndim': 2, 'num_iterations': 10, 'warp': False,
+                                        'trust_top_perc': 20})),
+            ('CBCr50', (CBC_robust, {'ndim': 2, 'num_iterations': 10, 'warp': False,
+                                        'trust_top_perc': 50})),
+            ('CBCr70', (CBC_robust, {'ndim': 2, 'num_iterations': 10, 'warp': False,
+                                        'trust_top_perc': 70})),
+                                        
             ('cbct2', (CBCt2, {'ndim': 2, 'num_iterations': 10})),
             ('cbc_t75', (CBCt, {'ndim': 2, 'num_iterations': its, 'trust_R_top_perc': 75})),
             ('cbc_t50', (CBCt, {'ndim': 2, 'num_iterations': its, 'trust_R_top_perc': 50})),

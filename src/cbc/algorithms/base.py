@@ -94,7 +94,7 @@ class CalibAlgorithm(object):
             data['diameter'] = compute_diameter(S)
             data['diameter_deg'] = np.degrees(data['diameter'])
             
-            if (S.shape[0] == 2) and self.true_S.shape[0] == 2:
+            if K == 2:
                 true_angles_deg = np.degrees(angles_from_directions(self.true_S))
                 angles_deg = np.degrees(angles_from_directions(data['S_aligned']))
                 angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)

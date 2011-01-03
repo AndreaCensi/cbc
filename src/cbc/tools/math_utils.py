@@ -1,6 +1,7 @@
 from contracts import contracts, check_multiple
 import numpy as np
 from contracts.main import new_contract
+import scipy.linalg
 
 
 def create_histogram_2d(x, y, resolution):
@@ -12,9 +13,9 @@ new_contract('cosines', 'array[NxN](>=-1,<=+1)')
 new_contract('angles', 'array[N](>=-3.15,<+3.15)')
 new_contract('distances', 'array[NxN](>=0,<=+3.16)')
 
-@contracts(theta='array[N]', returns='array[3xN], directions')
+@contracts(theta='array[N]', returns='array[2xN], directions')
 def directions_from_angles(theta):
-    return np.vstack((np.cos(theta), np.sin(theta), 0 * theta))
+    return np.vstack((np.cos(theta), np.sin(theta)))
 
 @contracts(S='array[KxN], directions', returns='array[N], angles')
 def angles_from_directions(S):
@@ -47,9 +48,9 @@ def best_embedding_on_sphere(R, ndim):
     proj = project_vectors_onto_sphere(coords)
     return proj
 
-@contracts(R='array[NxN]', ndim='int,K', returns='array[KxN]')
-def best_embedding(R, ndim):
-    U, S, V = np.linalg.svd(R, full_matrices=0)
+@contracts(C='array[NxN]', ndim='int,K', returns='array[KxN]')
+def best_embedding_slow(C, ndim):
+    U, S, V = np.linalg.svd(C, full_matrices=0)
     check_multiple([ ('array[NxN]', U),
                      ('array[N]', S),
                      ('array[NxN]', V) ])
@@ -57,6 +58,25 @@ def best_embedding(R, ndim):
     for i in range(ndim):
         coords[i, :] = coords[i, :]  * np.sqrt(S[i])
     return coords
+
+@contracts(C='array[NxN]', ndim='int,K', returns='array[KxN]')
+def best_embedding_fast(C, ndim):
+#    S, V = scipy.linalg.eigh(C)
+    n = C.shape[0]
+    eigvals = (n - ndim, n - 1)
+    S, V = scipy.linalg.eigh(C, eigvals=eigvals)
+    
+    check_multiple([ ('K', ndim),
+                     ('array[NxK]', V),
+                     ('array[K]', S)  ])
+    coords = V.T
+    for i in range(ndim):
+        coords[i, :] = coords[i, :]  * np.sqrt(S[i])
+    return coords
+
+best_embedding = best_embedding_fast
+#best_embedding = best_embedding_slow
+
 
 def scale_score(x):
     y = x.copy()

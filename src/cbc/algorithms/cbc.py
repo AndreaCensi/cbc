@@ -113,9 +113,9 @@ class CBCchoose(CalibAlgorithm):
     def warp(self, ndim, base_S, min_ratio=0.25, divisions=10, depths=2):
         base_D = distances_from_directions(base_S)
         
-        ## XXX: this is not entirely correct
-        max_ratio = np.pi * 2 / self.iterations[-1]['diameter']
-        print('Detected max D = %f, max ratio = %f' % (base_D.max(), max_ratio))
+        diameter = base_D.max()
+        max_ratio = np.pi / diameter
+        print('Detected max D = %f, max ratio = %f' % (diameter, max_ratio))
         
         def guess_for_ratio(ratio):
             Cwarp = cosines_from_distances(base_D * ratio)

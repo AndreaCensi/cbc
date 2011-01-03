@@ -26,11 +26,12 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
         r.table('spearman_score', caption='Spearman correlation (normalized)',
             **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.6f')))
 
-    try:    
+    print deps.values()[0]['iterations'][0].keys()
+    has_angles_corr = 'angles_corr' in  deps.values()[0]['iterations'][0]
+    
+    if has_angles_corr:
         r.table('angles_corr', caption='Angle correlation',
             **generic_table(tc_ids, alg_ids, tablevar('angles_corr', '%.4f')))
-    except:
-        pass
     
     r.table('abs_error_deg', caption='Final average absolute error (deg)',
             **generic_table(tc_ids, alg_ids, tablevar('error_deg')))
@@ -41,7 +42,7 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     r.table('spearman', caption='Spearman correlation',
             **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.6f')))
     
-    r.table('spearman_robust', caption='Spearman correlation',
+    r.table('spearman_robust', caption='Spearman correlation (robust)',
             **generic_table(tc_ids, alg_ids, tablevar('spearman_robust', '%.6f')))
 
     r.table('diameter', caption='Diameter of solution',
@@ -70,11 +71,9 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
         generic_iteration_plot(rtc, ftc, 'diameter', alg_ids, variable('diameter_deg'),
                                caption='Diameter of solution')
         
-        try:    
+        if has_angles_corr:
             generic_iteration_plot(rtc, ftc, 'angles_corr', alg_ids, variable('angles_corr'),
                                    caption='Correlation of angles')
-        except:
-            pass
         
     
     return r

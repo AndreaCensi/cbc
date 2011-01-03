@@ -49,6 +49,8 @@ def main():
         with r.data_pylab('svds%d' % ndim) as pylab:    
             for kernel in kernels:
                 Cw = kernel(C)
+                # TODO: 
+                # Cw = cos(kernel(D))
                 s = svds(Cw, num_svds)
                 pylab.semilogy(s, 'x-', label=kernel.__name__)
             pylab.legend(loc='center right')
