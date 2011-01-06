@@ -1,4 +1,4 @@
-from ..tools  import (best_embedding_on_sphere)    
+from ..tools  import best_embedding_on_sphere    
 
 from . import CalibAlgorithm
 

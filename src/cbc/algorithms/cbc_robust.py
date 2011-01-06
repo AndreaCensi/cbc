@@ -1,17 +1,12 @@
-import numpy as np
-from types import FunctionType
+import numpy as np 
 
 from . import CalibAlgorithm
 
 from ..tools  import (scale_score, best_embedding_on_sphere,
                       cosines_from_directions,
-                      directions_from_angles,
-                      normalize_pi,
                       distances_from_directions,
-                      angles_from_directions,
                       cosines_from_distances)
-
-from snp_geometry import assert_allclose 
+ 
 from . import purify_locals
 
 
@@ -40,17 +35,15 @@ class CBC_robust(CalibAlgorithm):
                               ndim=ndim, num_iterations=num_iterations,
                               trust_top_perc=trust_top_perc)
 
-        # Choose the best one
-        self.get_best_so_far('spearman_robust')
-        best_iteration = self.get_best_so_far() 
+        measure = 'spearman_robust'
+        best_iteration = self.get_best_so_far(measure) 
         self.iteration(best_iteration)
         
         if warp:
             self.warp(ndim, best_iteration['S'],
-                  min_ratio=0.25, divisions=15, depths=1)
+                  min_ratio=0.25, divisions=25, depths=1)
     
-            self.get_best_so_far('spearman_robust')
-            best_iteration = self.get_best_so_far() 
+            best_iteration = self.get_best_so_far(measure) 
             self.iteration(best_iteration)
     
     def get_best_so_far(self, measure='spearman', measure_sign= -1):
@@ -71,13 +64,13 @@ class CBC_robust(CalibAlgorithm):
             guess_for_C_sorted = np.sort(guess_for_C.flat)
             new_estimated_C = guess_for_C_sorted[R_order]
 
-            Cscore = scale_score(guess_for_C)             
+#            Cscore = scale_score(guess_for_C)             
 #            not_trusted = Cscore < (100 - trust_top_perc)
             not_trusted = R_percentile < (100 - trust_top_perc)
             new_estimated_C[not_trusted] = guess_for_C[not_trusted]
             
             new_guess_for_S = best_embedding_on_sphere(new_estimated_C, ndim) 
-            data = dict(S=new_guess_for_S, **purify_locals(locals()))
+            data = dict(S=new_guess_for_S)
             self.iteration(data)
             
             current_guess_for_S = new_guess_for_S

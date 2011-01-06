@@ -70,6 +70,34 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
                                caption='Spearman correlation (rob)')
         generic_iteration_plot(rtc, ftc, 'diameter', alg_ids, variable('diameter_deg'),
                                caption='Diameter of solution')
+#        generic_iteration_plot(rtc, ftc, 'deriv_sign', alg_ids, variable('deriv_sign'),
+#                               caption='deriv_sign')
+        generic_iteration_plot(rtc, ftc, 'robust', alg_ids, variable('robust'),
+                               caption='robust')
+
+
+        compared_iteration_plot(rtc, ftc, 'error_vs_spearman',
+                                alg_ids,
+                                variable('spearman'),
+                                variable('error_deg'),
+                               caption='absolute error vs spearman')
+        compared_iteration_plot(rtc, ftc, 'error_vs_spearman_robust',
+                                alg_ids,
+                                variable('spearman_robust'),
+                                variable('error_deg'),
+                                caption='absolute error vs spearman_robust')
+ 
+#        compared_iteration_plot(rtc, ftc, 'error_vs_deriv_sign',
+#                                alg_ids,
+#                                variable('deriv_sign'),
+#                                variable('error_deg'),
+#                                caption='absolute error vs deriv_sign')
+
+        compared_iteration_plot(rtc, ftc, 'error_vs_robust',
+                                alg_ids,
+                                variable('robust'),
+                                variable('error_deg'),
+                                caption='absolute error vs robust')
         
         if has_angles_corr:
             generic_iteration_plot(rtc, ftc, 'angles_corr', alg_ids, variable('angles_corr'),
@@ -108,7 +136,18 @@ def generic_iteration_plot(report, f, nid, alg_ids, get_trace, caption=None):
                 pylab.plot([0, max_trace_length], [trace, trace], '-', label=alg_id)
             else:
                 pylab.plot(trace, 'x-', label=alg_id)
-        pylab.legend()
+#        pylab.legend()
+        
+    f.sub(report.last(), caption=caption)
+    
+
+def compared_iteration_plot(report, f, nid, alg_ids, get_trace1, get_trace2, caption=None):
+    with report.data_pylab(nid) as pylab:
+        for alg_id  in alg_ids:
+            x = get_trace1(alg_id)
+            y = get_trace2(alg_id)
+            pylab.plot(x, y, 'x', label=alg_id)
+#        pylab.legend()
         
     f.sub(report.last(), caption=caption)
     
