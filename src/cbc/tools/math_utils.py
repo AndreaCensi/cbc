@@ -193,6 +193,6 @@ def correlation_coefficient(x, y):
     ''' Returns the correlation between two sequences. '''
     correlation_matrix = np.corrcoef(x.flat, y.flat)
     assert correlation_matrix.shape == (2, 2)
-    return correlation_matrix[0, 1]
+    return np.clip(correlation_matrix[0, 1], -1.0, 1.0)
 
 
