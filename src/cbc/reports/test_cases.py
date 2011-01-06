@@ -5,7 +5,6 @@ from nose.tools import nottest
 from ..tools import scale_score, create_histogram_2d
 from . import plot_coords
 
-
 @nottest
 def create_report_test_case(tcid, tc):
     r = Report('test_case-%s' % tcid)

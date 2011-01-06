@@ -7,9 +7,7 @@ from cbc.tools import cosines_from_directions, \
     overlap_error_after_orthogonal_transform, \
     angles_from_directions, directions_from_angles
 import time
-from contracts.enabling import disable_all
-from cbc.tools.points_alignment import directions
-from snp_geometry.geometry_contracts import orthogonal
+from contracts.enabling import disable_all 
 
 def get_angles_from_S_test():
     theta = np.random.rand(120) * np.pi * 2 - np.pi 
@@ -46,9 +44,7 @@ def test_best_embedding_2d():
         error = overlap_error_after_orthogonal_transform(S, S2)
         assert_allclose(error, 0, atol=1e-6)
                  
-if __name__ == '__main__':
-#    directions.disable()
-#    orthogonal.disable()
+if __name__ == '__main__': 
     disable_all()
     import cProfile
     file = 'prof'

@@ -28,7 +28,7 @@ class CalibAlgorithm(object):
         results = {}
         copy_fields = ['rel_error' , 'rel_error_deg', 'spearman', 'spearman_robust',
                        'error', 'error_deg', 'S', 'S_aligned', 'diameter',
-                       'diameter_deg', 'angles_corr']
+                       'diameter_deg', 'angles_corr', 'deriv_sign']
         for f in copy_fields:
             if f in last_iteration:
                 results[f] = last_iteration[f]
@@ -88,11 +88,19 @@ class CalibAlgorithm(object):
             valid = self.R_order > self.R.size * 0.6
             data['spearman_robust'] = correlation_coefficient(C_order[valid],
                                                               self.R_order[valid])
-#            data['spearman_robust'] = np.abs(C_order - self.R_order).mean()
-#            data['spearman_robust'] = np.abs((C_order - self.R_order) * C_order).mean() 
-            
+            if False:              
+                order = C_order.astype('int')
+                Cdot = np.diff(C.flat[order])
+                Rdot = np.diff(self.R.flat[order])
+                stat = np.sign(Cdot * Rdot).mean() 
+                data['deriv_sign'] = stat
+                         
             data['diameter'] = compute_diameter(S)
             data['diameter_deg'] = np.degrees(data['diameter'])
+            
+            
+#            data['robust'] = data['deriv_sign'] 
+            data['robust'] = data['spearman_robust']
             
             if K == 2:
                 true_angles_deg = np.degrees(angles_from_directions(self.true_S))
@@ -100,29 +108,33 @@ class CalibAlgorithm(object):
                 angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)
                 data['angles_corr'] = correlation_coefficient(true_angles_deg, angles_deg)
             
-            def varstat(x, format='%.3f'):
-                if not x in data:
-                    return ' %s: /' % x
-                label = x
-#                if label.endswith('_deg'):
-#                    label = label[:-len('_deg')]
-                label = x[:5]
+            def varstat(x, format='%.3f', label=None, sign= +1):
+                if label is None: label = x[:5]
+                if not x in data: return ' %s: /' % label
                 current = data[x]
                 s = ' %s: %s' % (label, format % current)
                 
                 if self.iterations:
-                    previous = self.iterations[-1][x]
-                    sign = '+' if current > previous else '-'
-                    s += ' %s' % sign
+                    all_previous = np.array([it[x] for it in self.iterations])
+                    
+                    previous = all_previous[-1]
+                    is_best = sign * current >= max(sign * all_previous)
+                    if is_best:
+                        mark = 'B'
+                    else:
+                        mark = '+' if sign * current > sign * previous else '-'
+                    s += ' %s' % mark
                 return s
             
-            status = ('It: %d' % len(self.iterations) + 
-                      varstat('diameter_deg', '%d') + 
-                      varstat('spearman', '%.8f') + 
-                      varstat('spearman_robust', '%.8f') + 
-                      varstat('error_deg', '%.3f') + 
-                      varstat('rel_error_deg', '%.3f') + 
-                      varstat('angles_corr', '%.8f'))
+            status = ('It: %2d' % len(self.iterations) + 
+                      varstat('diameter_deg', '%3d') + 
+                      varstat('spearman', '%.8f', label='spear') + 
+                      varstat('spearman_robust', '%.8f', label='sp_rob') + 
+                      varstat('error_deg', '%5.3f', sign= -1) + 
+                      varstat('rel_error_deg', '%5.3f', sign= -1) + 
+                      varstat('angles_corr', '%.8f')  
+#                      + varstat('robust', '%.8f')
+                      )
             print status
         else:
             print('Iteration %3d' % len(self.iterations))

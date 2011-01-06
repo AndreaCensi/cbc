@@ -42,8 +42,7 @@ class CBC(CalibAlgorithm):
             guess_for_C_sorted = np.sort(guess_for_C.flat)
             new_estimated_C = guess_for_C_sorted[R_order]
             new_guess_for_S = best_embedding_on_sphere(new_estimated_C, ndim) 
-            
-            data = dict(S=new_guess_for_S, **locals())
+            data = dict(S=new_guess_for_S)
             self.iteration(data)
             
             current_guess_for_S = new_guess_for_S
@@ -74,16 +73,16 @@ class CBCchoose(CalibAlgorithm):
                               ndim=ndim, num_iterations=num_iterations)
 
         # Choose the best one
-        self.get_best_so_far('spearman_robust')
-        best_iteration = self.get_best_so_far() 
+#        measure = 'spearman'
+        measure = 'robust'
+        best_iteration = self.get_best_so_far(measure) 
         self.iteration(best_iteration)
         
         if warp:
             self.warp(ndim, best_iteration['S'],
-                  min_ratio=0.25, divisions=15, depths=1)
+                  min_ratio=0.25, divisions=25, depths=1)
     
-            self.get_best_so_far('spearman_robust')
-            best_iteration = self.get_best_so_far() 
+            best_iteration = self.get_best_so_far(measure) 
             self.iteration(best_iteration)
     
     def get_best_so_far(self, measure='spearman', measure_sign= -1):

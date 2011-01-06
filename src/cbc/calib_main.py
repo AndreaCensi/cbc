@@ -8,6 +8,7 @@ from compmake import comp, compmake_console, batch_command, use_filesystem
 import numpy
 
 from contracts import check
+from contracts.enabling import disable_all
 
 from .algorithms import get_list_of_algorithms
 from .test_cases import (get_syntethic_test_cases, get_real_test_cases)
@@ -15,9 +16,7 @@ from .reports import (create_report_test_case, create_report_comb_stats,
                       create_report_iterations)
 from .tools import expand_string 
 
-from cbc.test_cases.fly import get_fly_testcase
-from contracts.enabling import disable_all
-
+from cbc.test_cases.fly import get_fly_testcase 
 
 join = os.path.join
 
@@ -42,7 +41,7 @@ def main():
     group.add_option("--set", default='*',
                       help='[= %default] Which combinations to run.')
 
-    group.add_option("--seed", default=42, type='int',
+    group.add_option("--seed", default=None, type='int',
                       help='[= %default] Seed for random number generator.')
     
     parser.add_option_group(group)
@@ -62,6 +61,7 @@ def main():
 
     (options, args) = parser.parse_args() #@UnusedVariable
     
+    
     numpy.random.seed(options.seed)    
     
     if options.fast:
@@ -71,7 +71,7 @@ def main():
     assert options.data is not None 
     assert options.outdir is not None 
     
-    print('Generating syntethic test cases...')
+    print('Generating synthetic test cases...')
     synthetic = get_syntethic_test_cases()
     
     print('Reading real data...')
@@ -80,7 +80,7 @@ def main():
     test_cases = {}
     test_cases.update(synthetic)
     test_cases.update(real)
-#    test_cases.update(get_fly_testcase())
+    test_cases.update(get_fly_testcase())
     check('dict(str: test_case)', test_cases)
 
     print('Creating list of algorithms..')
@@ -91,9 +91,6 @@ def main():
           (len(test_cases), len(algorithms)))
 #    print('Available algos: %s.' % ", ".join(natsorted(algorithms.keys())))
 #    print('Available testcases: %s.' % ", ".join(natsorted(test_cases.keys())))
-    
-    print('Random1: %f' % numpy.random.rand())
-    print('Random2: %f' % numpy.random.randn())
     
     test_case_reports = {} 
     def stage_test_case_report(tcid):
@@ -205,8 +202,54 @@ def main():
     combinations['devreal'] = Combination(['CBCr*', 'embed2', 'cheat', 'CBCb'],
                                           'sick_*')
 
-    combinations['fly1'] = Combination(['embed3', 'cheat', 'CBCb3'],
-                                            'fly')
+    paper_algos2d = ['cheat', 'rand2d', 'embed2', 'CBC2d', 'CBC2dr50']
+    paper_algos2d += [ 'CBC2dw', 'CBC2dr50w']
+    paper_algos3d = ['cheat', 'rand3d', 'embed3', 'CBC3d', 'CBC3dr50']
+    paper_algos2d += [ 'CBC3dw', 'CBC3dr50w']
+
+    addpost = lambda test_cases, suffix: [x + '-' + suffix for x in test_cases]
+    
+    observable2d = ['rand-2D-fov270-pow3_sat',
+                    'rand-2D-fov270-linear01',
+                    'rand-2D-fov360-pow3_sat',
+                    'rand-2D-fov360-linear01']
+    observable3d = ['rand-3D-fov45-pow7_sat',
+                    'rand-3D-fov45-linear01',
+                    'rand-3D-fov90-pow7_sat',
+                    'rand-3D-fov90-linear01',
+                    'rand-3D-fov270-pow3_sat',
+                    'rand-3D-fov270-linear01',
+                    'rand-3D-fov360-pow3_sat',
+                    'rand-3D-fov360-linear01' 
+                    ]
+    
+    unobservable2d = ['rand-2D-fov45-pow7_sat',
+                      'rand-2D-fov45-linear01',
+                      'rand-2D-fov90-pow7_sat',
+                      'rand-2D-fov90-linear01']
+    
+    for t in ['noisy', 'zero']:
+        combinations['paper-obs2d-%s' % t] = Combination(paper_algos2d, addpost(observable2d, t))
+        ob3 = addpost(observable3d, t)
+        if t == 'zero':
+            ob3.append('fly')
+        combinations['paper-obs3d-%s' % t] = Combination(paper_algos3d, ob3)
+        combinations['paper-unobs2d-%s' % t] = Combination(paper_algos2d, addpost(unobservable2d, t))
+    combinations['paper-sick'] = Combination(paper_algos2d
+                                             + ['CBC2dr10w', 'CBC2dr10']
+                                             , 'sick_*')
+                 
+                 
+    combinations['many'] = Combination(paper_algos3d,
+                                       ['rand-3D-fov45-linear01-zero',
+                                        'rand-3D-fov45-linear01-zero-many',
+                                        'rand-3D-fov45-pow7_sat-zero',
+                                        'rand-3D-fov45-pow7_sat-zero-many'])
+
+    combinations['warp'] = Combination(
+                    ['cheat', 'embed3', 'CBC3d', 'CBC3dr50', 'CBC3dw', 'CBC3dr50w' ],
+            ['rand-3D-fov45-linear01-zero',
+                                        'rand-3D-fov45-pow7_sat-zero'])
     
     which = expand_string(options.set, list(combinations.keys()))
     print('I will use the sets: %s' % which)

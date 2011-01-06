@@ -6,6 +6,7 @@ from contracts import contracts, check
 
 from ..tools import cov2corr, directions_from_angles
 from . import CalibTestCase
+from cbc.tools.math_utils import scale_score
 
 @nottest
 @contracts(data=dict, returns='dict(str: test_case)')
@@ -25,7 +26,7 @@ def get_real_test_cases(data):
                    stat('y_dot'),
                    stat('y_dot_sign'),
                    stat('y_dot_abs')]
-    
+        
     check('list(tuple(str, $(array[M], M>0, M<=362) ))', selections)
     check('list(tuple(str, array[362x362]))', statistics)
     
@@ -46,5 +47,22 @@ def get_real_test_cases(data):
         tc.set_ground_truth(S, kernel=None)
         
         tcs[tcid] = tc
+
+    for sel in selections:        
+        selid, select = sel
         
+        # Put all of these together
+        vars = ['y', 'y_dot_sign', 'y_dot_abs', 'y_dot']
+        raws = [cov2corr(data['%s_cov' % var]) for var in vars]
+        scores = [scale_score(x[select, :][:, select]) for x in raws]
+        RR = scores[0] + scores[1] + scores[2]        
+        
+        S = directions_from_angles(ground_truth[select])
+        
+        tc = CalibTestCase(tcid, RR)
+        tc.set_ground_truth(S, kernel=None)
+        
+        tcid = '%s-%s' % (selid, 'mix')
+        tcs[tcid] = tc
+
     return tcs

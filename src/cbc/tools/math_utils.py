@@ -1,7 +1,8 @@
-from contracts import contracts, check_multiple
+from contracts import contracts, check_multiple, new_contract
 import numpy as np
-from contracts.main import new_contract
+
 import scipy.linalg
+from snp_geometry.distances import distribution_radius
 
 
 def create_histogram_2d(x, y, resolution):
@@ -153,12 +154,8 @@ def mean_directions(S):
 
 @contracts(S='directions', returns='float,>0,<=6.29')
 def compute_diameter(S):
-    D = distances_from_directions(S)
-    # Find median:
-    distances = D.max(axis=0)
-    center = np.argmin(distances)
-    return 2 * distances[center]
-#    
+    return 2 * distribution_radius(S)
+##    
 #    x = S[0, :].mean()
 #    y = S[1, :].mean()
 #    center = np.arctan2(y, x)
@@ -168,8 +165,6 @@ def compute_diameter(S):
 #    return diameter
 #    
     
-def normalize_pi(x):
-    return np.arctan2(np.sin(x), np.cos(x))
          
 @contracts(x='array[N]', ref='array[N]', mod='int', returns='array[N]')
 def find_closest_multiple(x, ref, mod):

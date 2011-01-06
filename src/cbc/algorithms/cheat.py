@@ -1,5 +1,6 @@
+import numpy as np
+from ..tools import random_rotation
 from . import CalibAlgorithm
-
 
 class Cheater(CalibAlgorithm):
     ''' This is used for debugging. It cheats by
@@ -8,7 +9,9 @@ class Cheater(CalibAlgorithm):
     def _solve(self, R): #@UnusedVariable
         if self.true_S is not None:
             # TODO: add general orthogonal transform
-            guess = -self.true_S 
+            ndim = self.true_S.shape[0] 
+            R = random_rotation(ndim)
+            guess = np.dot(R, self.true_S) 
         else:
             assert False
 

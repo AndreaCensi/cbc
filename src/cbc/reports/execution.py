@@ -2,7 +2,7 @@ import numpy as np
 
 from reprep import Report 
 
-from ..algorithms import CBCt, CBCt2 , CBC, CBCa, CBCchoose
+from ..algorithms import CBCt, CBCt2 , CBC
 from ..tools import (scale_score, find_closest_multiple,
                      distances_from_cosines,
                      cosines_from_directions, angles_from_directions)
@@ -27,6 +27,7 @@ def zero_diagonal(R):
 def create_report_final_solution(results):
     r = Report('final_solution')
     
+    R = results['R']
     true_S = results['true_S']
     S_aligned = results['S_aligned']
     
@@ -38,7 +39,7 @@ def create_report_final_solution(results):
     
     f2 = r.figure('observable_measures', cols=3, caption='Computable measures')
     C_order = scale_score(cosines_from_directions(S_aligned))
-    R_order = scale_score(results['R'])
+    R_order = scale_score(R)
     with r.data_pylab('r_order_vs_est_c_order') as pylab:
         pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
         pylab.xlabel('estimated cosine (order)')
@@ -153,8 +154,8 @@ def create_report_CBCt_iterations(results):
             pylab.plot(new_C_order.flat, R_order.flat, '.', markersize=0.2)
             pylab.xlabel('estimated cosine (order)')
             pylab.ylabel('correlation measure (order)')
-        rit.last().add_to(fit, 'order comparison (spearman: %f)' % 
-                            it['spearman'])
+        rit.last().add_to(fit, 'order comparison (spearman: %f robust: )' % 
+                            (it['spearman'], it['spearman_robust']))
         
         # if groundtruth
         if true_S.shape[0] == 2:
@@ -244,15 +245,26 @@ def create_report_generic_iterations(results):
             pylab.plot(C.flat, R.flat, '.', markersize=0.2)
             pylab.xlabel('estimated cosine')
             pylab.ylabel('correlation measure')
-            pylab.axis((-1, 1, -1, 1))
+#            pylab.axis((-1, 1, -1, 1))
         rit.last().add_to(fit, 'R vs current C') 
+
+#        with rit.data_pylab('r_dot_vs_est_c_dot') as pylab:
+#            order = C_order.astype('int')
+#            Cdot = np.diff(C.flat[order])
+#            Rdot = np.diff(R.flat[order])
+#            ratio = np.log(Rdot) - np.log(Cdot)
+#            pylab.plot(Cdot, ratio, '.', markersize=0.2)
+#            pylab.xlabel('estimated dot cosine')
+#            pylab.ylabel('ratio dot ')
+##            pylab.axis((-1, 1, -1, 1))
+#        rit.last().add_to(fit, 'R dot vs current C dot') 
         
         with rit.data_pylab('r_order_vs_est_c_order') as pylab:
             pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
             pylab.xlabel('estimated cosine (order)')
             pylab.ylabel('correlation measure (order)')
-        rit.last().add_to(fit, 'order comparison (spearman: %f)' % 
-                            it['spearman'])
+        rit.last().add_to(fit, 'order comparison (spearman: %f robust: %f)' % 
+                            (it['spearman'], it['spearman_robust']))
 
         # if groundtruth
         if twod:
