@@ -50,6 +50,7 @@ def get_real_test_cases(data):
 
     for sel in selections:        
         selid, select = sel
+        S = directions_from_angles(ground_truth[select])
         
         # Put all of these together
         vars = ['y', 'y_dot_sign', 'y_dot_abs', 'y_dot']
@@ -57,12 +58,20 @@ def get_real_test_cases(data):
         scores = [scale_score(x[select, :][:, select]) for x in raws]
         RR = scores[0] + scores[1] + scores[2]        
         
-        S = directions_from_angles(ground_truth[select])
+        Rmax = np.max(scores, axis=0)
+        
+        assert Rmax.shape == RR.shape        
         
         tc = CalibTestCase(tcid, RR)
         tc.set_ground_truth(S, kernel=None)
-        
         tcid = '%s-%s' % (selid, 'mix')
         tcs[tcid] = tc
+        
+        tc = CalibTestCase(tcid, Rmax)
+        tc.set_ground_truth(S, kernel=None)
+        tcid = '%s-%s' % (selid, 'max')
+        tcs[tcid] = tc
+        
+        
 
     return tcs

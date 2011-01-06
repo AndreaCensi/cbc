@@ -205,7 +205,7 @@ def main():
     paper_algos2d = ['cheat', 'rand2d', 'embed2', 'CBC2d', 'CBC2dr50']
     paper_algos2d += [ 'CBC2dw', 'CBC2dr50w']
     paper_algos3d = ['cheat', 'rand3d', 'embed3', 'CBC3d', 'CBC3dr50']
-    paper_algos2d += [ 'CBC3dw', 'CBC3dr50w']
+    paper_algos3d += [ 'CBC3dw', 'CBC3dr50w']
 
     addpost = lambda test_cases, suffix: [x + '-' + suffix for x in test_cases]
     
