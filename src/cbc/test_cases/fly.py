@@ -1,30 +1,26 @@
 import cPickle as pickle
-import os
 import numpy as np
 from contracts import check
 
-from . import CalibTestCase
 from ..tools import cov2corr
+from .real import test_case
 
-def get_fly_testcase():
+def get_fly_testcase(filename):
     print('Loading fly data...')
-    filename = os.path.join(os.path.dirname(__file__), 'fly.pickle')
+
     with open(filename) as f: 
         data = pickle.load(f)
     print('...done.')
-    R = cov2corr(data['P'])
     
-    tc = CalibTestCase('fly', R)
+    R = cov2corr(data['P'])
     
     S = data['S'].astype('float64')
     check('array[3xN],N>1000', S)
     check('directions', S)
     
-    # re-normalize directions
+    # re-normalize directions (numerical errors)
     for i in range(S.shape[0]):
         S[:, i] /= np.linalg.norm(S[:, i])
-        
-    
-    tc.set_ground_truth(S, kernel=None)
 
-    return {'fly': tc}
+    return {'fly': (test_case, dict(tcid='fly', S=S, kernel=None, R=R)) }
+    

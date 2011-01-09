@@ -14,8 +14,6 @@ from ..tools  import (scale_score, best_embedding_on_sphere,
 from snp_geometry import assert_allclose 
 
 
-
-
 class CBC(CalibAlgorithm):
     def _solve(self, R):
         ndim = self.params['ndim']
@@ -68,21 +66,24 @@ class CBCchoose(CalibAlgorithm):
         np.testing.assert_almost_equal(Mpi1.min(), 0)
          
         self.solve_from_start(R_order, Mpi1,
-                              ndim=ndim, num_iterations=num_iterations)
+                              ndim=ndim, num_iterations=num_iterations,
+                              phase='pi1')
         self.solve_from_start(R_order, Mpi2,
-                              ndim=ndim, num_iterations=num_iterations)
+                              ndim=ndim, num_iterations=num_iterations,
+                              phase='pi2')
 
-        # Choose the best one
-#        measure = 'spearman'
+        # Choose the best one 
         measure = 'robust'
         best_iteration = self.get_best_so_far(measure) 
         self.iteration(best_iteration)
+        phase = best_iteration['phase']
         
         if warp:
             self.warp(ndim, best_iteration['S'],
-                  min_ratio=0.25, divisions=25, depths=1)
+                  min_ratio=0.25, divisions=25, depths=1, phase=phase)
     
-            best_iteration = self.get_best_so_far(measure) 
+            best_iteration = self.get_best_so_far(measure)
+             
             self.iteration(best_iteration)
     
     def get_best_so_far(self, measure='spearman', measure_sign= -1):
@@ -93,23 +94,21 @@ class CBCchoose(CalibAlgorithm):
               (best_scores[0], measure, measure_sign))
         return best_iteration
 
-    def solve_from_start(self, R_order, M0, ndim, num_iterations):
+    def solve_from_start(self, R_order, M0, ndim, num_iterations, phase):
         current_guess_for_S = best_embedding_on_sphere(M0, ndim)
 
-        for iteration in range(num_iterations):
+        for iteration in range(num_iterations): #@UnusedVariable
             guess_for_C = cosines_from_directions(current_guess_for_S)
             guess_for_C_sorted = np.sort(guess_for_C.flat)
             new_estimated_C = guess_for_C_sorted[R_order]
             new_guess_for_S = best_embedding_on_sphere(new_estimated_C, ndim) 
             
-            data = dict(S=new_guess_for_S, **locals())
+            data = dict(S=new_guess_for_S, phase=phase)
             self.iteration(data)
             
-            current_guess_for_S = new_guess_for_S
-#            if self.seems_to_have_converged():
-#                break
+            current_guess_for_S = new_guess_for_S 
 
-    def warp(self, ndim, base_S, min_ratio=0.25, divisions=10, depths=2):
+    def warp(self, ndim, base_S, min_ratio=0.25, divisions=10, depths=2, phase=None):
         base_D = distances_from_directions(base_S)
         
         diameter = base_D.max()
@@ -127,7 +126,7 @@ class CBCchoose(CalibAlgorithm):
             scores = []
             for i, ratio in enumerate(ratios):
                 new_guess_for_S = guess_for_ratio(ratio)
-                data = dict(S=new_guess_for_S, **purify_locals(locals()))
+                data = dict(S=new_guess_for_S, phase=phase)
                 self.iteration(data)
                 score = self.iterations[-1]['spearman']
                 scores.append(score)
@@ -175,7 +174,7 @@ class CBCa(CalibAlgorithm):
             new_estimated_C = guess_for_C_sorted[R_order]
             new_guess_for_S = best_embedding_on_sphere(new_estimated_C, ndim) 
             
-            data = dict(S=new_guess_for_S, **locals())
+            data = dict(S=new_guess_for_S)
             self.iteration(data)
             
             current_guess_for_S = new_guess_for_S

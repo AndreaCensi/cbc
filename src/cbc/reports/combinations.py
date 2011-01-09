@@ -19,14 +19,16 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     def tablevar(var, format='%.2f'):
         def getter(tc_id, alg_id):
             res = deps[(tc_id, alg_id)]
-            return format % res[var]
+            if var in res:
+                return format % res[var]
+            else:
+                return '/'
         return getter
 
     if has_ground_truth:
         r.table('spearman_score', caption='Spearman correlation (normalized)',
-            **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.6f')))
+            **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.4f')))
 
-    print deps.values()[0]['iterations'][0].keys()
     has_angles_corr = 'angles_corr' in  deps.values()[0]['iterations'][0]
     
     if has_angles_corr:
@@ -40,14 +42,18 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
             **generic_table(tc_ids, alg_ids, tablevar('rel_error_deg')))
 
     r.table('spearman', caption='Spearman correlation',
-            **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.6f')))
+            **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.4f')))
     
     r.table('spearman_robust', caption='Spearman correlation (robust)',
-            **generic_table(tc_ids, alg_ids, tablevar('spearman_robust', '%.6f')))
+            **generic_table(tc_ids, alg_ids, tablevar('spearman_robust', '%.4f')))
 
     r.table('diameter', caption='Diameter of solution',
             **generic_table(tc_ids, alg_ids, tablevar('diameter_deg', '%.1f')))
 
+    r.table('phase', caption='Convergence phase',
+            **generic_table(tc_ids, alg_ids, tablevar('phase', '%s'), mark_lower=False))
+
+    plot_alg_ids = [x for x in alg_ids if x not in ['rand2d', 'rand3d']]
 
     for tc_id in tc_ids:
         rtc = r.node(tc_id)
@@ -59,30 +65,30 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
             return get_trace
             
         ftc = rtc.figure(cols=5, caption='Error per iteration')
-        generic_iteration_plot(rtc, ftc, 'error_deg', alg_ids, variable('error_deg'),
+        generic_iteration_plot(rtc, ftc, 'error_deg', plot_alg_ids, variable('error_deg'),
                                caption='Absolute error')
-        generic_iteration_plot(rtc, ftc, 'rel_error_deg', alg_ids, variable('rel_error_deg'),
+        generic_iteration_plot(rtc, ftc, 'rel_error_deg', plot_alg_ids, variable('rel_error_deg'),
                                caption='Relative error')
-        generic_iteration_plot(rtc, ftc, 'spearman', alg_ids, variable('spearman'),
+        generic_iteration_plot(rtc, ftc, 'spearman', plot_alg_ids, variable('spearman'),
                                caption='Spearman correlation')
-        generic_iteration_plot(rtc, ftc, 'spearman_robust', alg_ids,
+        generic_iteration_plot(rtc, ftc, 'spearman_robust', plot_alg_ids,
                                variable('spearman_robust'),
                                caption='Spearman correlation (rob)')
-        generic_iteration_plot(rtc, ftc, 'diameter', alg_ids, variable('diameter_deg'),
+        generic_iteration_plot(rtc, ftc, 'diameter', plot_alg_ids, variable('diameter_deg'),
                                caption='Diameter of solution')
-#        generic_iteration_plot(rtc, ftc, 'deriv_sign', alg_ids, variable('deriv_sign'),
+#        generic_iteration_plot(rtc, ftc, 'deriv_sign', plot_alg_ids, variable('deriv_sign'),
 #                               caption='deriv_sign')
-        generic_iteration_plot(rtc, ftc, 'robust', alg_ids, variable('robust'),
+        generic_iteration_plot(rtc, ftc, 'robust', plot_alg_ids, variable('robust'),
                                caption='robust')
 
 
         compared_iteration_plot(rtc, ftc, 'error_vs_spearman',
-                                alg_ids,
+                                plot_alg_ids,
                                 variable('spearman'),
                                 variable('error_deg'),
                                caption='absolute error vs spearman')
         compared_iteration_plot(rtc, ftc, 'error_vs_spearman_robust',
-                                alg_ids,
+                                plot_alg_ids,
                                 variable('spearman_robust'),
                                 variable('error_deg'),
                                 caption='absolute error vs spearman_robust')
@@ -94,19 +100,20 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
 #                                caption='absolute error vs deriv_sign')
 
         compared_iteration_plot(rtc, ftc, 'error_vs_robust',
-                                alg_ids,
+                                plot_alg_ids,
                                 variable('robust'),
                                 variable('error_deg'),
                                 caption='absolute error vs robust')
         
         if has_angles_corr:
-            generic_iteration_plot(rtc, ftc, 'angles_corr', alg_ids, variable('angles_corr'),
+            generic_iteration_plot(rtc, ftc, 'angles_corr', plot_alg_ids,
+                                   variable('angles_corr'),
                                    caption='Correlation of angles')
         
     
     return r
     
-def generic_table(tc_ids, alg_ids, get_element, sorted=True):
+def generic_table(tc_ids, alg_ids, get_element, sorted=True, mark_lower=True):
     if sorted:
         tc_ids = natsorted(tc_ids)
         alg_ids = natsorted(alg_ids)
@@ -114,8 +121,31 @@ def generic_table(tc_ids, alg_ids, get_element, sorted=True):
     rows = tc_ids
     cols = alg_ids
     
-    make_row = lambda tc_id: [ get_element(tc_id, alg_id) for alg_id in alg_ids ]
-    data = [  make_row(tc_id) for tc_id in tc_ids] 
+    def make_row(tc_id):
+        entries = [ get_element(tc_id, alg_id) for alg_id in alg_ids ]
+        if mark_lower:
+            # re-convert two numbers
+            # do not consider these for the stats:
+            avoid = ['rand2d', 'rand3d', 'cheat']
+            values = [float(x) for (algo, x) in zip(alg_ids, entries)]
+            selected = [float(x) for (algo, x) in zip(alg_ids, entries)
+                        if algo not in avoid]
+            values_max = max(selected)
+            values_min = min(selected)
+            for i in range(len(entries)):
+                if alg_ids[i] in avoid: continue 
+                if values[i] == values_max:
+                    mark = '(H)'
+                elif values[i] == values_min:
+                    mark = '(L)'
+                else:
+                    mark = None
+                if mark:
+                    entries[i] = '%s %s' % (mark, entries[i])
+                    
+        return entries 
+    
+    data = [make_row(tc_id) for tc_id in tc_ids] 
      
     return dict(data=data, rows=rows, cols=cols)        
 
@@ -150,10 +180,4 @@ def compared_iteration_plot(report, f, nid, alg_ids, get_trace1, get_trace2, cap
 #        pylab.legend()
         
     f.sub(report.last(), caption=caption)
-    
-    
-    
-
-#new_contract('header', 'None|str')
-#new_contract('table_desc', '''tuple(list[R](list[C]),list[R](header),list[C](header))''')
-
+     

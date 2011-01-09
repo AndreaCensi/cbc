@@ -2,7 +2,7 @@ import numpy as np
 
 from reprep import Report 
 
-from ..algorithms import CBCt, CBCt2 , CBC
+#from ..algorithms import CBC
 from ..tools import (scale_score, find_closest_multiple,
                      distances_from_cosines,
                      cosines_from_directions, angles_from_directions)
@@ -11,11 +11,11 @@ def create_report_iterations(exc_id, results):
     r = Report(exc_id)
     r.add_child(create_report_final_solution(results))
 
-    algo_class = results['algo_class'] 
-    if algo_class in [ CBCt, CBCt2, CBC]: #, CBCa]:
-        r.add_child(create_report_CBCt_iterations(results))
-    else:
-        r.add_child(create_report_generic_iterations(results))
+#    algo_class = results['algo_class'] 
+#    if algo_class in [ CBCt, CBCt2, CBC]: #, CBCa]:
+#        r.add_child(create_report_CBCt_iterations(results))
+#    else:
+    r.add_child(create_report_generic_iterations(results))
 
     return r
 
@@ -76,108 +76,107 @@ def solutions_comparison_plots(r, f, true_S, S_aligned):
     f.sub('theta_compare', 'True vs estimated angles.')
          
         
-def create_report_CBCt_iterations(results):
-    r = Report('CBC_iterations')
-
-    R = results['R']
-    true_C = results['true_C']
-    true_S = results['true_S']
-    iterations = results['iterations']
-    R_order = iterations[0]['R_order']
-
-    true_dist = np.real(np.arccos(true_C))
-
-    f = r.figure(cols=3, caption='Data and ground truth')
-    f.data('R', R).display('posneg', max_value=1).add_to(f, 'Given R')
-    f.data('R0', zero_diagonal(R)).display('posneg', max_value=1).\
-        add_to(f, 'Given R (diagonal set to 0).')
-    
-    r.data('R_order', R_order).display('scale').add_to(f, 'Order for R')
-    
-    with r.data_pylab('r_vs_c') as pylab:
-        pylab.plot(true_C.flat, R.flat, '.', markersize=0.2)
-        pylab.xlabel('real cosine')
-        pylab.ylabel('correlation measure')
-        pylab.axis((-1, 1, -1, 1))
-    r.last().add_to(f, 'Unknown function cosine -> correlation')
-
-    r.data('true_C', true_C).display('posneg', max_value=1).add_to(f, 'ground truth cosine matrix')
-    r.data('gt_dist', true_dist).display('scale').add_to(f, 'ground truth distance matrix')
-
-    
-    has_more = results['algo_class'] in [ CBCt, CBCt2]
-        
-    cols = 7
-    if has_more: cols += 2
-    fit = r.figure(cols=cols)
-    
-    for i, it in enumerate(iterations): 
-        rit = r.node('iteration%d' % i)
-        
-        def display_posneg(what, caption="no desc"):
-            data = it[what]
-            nid = what
-            n = rit.data(nid, data)
-            n.display('posneg', max_value=1)
-            fit.sub(n, caption=caption + ' (``%s``)' % what)
-
-        def display_coords(nid, coords, caption=None):    
-            n = rit.data(nid, coords)
-            with n.data_pylab('plot') as pylab:
-                plot_coords(pylab, coords)
-            fit.sub(n, caption=caption)
-        
-        display_coords('current_guess_for_S', it['current_guess_for_S'],
-                       'Current guess for coordinates.')
-        display_posneg('guess_for_C', 'Cosines corresponding to guess for S.')
-        display_posneg('new_estimated_C', 'Current guess for cosine matrix')
-        
-        if has_more:
-            display_posneg('dont_trust', 'Areas we do not trust.')
-            display_posneg('careful_C', 'The updated version of C.')
-        
-        
-        display_coords('new_guess_for_S', it['new_guess_for_S'],
-                       'New guess for coordinates (errors %.2f / %.2f deg)' % 
-                       (it['error_deg'], it['rel_error_deg']))
-        
-        new_C = cosines_from_directions(it['new_guess_for_S'])
-        with rit.data_pylab('r_vs_est_c') as pylab:
-            pylab.plot(new_C.flat, R.flat, '.', markersize=0.2)
-            pylab.xlabel('estimated cosine')
-            pylab.ylabel('correlation measure')
-            pylab.axis((-1, 1, -1, 1))
-        rit.last().add_to(fit, 'R vs current C') 
-        
-        new_C_order = scale_score(new_C)
-        with rit.data_pylab('r_order_vs_est_c_order') as pylab:
-            pylab.plot(new_C_order.flat, R_order.flat, '.', markersize=0.2)
-            pylab.xlabel('estimated cosine (order)')
-            pylab.ylabel('correlation measure (order)')
-        rit.last().add_to(fit, 'order comparison (spearman: %f robust: )' % 
-                            (it['spearman'], it['spearman_robust']))
-        
-        # if groundtruth
-        if true_S.shape[0] == 2:
-            with rit.data_pylab('theta_compare') as pylab:
-                true_theta = np.degrees(angles_from_directions(results['true_S']))
-                theta = np.degrees(angles_from_directions(it['S_aligned']))
-                theta = find_closest_multiple(theta, true_theta, 360)
-                pylab.plot(true_theta, theta, '.')
-                pylab.xlabel('true angles (deg)')
-                pylab.ylabel('estimated angles (deg)')
-                pylab.axis('equal')
-            fit.sub(rit.resolve_url('theta_compare'), 'True vs estimated angles.')
-
-        if False: # too fancy 
-            with rit.data_pylab('sol_compare') as pylab:
-                for i in range(len(theta)):
-                    pylab.plot([0, 1], [true_theta[i], theta[i]], '-')
-            fit.sub(rit.resolve_url('sol_compare'), 'Estimated (left) and true (right) angles.')
-
-    return r
-
-
+#def create_report_CBCt_iterations(results):
+#    r = Report('CBC_iterations')
+#
+#    R = results['R']
+#    true_C = results['true_C']
+#    true_S = results['true_S']
+#    iterations = results['iterations']
+#    R_order = iterations[0]['R_order']
+#
+#    true_dist = np.real(np.arccos(true_C))
+#
+#    f = r.figure(cols=3, caption='Data and ground truth')
+#    f.data('R', R).display('posneg', max_value=1).add_to(f, 'Given R')
+#    f.data('R0', zero_diagonal(R)).display('posneg', max_value=1).\
+#        add_to(f, 'Given R (diagonal set to 0).')
+#    
+#    r.data('R_order', R_order).display('scale').add_to(f, 'Order for R')
+#    
+#    with r.data_pylab('r_vs_c') as pylab:
+#        pylab.plot(true_C.flat, R.flat, '.', markersize=0.2)
+#        pylab.xlabel('real cosine')
+#        pylab.ylabel('correlation measure')
+#        pylab.axis((-1, 1, -1, 1))
+#    r.last().add_to(f, 'Unknown function cosine -> correlation')
+#
+#    r.data('true_C', true_C).display('posneg', max_value=1).add_to(f, 'ground truth cosine matrix')
+#    r.data('gt_dist', true_dist).display('scale').add_to(f, 'ground truth distance matrix')
+#
+#    
+#    has_more = results['algo_class'] in [ CBCt, CBCt2]
+#        
+#    cols = 7
+#    if has_more: cols += 2
+#    fit = r.figure(cols=cols)
+#    
+#    for i, it in enumerate(iterations): 
+#        rit = r.node('iteration%d' % i)
+#        
+#        def display_posneg(what, caption="no desc"):
+#            data = it[what]
+#            nid = what
+#            n = rit.data(nid, data)
+#            n.display('posneg', max_value=1)
+#            fit.sub(n, caption=caption + ' (``%s``)' % what)
+#
+#        def display_coords(nid, coords, caption=None):    
+#            n = rit.data(nid, coords)
+#            with n.data_pylab('plot') as pylab:
+#                plot_coords(pylab, coords)
+#            fit.sub(n, caption=caption)
+#        
+#        display_coords('current_guess_for_S', it['current_guess_for_S'],
+#                       'Current guess for coordinates.')
+#        display_posneg('guess_for_C', 'Cosines corresponding to guess for S.')
+#        display_posneg('new_estimated_C', 'Current guess for cosine matrix')
+#        
+#        if has_more:
+#            display_posneg('dont_trust', 'Areas we do not trust.')
+#            display_posneg('careful_C', 'The updated version of C.')
+#        
+#        
+#        display_coords('new_guess_for_S', it['new_guess_for_S'],
+#                       'New guess for coordinates (errors %.2f / %.2f deg)' % 
+#                       (it['error_deg'], it['rel_error_deg']))
+#        
+#        new_C = cosines_from_directions(it['new_guess_for_S'])
+#        with rit.data_pylab('r_vs_est_c') as pylab:
+#            pylab.plot(new_C.flat, R.flat, '.', markersize=0.2)
+#            pylab.xlabel('estimated cosine')
+#            pylab.ylabel('correlation measure')
+#            pylab.axis((-1, 1, -1, 1))
+#        rit.last().add_to(fit, 'R vs current C') 
+#        
+#        new_C_order = scale_score(new_C)
+#        with rit.data_pylab('r_order_vs_est_c_order') as pylab:
+#            pylab.plot(new_C_order.flat, R_order.flat, '.', markersize=0.2)
+#            pylab.xlabel('estimated cosine (order)')
+#            pylab.ylabel('correlation measure (order)')
+#        rit.last().add_to(fit, 'order comparison (spearman: %f robust: )' % 
+#                            (it['spearman'], it['spearman_robust']))
+#        
+#        # if groundtruth
+#        if true_S.shape[0] == 2:
+#            with rit.data_pylab('theta_compare') as pylab:
+#                true_theta = np.degrees(angles_from_directions(results['true_S']))
+#                theta = np.degrees(angles_from_directions(it['S_aligned']))
+#                theta = find_closest_multiple(theta, true_theta, 360)
+#                pylab.plot(true_theta, theta, '.')
+#                pylab.xlabel('true angles (deg)')
+#                pylab.ylabel('estimated angles (deg)')
+#                pylab.axis('equal')
+#            fit.sub(rit.resolve_url('theta_compare'), 'True vs estimated angles.')
+#
+#        if False: # too fancy 
+#            with rit.data_pylab('sol_compare') as pylab:
+#                for i in range(len(theta)):
+#                    pylab.plot([0, 1], [true_theta[i], theta[i]], '-')
+#            fit.sub(rit.resolve_url('sol_compare'), 'Estimated (left) and true (right) angles.')
+#
+#    return r
+#
 
         
 def create_report_generic_iterations(results):

@@ -59,10 +59,8 @@ def pow7_sat(x): return saturate(pow7, x)
 
 
 @nottest
-@contracts(returns='dict(str: test_case)')
+@contracts(returns='dict(str: tuple(Callable, dict))')
 def get_syntethic_test_cases():
-    
-    
     # check that we don't have repeated names
     all_names = [f.__name__ for f in kernels]
     assert len(all_names) == len(np.unique(all_names)), \
@@ -73,67 +71,72 @@ def get_syntethic_test_cases():
     num = 180
     tcs = {}
     
-    ticker = Ticker('Generating test cases')
+    ticker = Ticker('Generating synthetic cases')
+    def add_test_case(tcid, function, args):
+        ticker(tcid)
+        tcs[tcid] = (function, args)
+    
     
     for kernel, fov_deg in itertools.product(kernels, fovs_deg):
         tcid = 'fov%d-%s-noisy' % (fov_deg, kernel.__name__)
-        ticker(tcid)
-        tc = generate_circular_test_case(tcid=tcid,
-                                         num=num,
-                                         fov=np.radians(fov_deg),
-                                         kernel=kernel,
-                                         wiggle_std_deg=1,
-                                         dist_noise=0.1,
-                                         abs_cos_noise_std=0.1)
-        tcs[tcid] = tc
+        func = generate_circular_test_case
+        args = dict(tcid=tcid,
+                     num=num,
+                     fov=np.radians(fov_deg),
+                     kernel=kernel,
+                     wiggle_std_deg=1,
+                     dist_noise=0.1,
+                     abs_cos_noise_std=0.1)
+        add_test_case(tcid, func, args)
 
 
         tcid = 'fov%d-%s' % (fov_deg, kernel.__name__)
-        ticker(tcid)
-        tc = generate_circular_test_case(tcid=tcid,
-                                         num=num,
-                                         fov=np.radians(fov_deg),
-                                         kernel=kernel,
-                                         wiggle_std_deg=1,
-                                         dist_noise=0.01,
-                                         abs_cos_noise_std=0.01)
-        tcs[tcid] = tc
+        func = generate_circular_test_case
+        args = dict(tcid=tcid,
+                     num=num,
+                     fov=np.radians(fov_deg),
+                     kernel=kernel,
+                     wiggle_std_deg=1,
+                     dist_noise=0.01,
+                     abs_cos_noise_std=0.01)
+        add_test_case(tcid, func, args)
+
 
     for ndim, kernel, fov_deg in itertools.product([2, 3], kernels, fovs_deg):
         tcid = 'rand-%dD-fov%d-%s-zero' % (ndim, fov_deg, kernel.__name__)
-        ticker(tcid)
-        tc = generate_random_test_case(tcid=tcid,
-                                         num=num,
-                                         ndim=ndim,
-                                         fov=np.radians(fov_deg),
-                                         kernel=kernel,
-                                         dist_noise=0,
-                                         abs_cos_noise_std=0)
-        tcs[tcid] = tc
-        
-        if False:
-            if fov_deg == 45:
-                tcid = 'rand-%dD-fov%d-%s-zero-many' % (ndim, fov_deg, kernel.__name__)
-                ticker(tcid)
-                tc = generate_random_test_case(tcid=tcid,
-                                                 num=10 * num,
-                                                 ndim=ndim,
-                                                 fov=np.radians(fov_deg),
-                                                 kernel=kernel,
-                                                 dist_noise=0,
-                                                 abs_cos_noise_std=0.001)
-                tcs[tcid] = tc
+        func = generate_random_test_case
+        args = dict(tcid=tcid,
+                     num=num,
+                     ndim=ndim,
+                     fov=np.radians(fov_deg),
+                     kernel=kernel,
+                     dist_noise=0,
+                     abs_cos_noise_std=0)
+        add_test_case(tcid, func, args)
 
         tcid = 'rand-%dD-fov%d-%s-noisy' % (ndim, fov_deg, kernel.__name__)
-        ticker(tcid)
-        tc = generate_random_test_case(tcid=tcid,
-                                         num=num,
-                                         ndim=ndim,
-                                         fov=np.radians(fov_deg),
-                                         kernel=kernel,
-                                         dist_noise=0.01,
-                                         abs_cos_noise_std=0.01)
-        tcs[tcid] = tc
+        func = generate_random_test_case
+        args = dict(tcid=tcid,
+                     num=num,
+                     ndim=ndim,
+                     fov=np.radians(fov_deg),
+                     kernel=kernel,
+                     dist_noise=0.01,
+                     abs_cos_noise_std=0.01)
+        add_test_case(tcid, func, args)
+
+        #        if False:
+#            if fov_deg == 45:
+#                tcid = 'rand-%dD-fov%d-%s-zero-many' % (ndim, fov_deg, kernel.__name__)
+#                ticker(tcid)
+#                tc = generate_random_test_case(tcid=tcid,
+#                                                 num=10 * num,
+#                                                 ndim=ndim,
+#                                                 fov=np.radians(fov_deg),
+#                                                 kernel=kernel,
+#                                                 dist_noise=0,
+#                                                 abs_cos_noise_std=0.001)
+#                tcs[tcid] = tc
         
     return tcs
 

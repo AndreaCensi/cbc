@@ -28,7 +28,7 @@ class CalibAlgorithm(object):
         results = {}
         copy_fields = ['rel_error' , 'rel_error_deg', 'spearman', 'spearman_robust',
                        'error', 'error_deg', 'S', 'S_aligned', 'diameter',
-                       'diameter_deg', 'angles_corr', 'deriv_sign']
+                       'diameter_deg', 'angles_corr', 'deriv_sign', 'phase']
         for f in copy_fields:
             if f in last_iteration:
                 results[f] = last_iteration[f]

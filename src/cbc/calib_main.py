@@ -17,6 +17,7 @@ from .reports import (create_report_test_case, create_report_comb_stats,
 from .tools import expand_string 
 
 from cbc.test_cases.fly import get_fly_testcase 
+from cbc.combinations import get_list_of_combinations
 
 join = os.path.join
 
@@ -29,7 +30,10 @@ def main():
                       help='Directory with variables.pickle and where '
                            'the output will be placed.')
 
-    group.add_option("--data", help='.pickle file containing data.')
+    group.add_option("--data_sick", default=None,
+                     help='.pickle file containing Sick data.')
+    group.add_option("--data_fly", default=None,
+                     help='.pickle file containing fly simulation data.')
     
     parser.add_option_group(group)
 
@@ -67,31 +71,55 @@ def main():
     if options.fast:
         disable_all()
 
-    assert not args
-    assert options.data is not None 
+    assert not args 
     assert options.outdir is not None 
+    
+    test_cases = {}
     
     print('Generating synthetic test cases...')
     synthetic = get_syntethic_test_cases()
-    
-    print('Reading real data...')
-    data = pickle.load(open(options.data, 'rb'))
-    real = get_real_test_cases(data)
-    test_cases = {}
     test_cases.update(synthetic)
-    test_cases.update(real)
-    test_cases.update(get_fly_testcase())
-    check('dict(str: test_case)', test_cases)
+    
+    if options.data_sick is not None:
+        print('Preparing Sick data...')
+        real = get_real_test_cases(options.data_sick)
+        test_cases.update(real)
+    
+    if options.data_fly is not None:
+        print('Preparing fly data...')
+        test_cases.update(get_fly_testcase(options.data_fly))
+        
+    check('dict(str: tuple(Callable, dict))', test_cases)
+
 
     print('Creating list of algorithms..')
     algorithms = get_list_of_algorithms()    
     check('dict(str: tuple(Callable, dict))', algorithms)
     
+    print('Creating list of combinations..')
+    combinations = get_list_of_combinations()
+    
+    
+    which = expand_string(options.set, list(combinations.keys()))
+    print('I will use the sets: %s' % which)
+    if len(which) == 1:    
+        compmake_storage = join(options.outdir, 'compmake', which[0])
+    else:
+        compmake_storage = join(options.outdir, 'compmake', 'common_storage')
+    
+    use_filesystem(compmake_storage)
+
+    # Stage creation of test cases
+    for k in list(test_cases.keys()):
+        command, args = test_cases[k]
+        job_id = 'test_case_data-%s' % k
+        test_cases[k] = comp(command, job_id=job_id, **args)
+
+    
     print('Available %d test cases and %d algorithms' % 
           (len(test_cases), len(algorithms)))
-#    print('Available algos: %s.' % ", ".join(natsorted(algorithms.keys())))
-#    print('Available testcases: %s.' % ", ".join(natsorted(test_cases.keys())))
     
+    print('Staging creation of test cases reports')
     test_case_reports = {} 
     def stage_test_case_report(tcid):
         if not tcid in  test_case_reports:
@@ -129,137 +157,7 @@ def main():
             
         return executions[key]
      
-    print('Creating list of combinations..')
-    combinations = {}
-    Combination = namedtuple('Combination', 'algorithms test_cases')
-    combinations['all'] = Combination('*', '*')
-    combinations['CBC'] = Combination(['cbc'], '*')
-    combinations['CBC_vs_embed2'] = Combination(['cbc', 'embed2'], '*')
-    combinations['CBCt'] = Combination('cbct*', '*')
-#    combinations['tmp'] = Combination('cbct*', ['fov180-pow7*', 'fov360-pow7*'])
-    combinations['tmp'] = Combination(['embed2', 'cbc'], ['fov135-identity'])
-    combinations['tmp2'] = Combination(['cheat', #'rand',
-                                        'embed2', 'cbc', 'cbct2'],
-                                       ['fov135-linear01',
-                                        'fov135-pow3_sat',
-                                        'fov360-pow3_sat'])
-
-    combinations['pow3'] = Combination(['cheat', #'rand',
-                                        'embed2', 'cbc', 'cbct2'],
-                                       ['fov135-pow3_sat',
-                                        'fov180-pow3_sat',
-                                        'fov225-pow3_sat',
-                                        'fov360-pow3_sat'])
     
-    combinations['tmp3'] = Combination(['cbc1pi', 'cbc2pi', 'embed2', 'cheat'],
-                                       ['fov45-pow3_sat',
-                                        'fov90-pow3_sat',
-                                        'fov135-linear01',
-                                        'fov270-linear01',
-                                        'fov135-pow3_sat',
-                                        'fov180-pow3_sat',
-                                        'fov225-pow3_sat',
-                                        'fov270-pow3_sat',
-                                        'fov360-pow3_sat'])
-    
-    combinations['tmp4'] = Combination(['cbc2pia', 'embed2', 'cheat'],
-                        ['fov135-pow3_sat', 'fov225-pow3_sat', 'fov270-pow3_sat']
-                        + ['fov45-pow3_sat', 'fov90-pow3_sat'])
-
-    combinations['tmp5'] = Combination(['cbc1pi', 'cbc2pi', 'cbc1pia', 'cbc2pia',
-                                        'embed2', 'cheat'],
-                                       ['fov45-pow3_sat',
-                                        'fov90-pow3_sat',
-                                        'fov135-linear01',
-                                        'fov270-linear01',
-                                        'fov135-pow3_sat',
-                                        'fov180-pow3_sat',
-                                        'fov225-pow3_sat',
-                                        'fov270-pow3_sat',
-                                        'fov360-pow3_sat'])
-  
-  
-    combinations['CBCchoose'] = Combination(['CBCb', 'embed2', 'cheat'],
-                                       ['fov45-pow3_sat',
-                                        'fov45-linear01',
-                                        'fov90-pow3_sat',
-                                        'fov90-linear01',
-                                        'fov180-pow3_sat',
-                                        'fov180-linear01',
-                                        'fov270-pow3_sat',
-                                        'fov270-linear01'])
-
-    combinations['CBCchoosedev'] = Combination(['CBCb'],
-                                       ['fov180-pow3_sat',
-                                        'fov270-pow3_sat'])
-    
-    combinations['real'] = Combination(['embed2', 'cheat', 'CBCb'],
-                                            'sick_*')
-
-    combinations['dev'] = Combination(['CBCr*', 'embed2', 'cheat', 'CBCb'],
-                                        'sick_front-y')
-
-    combinations['devreal'] = Combination(['CBCr*', 'embed2', 'cheat', 'CBCb'],
-                                          'sick_*')
-
-    paper_algos2d = ['cheat', 'rand2d', 'embed2', 'CBC2d', 'CBC2dr50']
-    paper_algos2d += [ 'CBC2dw', 'CBC2dr50w']
-    paper_algos3d = ['cheat', 'rand3d', 'embed3', 'CBC3d', 'CBC3dr50']
-    paper_algos3d += [ 'CBC3dw', 'CBC3dr50w']
-
-    addpost = lambda test_cases, suffix: [x + '-' + suffix for x in test_cases]
-    
-    observable2d = ['rand-2D-fov270-pow3_sat',
-                    'rand-2D-fov270-linear01',
-                    'rand-2D-fov360-pow3_sat',
-                    'rand-2D-fov360-linear01']
-    observable3d = ['rand-3D-fov45-pow7_sat',
-                    'rand-3D-fov45-linear01',
-                    'rand-3D-fov90-pow7_sat',
-                    'rand-3D-fov90-linear01',
-                    'rand-3D-fov270-pow3_sat',
-                    'rand-3D-fov270-linear01',
-                    'rand-3D-fov360-pow3_sat',
-                    'rand-3D-fov360-linear01' 
-                    ]
-    
-    unobservable2d = ['rand-2D-fov45-pow7_sat',
-                      'rand-2D-fov45-linear01',
-                      'rand-2D-fov90-pow7_sat',
-                      'rand-2D-fov90-linear01']
-    
-    for t in ['noisy', 'zero']:
-        combinations['paper-obs2d-%s' % t] = Combination(paper_algos2d, addpost(observable2d, t))
-        ob3 = addpost(observable3d, t)
-        if t == 'zero':
-            ob3.append('fly')
-        combinations['paper-obs3d-%s' % t] = Combination(paper_algos3d, ob3)
-        combinations['paper-unobs2d-%s' % t] = Combination(paper_algos2d, addpost(unobservable2d, t))
-    combinations['paper-sick'] = Combination(paper_algos2d
-                                             + ['CBC2dr10w', 'CBC2dr10']
-                                             , 'sick_*')
-                 
-                 
-    combinations['many'] = Combination(paper_algos3d,
-                                       ['rand-3D-fov45-linear01-zero',
-                                        'rand-3D-fov45-linear01-zero-many',
-                                        'rand-3D-fov45-pow7_sat-zero',
-                                        'rand-3D-fov45-pow7_sat-zero-many'])
-
-    combinations['warp'] = Combination(
-                    ['cheat', 'embed3', 'CBC3d', 'CBC3dr50', 'CBC3dw', 'CBC3dr50w' ],
-            ['rand-3D-fov45-linear01-zero',
-                                        'rand-3D-fov45-pow7_sat-zero'])
-    
-    which = expand_string(options.set, list(combinations.keys()))
-    print('I will use the sets: %s' % which)
-    if len(which) == 1:    
-        compmake_storage = join(options.outdir, 'compmake', which[0])
-    else:
-        compmake_storage = join(options.outdir, 'compmake', 'common_storage')
-    
-    use_filesystem(compmake_storage)
-
     for comb_id in which:
         comb = combinations[comb_id]
         alg_ids = expand_string(comb.algorithms, algorithms.keys())
@@ -289,7 +187,7 @@ def main():
         batch_command('parmake')
     elif options.remake:
         batch_command('clean *')
-        batch_command('make')
+        batch_command('make set*')
     else:
         compmake_console()
 
