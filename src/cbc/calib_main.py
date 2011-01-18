@@ -1,7 +1,5 @@
 import os
 import itertools
-import cPickle as pickle
-from collections import namedtuple
 from optparse import OptionParser, OptionGroup
 from compmake import comp, compmake_console, batch_command, use_filesystem
 
@@ -18,9 +16,14 @@ from .tools import expand_string
 
 from cbc.test_cases.fly import get_fly_testcase 
 from cbc.combinations import get_list_of_combinations
+from cbc.reports.paper_tables import create_tables_for_paper
 
 join = os.path.join
-
+# cbc_main --data_sick cbc_submission_data/sick.pickle \                                            
+#          --data_fly  cbc_submission_data/fly.pickle \
+#          --set 'paper*' --fast \
+#          --outdir cbc_main_output
+             
 def main():
     parser = OptionParser()
 
@@ -169,7 +172,11 @@ def main():
         deps = {}
         for t, a in itertools.product(tc_ids, alg_ids):
             deps[(t, a)] = stage_execution(t, a)
-    
+
+        job_id = 'tex-%s' % comb_id
+        comp(create_tables_for_paper, comb_id, tc_ids, alg_ids, deps,
+             job_id=job_id)
+        
         job_id = 'set-%s-report' % comb_id
         report = comp(create_report_comb_stats,
                       comb_id, tc_ids, alg_ids, deps, job_id=job_id)
@@ -179,15 +186,17 @@ def main():
         comp(write_report, report, filename, job_id=job_id)
 
 
+
+
     if options.report or options.report_stats:
         if options.report:
             batch_command('clean *-report*')
         elif options.report_stats:
-            batch_command('clean set-*-report*')
+            batch_command('clean set-*  tex*')
         batch_command('parmake')
     elif options.remake:
         batch_command('clean *')
-        batch_command('make set*')
+        batch_command('make set-* tex-*')
     else:
         compmake_console()
 

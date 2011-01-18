@@ -10,14 +10,10 @@ setup(name='CBC',
         entry_points={
          'console_scripts': [
            'cbc_main  = cbc.calib_main:main',
+           'camera_plots = cbc.demos.camera_plots:main'
            ]
         },
-        install_requires=['reprep', 'numpy', 'PyContracts', 'snp_geometry',
-                          'nose'],
+        install_requires=['reprep', 'numpy', 'PyContracts', 'snp_geometry', 'nose'],
         extras_require={},
-#    include_package_data=True,
-#    package_data={
-#        'be1008': ['models/*.pg', '*.pg']
-#    }
 )
 

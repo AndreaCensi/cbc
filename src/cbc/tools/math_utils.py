@@ -43,13 +43,13 @@ def distances_from_directions(S):
     return distances_from_cosines(C)
 
 
-@contracts(R='array[NxN]', ndim='int,K', returns='array[KxN],directions')
+@contracts(R='array[NxN]', ndim='int,>0,K', returns='array[KxN],directions')
 def best_embedding_on_sphere(R, ndim):
     coords = best_embedding(R, ndim)
     proj = project_vectors_onto_sphere(coords)
     return proj
 
-@contracts(C='array[NxN]', ndim='int,K', returns='array[KxN]')
+@contracts(C='array[NxN]', ndim='int,>0,K', returns='array[KxN]')
 def best_embedding_slow(C, ndim):
     U, S, V = np.linalg.svd(C, full_matrices=0)
     check_multiple([ ('array[NxN]', U),
@@ -60,9 +60,8 @@ def best_embedding_slow(C, ndim):
         coords[i, :] = coords[i, :]  * np.sqrt(S[i])
     return coords
 
-@contracts(C='array[NxN]', ndim='int,K', returns='array[KxN]')
-def best_embedding_fast(C, ndim):
-#    S, V = scipy.linalg.eigh(C)
+@contracts(C='array[NxN]', ndim='int,>0,K', returns='array[KxN]')
+def best_embedding_fast(C, ndim): 
     n = C.shape[0]
     eigvals = (n - ndim, n - 1)
     S, V = scipy.linalg.eigh(C, eigvals=eigvals)

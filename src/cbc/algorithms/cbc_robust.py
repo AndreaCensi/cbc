@@ -7,7 +7,6 @@ from ..tools  import (scale_score, best_embedding_on_sphere,
                       distances_from_directions,
                       cosines_from_distances)
  
-from . import purify_locals
 
 
 class CBC_robust(CalibAlgorithm):
@@ -59,7 +58,7 @@ class CBC_robust(CalibAlgorithm):
 
         R_percentile = R_order * 100.0 / R_order.size
 
-        for iteration in range(num_iterations):
+        for iteration in range(num_iterations): #@UnusedVariable
             guess_for_C = cosines_from_directions(current_guess_for_S)
             guess_for_C_sorted = np.sort(guess_for_C.flat)
             new_estimated_C = guess_for_C_sorted[R_order]
@@ -92,12 +91,13 @@ class CBC_robust(CalibAlgorithm):
    
         for depth in range(depths):
             ratios = np.exp(np.linspace(np.log(min_ratio), np.log(max_ratio), divisions))
+            ratios = np.array(sorted(ratios.tolist() + [1.0])) # always include 1.0
             print('Depth %d/%d: ratios: %f to %f' % (depth, depths, ratios[0], ratios[-1]))
 
             scores = []
-            for i, ratio in enumerate(ratios):
+            for i, ratio in enumerate(ratios): #@UnusedVariable
                 new_guess_for_S = guess_for_ratio(ratio)
-                data = dict(S=new_guess_for_S, **purify_locals(locals()))
+                data = dict(S=new_guess_for_S)
                 self.iteration(data)
                 score = self.iterations[-1]['spearman']
                 scores.append(score)
@@ -108,10 +108,6 @@ class CBC_robust(CalibAlgorithm):
             lower = min(best_two)
             upper = max(best_two)
             assert (upper >= scores[upper:]).all()
-            assert (lower >= scores[:lower]).all()
-#            lower = max(0, lower - 1)
-#            upper = min(upper + 1, len(scores) - 1)
-#            
-#            print('lower: %d upper: %d' % (lower, upper))
+            assert (lower >= scores[:lower]).all() 
             min_ratio = ratios[lower]
             max_ratio = ratios[upper]

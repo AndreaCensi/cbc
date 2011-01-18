@@ -80,35 +80,46 @@ def get_list_of_combinations():
 
     addpost = lambda test_cases, suffix: [x + '-' + suffix for x in test_cases]
     
-    observable2d = ['rand-2D-fov270-pow3_sat',
-                    'rand-2D-fov270-linear01',
+    observable2d = ['rand-2D-fov315-pow3_sat',
+                    'rand-2D-fov315-pow7_sat',
+                    'rand-2D-fov315-linear01',
                     'rand-2D-fov360-pow3_sat',
+                    'rand-2D-fov360-pow7_sat',
                     'rand-2D-fov360-linear01']
-    observable3d = ['rand-3D-fov45-pow7_sat',
+    
+    observable3d = ['rand-3D-fov45-pow3_sat',
+                    'rand-3D-fov45-pow7_sat',
                     'rand-3D-fov45-linear01',
+                    'rand-3D-fov90-pow3_sat',
                     'rand-3D-fov90-pow7_sat',
                     'rand-3D-fov90-linear01',
                     'rand-3D-fov270-pow3_sat',
+                    'rand-3D-fov270-pow7_sat',
                     'rand-3D-fov270-linear01',
                     'rand-3D-fov360-pow3_sat',
+                    'rand-3D-fov360-pow7_sat',
                     'rand-3D-fov360-linear01' 
                     ]
     
-    unobservable2d = ['rand-2D-fov45-pow7_sat',
+    unobservable2d = ['rand-2D-fov45-pow3_sat',
+                      'rand-2D-fov45-pow7_sat',
                       'rand-2D-fov45-linear01',
+                      'rand-2D-fov90-pow3_sat',
                       'rand-2D-fov90-pow7_sat',
                       'rand-2D-fov90-linear01']
     
     for t in ['noisy', 'zero']:
         combinations['paper-obs2d-%s' % t] = Combination(paper_algos2d, addpost(observable2d, t))
         ob3 = addpost(observable3d, t)
-        if t == 'zero':
+        if t == 'noisy':
             ob3.append('fly')
         combinations['paper-obs3d-%s' % t] = Combination(paper_algos3d, ob3)
         combinations['paper-unobs2d-%s' % t] = Combination(paper_algos2d, addpost(unobservable2d, t))
-    combinations['paper-sick'] = Combination(paper_algos2d
-                                             + ['CBC2dr10w', 'CBC2dr10']
-                                             , 'sick_*')
+    
+    paper_algos2d_sick = ['cheat', 'rand2d', 'embed2', 'CBC2d', 'CBC2dw',
+                'CBC2dr10w', 'CBC2dr10']
+    
+    combinations['paper-sick'] = Combination(paper_algos2d_sick, 'sick_*')
                  
                  
     combinations['many'] = Combination(paper_algos3d,

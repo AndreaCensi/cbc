@@ -1,5 +1,5 @@
-from snp_geometry.random_geometry import \
-    random_direction, geodesic_distance_on_S2, \
+from snp_geometry import \
+    random_direction, geodesic_distance_on_sphere, \
     rotation_from_axis_angle
 from cbc.tools.math_utils import distances_from_directions, \
      cosines_from_distances, directions_from_angles
@@ -9,7 +9,8 @@ from reprep import Report
 
 @contracts(N='int,>0,N',
            radius_deg='number,>0,<=180',
-           returns='array[3xN], directions')
+           ndim='K',
+           returns='array[KxN], directions')
 def get_distribution(ndim, N, radius_deg):
     radius = np.radians(radius_deg)
     
@@ -22,7 +23,7 @@ def get_distribution(ndim, N, radius_deg):
             R = rotation_from_axis_angle(axis, angle)
             v = np.dot(R, center)
             
-            dist = geodesic_distance_on_S2(center, v)
+            dist = geodesic_distance_on_sphere(center, v)
             assert dist <= angle # equal only if perpendicular axis
             assert dist <= radius
             return v
@@ -58,6 +59,7 @@ def main():
     curvature 2*pi. 
     """.format(**locals()) 
     
+    mime = 'application/pdf'; figsize = (4, 3)
     f = r.figure(caption=caption)
 
     for ndim in [2, 3]:
@@ -65,13 +67,13 @@ def main():
         D = distances_from_directions(S)
         assert np.degrees(D.max()) <= 2 * radius_deg
         
-        with r.data_pylab('svds%d' % ndim) as pylab:    
+        with r.data_pylab('svds%d' % ndim, mime=mime, figsize=figsize) as pylab:    
             for warp in warps:
                 Dw = D * warp
                 Cw = cosines_from_distances(Dw)
                 s = svds(Cw, num_svds)
                 pylab.semilogy(s, 'x-', label='%.2f' % warp)
-            pylab.legend()
+#            pylab.legend()
         r.last().add_to(f,
             caption='Singular value for warped distances (ndim=%d)' % ndim)
     

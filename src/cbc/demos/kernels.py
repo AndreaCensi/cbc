@@ -1,17 +1,15 @@
-from cbc.tools.math_utils import distances_from_directions, \
-     cosines_from_distances, cosines_from_directions
+from cbc.tools import distances_from_directions, cosines_from_directions
 import numpy as np
 from reprep import Report
  
 from warp import svds, get_distribution
-from cbc.test_cases.synthetic import linear01, linear01_sat, pow3_sat, pow7_sat
+from cbc.test_cases.synthetic import  linear01_sat, pow3_sat, pow7_sat
 
 def identity(x):
     return x    
     
 def main():
-    N = 100
-    radius_deg = 50
+    N = 100 
     num_svds = 8
     
     radius_deg = 180
@@ -26,8 +24,8 @@ def main():
     """.format(**locals()) 
     
     f = r.figure(caption=caption)
-
-    with r.data_pylab('kernels') as pylab:
+    mime = 'application/pdf'; figsize = (4, 3)
+    with r.data_pylab('kernels', mime=mime, figsize=figsize) as pylab:
         
         for kernel in kernels:
             x = np.linspace(-1, +1, 256) 
@@ -46,7 +44,7 @@ def main():
         D = distances_from_directions(S)
         assert np.degrees(D.max()) <= 2 * radius_deg
         
-        with r.data_pylab('svds%d' % ndim) as pylab:    
+        with r.data_pylab('svds%d' % ndim, mime=mime, figsize=figsize) as pylab:    
             for kernel in kernels:
                 Cw = kernel(C)
                 # TODO: 
