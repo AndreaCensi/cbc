@@ -1,12 +1,11 @@
 import numpy as np
 import itertools
 from warp import svds
-from cbc.tools.math_utils import best_embedding_on_sphere, \
-    cosines_from_directions, distances_from_directions
+from cbc.tools import (best_embedding_on_sphere, \
+    cosines_from_directions, distances_from_directions, assert_allclose)
 from contracts import contracts
 from numpy.core.numeric import allclose
 import sys
-from snp_geometry.geometry_contracts import assert_allclose
 
 def f():
     d = np.pi / 3

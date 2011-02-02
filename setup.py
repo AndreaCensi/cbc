@@ -13,7 +13,7 @@ setup(name='CBC',
            'camera_plots = cbc.demos.camera_plots:main'
            ]
         },
-        install_requires=['reprep', 'numpy', 'PyContracts', 'snp_geometry', 'nose'],
+        install_requires=['reprep', 'numpy', 'PyContracts', 'PyGeometry', 'nose'],
         extras_require={},
 )
 

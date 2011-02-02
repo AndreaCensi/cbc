@@ -1,8 +1,8 @@
-from contracts import contracts, check_multiple, new_contract
+from contracts import contract, check_multiple, new_contract
 import numpy as np
 
 import scipy.linalg
-from snp_geometry.distances import distribution_radius
+from geometry import distribution_radius
 
 
 def create_histogram_2d(x, y, resolution):
@@ -14,42 +14,42 @@ new_contract('cosines', 'array[NxN](>=-1,<=+1)')
 new_contract('angles', 'array[N](>=-3.15,<+3.15)')
 new_contract('distances', 'array[NxN](>=0,<=+3.16)')
 
-@contracts(theta='array[N]', returns='array[2xN], directions')
+@contract(theta='array[N]', returns='array[2xN], directions')
 def directions_from_angles(theta):
     return np.vstack((np.cos(theta), np.sin(theta)))
 
-@contracts(S='array[KxN], directions', returns='array[N], angles')
+@contract(S='array[KxN], directions', returns='array[N], angles')
 def angles_from_directions(S):
     if S.shape[0] > 2: # TODO: make contract
         assert (S[2, :] == 0).all()  
     return np.arctan2(S[1, :], S[0, :])
 
-@contracts(S='array[KxN], directions', returns='array[NxN], cosines')
+@contract(S='array[KxN], directions', returns='array[NxN], cosines')
 def cosines_from_directions(S):
     C = np.dot(S.T, S)
     return np.clip(C, -1, 1, C)
 
-@contracts(C='array[NxN], cosines', returns='array[NxN], distances')
+@contract(C='array[NxN], cosines', returns='array[NxN], distances')
 def distances_from_cosines(C):
     return np.real(np.arccos(C))
 
-@contracts(D='distances', returns='cosines')
+@contract(D='distances', returns='cosines')
 def cosines_from_distances(D): 
     return np.cos(D)
 
-@contracts(S='directions', returns='distances')
+@contract(S='directions', returns='distances')
 def distances_from_directions(S):
     C = cosines_from_directions(S)
     return distances_from_cosines(C)
 
 
-@contracts(R='array[NxN]', ndim='int,>0,K', returns='array[KxN],directions')
+@contract(R='array[NxN]', ndim='int,>0,K', returns='array[KxN],directions')
 def best_embedding_on_sphere(R, ndim):
     coords = best_embedding(R, ndim)
     proj = project_vectors_onto_sphere(coords)
     return proj
 
-@contracts(C='array[NxN]', ndim='int,>0,K', returns='array[KxN]')
+@contract(C='array[NxN]', ndim='int,>0,K', returns='array[KxN]')
 def best_embedding_slow(C, ndim):
     U, S, V = np.linalg.svd(C, full_matrices=0)
     check_multiple([ ('array[NxN]', U),
@@ -60,7 +60,7 @@ def best_embedding_slow(C, ndim):
         coords[i, :] = coords[i, :]  * np.sqrt(S[i])
     return coords
 
-@contracts(C='array[NxN]', ndim='int,>0,K', returns='array[KxN]')
+@contract(C='array[NxN]', ndim='int,>0,K', returns='array[KxN]')
 def best_embedding_fast(C, ndim): 
     n = C.shape[0]
     eigvals = (n - ndim, n - 1)
@@ -103,7 +103,7 @@ def compute_relative_error(true_S, S, neighbours_deg=20):
     average_error = errors_sum / nvalid
     return average_error
     
-@contracts(S='array[KxN],K>=2', returns='array[KxN]')
+@contract(S='array[KxN],K>=2', returns='array[KxN]')
 def project_vectors_onto_sphere(S, atol=1e-7):
     K, N = S.shape
     coords_proj = np.zeros((K, N))
@@ -138,7 +138,7 @@ def cov2corr(covariance, zero_diagonal=False):
     
     return correlation
 
-@contracts(S='directions', returns='direction')
+@contract(S='directions', returns='direction')
 def mean_directions(S):
     # Find "center" of distribution:
 #    x = S[0, :].mean()
@@ -151,7 +151,7 @@ def mean_directions(S):
     else:
         return x / xn
 
-@contracts(S='directions', returns='float,>0,<=6.29')
+@contract(S='directions', returns='float,>0,<=6.29')
 def compute_diameter(S):
     return 2 * distribution_radius(S)
 ##    
@@ -165,7 +165,7 @@ def compute_diameter(S):
 #    
     
          
-@contracts(x='array[N]', ref='array[N]', mod='int', returns='array[N]')
+@contract(x='array[N]', ref='array[N]', mod='int', returns='array[N]')
 def find_closest_multiple(x, ref, mod):
     ''' Find the closest multiple of x (wrt mod) to the element in ref. '''
     def neg_mod(c, mod):
@@ -182,7 +182,7 @@ def find_closest_multiple(x, ref, mod):
     return res
     
 
-@contracts(x='array,shape(x)', y='array,shape(x)', returns='float,<=1,>=-1')
+@contract(x='array,shape(x)', y='array,shape(x)', returns='float,<=1,>=-1')
 def correlation_coefficient(x, y):
     ''' Returns the correlation between two sequences. '''
     correlation_matrix = np.corrcoef(x.flat, y.flat)

@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from snp_geometry import random_rotation, random_directions, assert_allclose
+from geometry import random_rotation, random_directions, assert_allclose
 
 from .points_alignment import (find_best_orthogonal_transform,
                                overlap_error_after_orthogonal_transform)

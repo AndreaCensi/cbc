@@ -1,8 +1,7 @@
-from snp_geometry import \
-    random_direction, geodesic_distance_on_sphere, \
-    rotation_from_axis_angle
-from cbc.tools.math_utils import distances_from_directions, \
-     cosines_from_distances, directions_from_angles
+from cbc.tools import (
+    random_direction, geodesic_distance_on_sphere,
+    rotation_from_axis_angle, distances_from_directions,
+     cosines_from_distances, directions_from_angles)
 import numpy as np
 from contracts import contracts
 from reprep import Report

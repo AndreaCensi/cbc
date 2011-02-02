@@ -1,12 +1,12 @@
+import itertools
 import numpy as np
-
 from cbc.tools import (best_embedding_on_sphere, distribution_radius,
                        scale_score, correlation_coefficient,
     cosines_from_directions, distances_from_directions, cosines_from_distances,
     random_directions_bounded, overlap_error_after_orthogonal_transform)
 from reprep import Report
-import itertools
-from contracts.enabling import disable_all
+
+from contracts import disable_all
  
 def simplified_algo(R, iterations, warp=0):
     S = best_embedding_on_sphere(R, ndim=3)

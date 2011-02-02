@@ -1,13 +1,10 @@
+import time
 import numpy as np
 
-from snp_geometry import assert_allclose, random_directions
+from cbc.tools import (cosines_from_directions, best_embedding_on_sphere,
+    overlap_error_after_orthogonal_transform, angles_from_directions,
+    directions_from_angles, assert_allclose, random_directions)
 
-from cbc.tools import cosines_from_directions, \
-    best_embedding_on_sphere, \
-    overlap_error_after_orthogonal_transform, \
-    angles_from_directions, directions_from_angles
-import time
-from contracts.enabling import disable_all 
 
 def get_angles_from_S_test():
     theta = np.random.rand(120) * np.pi * 2 - np.pi 
@@ -44,8 +41,9 @@ def test_best_embedding_2d():
         error = overlap_error_after_orthogonal_transform(S, S2)
         assert_allclose(error, 0, atol=1e-6)
                  
-if __name__ == '__main__': 
-    disable_all()
+if __name__ == '__main__':
+    import contracts  
+    contracts.disable_all()
     import cProfile
     file = 'prof'
     cProfile.run('best_embedding_test()', file)

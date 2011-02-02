@@ -23,7 +23,8 @@ def tc(dim, fov_deg, func, noise):
     return '\\tc{%s}{%d}{\\%s}{\\%s}' % (dim, fov_deg, func, noise)
 def sicktc(which, quantity):
     which = {0:'front', 1:'rear', 2:'both'}[which]
-    if which == 'front' and quantity != 'yinfsim':
+    #if which == 'front' and quantity != 'yinfsim':
+    if quantity != 'yinfsim':
         return "\\sicktcb{\\%s}{\\%s}" % (which, quantity)
     else:
         return "\\sicktc{\\%s}{\\%s}" % (which, quantity)
@@ -36,24 +37,24 @@ tex_tc = [
  ('sick_front-y_dot_corr', sicktc(0, 'ydotcorr')),
  ('sick_front-y_dot_abs_corr', sicktc(0, 'ydotabscorr')),
  ('sick_front-y_dot_sign_corr', sicktc(0, 'ydotsigncorr')),
-# ('sick_front-max', sicktc(0, 'scoremax')),
+ ('sick_front-max', sicktc(0, 'scoremax'), 0),
  ('sick_front-mix', sicktc(0, 'scoremix')),
  
-# ('sick_rear-y_infsim', sicktc(1, 'yinfsim')),
-# ('sick_rear-y_corr', sicktc(1, 'ycorr')),
-# ('sick_rear-y_dot_corr', sicktc(1, 'ydotcorr')),
-# ('sick_rear-y_dot_abs_corr', sicktc(1, 'ydotabscorr')),
-# ('sick_rear-y_dot_sign_corr', sicktc(1, 'ydotsigncorr')),
-# ('sick_rear-max', sicktc(1, 'scoremax')),
+ ('sick_rear-y_infsim', sicktc(1, 'yinfsim'), 0),
+ ('sick_rear-y_corr', sicktc(1, 'ycorr'), 0),
+ ('sick_rear-y_dot_corr', sicktc(1, 'ydotcorr'), 0),
+ ('sick_rear-y_dot_abs_corr', sicktc(1, 'ydotabscorr'), 0),
+ ('sick_rear-y_dot_sign_corr', sicktc(1, 'ydotsigncorr'), 0),
+ ('sick_rear-max', sicktc(1, 'scoremax'), 0),
  ('sick_rear-mix', sicktc(1, 'scoremix')),
 
-# ('sick_both-y_infsim', sicktc(2, 'yinfsim')),
-# ('sick_both-y_corr', sicktc(2, 'ycorr')),
-# ('sick_both-y_dot_corr', sicktc(2, 'ydotcorr')),
-# ('sick_both-y_dot_abs_corr', sicktc(2, 'ydotabscorr')),
-# ('sick_both-y_dot_sign_corr', sicktc(2, 'ydotsigncorr')),
-# ('sick_both-max', sicktc(2, 'scoremax')),
-# ('sick_both-mix', sicktc(2, 'scoremix')),
+ ('sick_both-y_infsim', sicktc(2, 'yinfsim'), 0),
+ ('sick_both-y_corr', sicktc(2, 'ycorr'), 0),
+ ('sick_both-y_dot_corr', sicktc(2, 'ydotcorr'), 0),
+ ('sick_both-y_dot_abs_corr', sicktc(2, 'ydotabscorr'), 0),
+ ('sick_both-y_dot_sign_corr', sicktc(2, 'ydotsigncorr'), 0),
+ ('sick_both-max', sicktc(2, 'scoremax'), 0),
+ ('sick_both-mix', sicktc(2, 'scoremix'), 0),
  
 ]
 
@@ -62,37 +63,43 @@ for noise in ['zero', 'noisy']:
     ('rand-3D-fov45-pow3_sat-%s' % noise , tc(3, 45, 'powa', noise)) ,
     ('rand-3D-fov45-pow7_sat-%s' % noise , tc(3, 45, 'powb', noise)) ,
     ('rand-3D-fov45-linear01-%s' % noise , tc(3, 45, 'lin', noise)),
-#    ('rand-3D-fov90-pow3_sat-%s' % noise , tc(3, 90, 'powa', noise)),
-#    ('rand-3D-fov90-pow7_sat-%s' % noise , tc(3, 90, 'powb', noise)),
-#    ('rand-3D-fov90-linear01-%s' % noise , tc(3, 90, 'lin', noise)),
-#    ('rand-3D-fov270-pow3_sat-%s' % noise , tc(3, 270, 'powa', noise)),
+    ('rand-3D-fov90-pow3_sat-%s' % noise , tc(3, 90, 'powa', noise), 0),
+    ('rand-3D-fov90-pow7_sat-%s' % noise , tc(3, 90, 'powb', noise), 0),
+    ('rand-3D-fov90-linear01-%s' % noise , tc(3, 90, 'lin', noise), 0),
+    ('rand-3D-fov270-pow3_sat-%s' % noise , tc(3, 270, 'powa', noise), 0),
     ('rand-3D-fov270-pow7_sat-%s' % noise , tc(3, 270, 'powb', noise)),
     ('rand-3D-fov270-linear01-%s' % noise , tc(3, 270, 'lin', noise)),
-#    ('rand-3D-fov360-pow3_sat-%s' % noise , tc(3, 360, 'powa', noise)),
-#    ('rand-3D-fov360-pow7_sat-%s' % noise , tc(3, 360, 'powb', noise)),
-#    ('rand-3D-fov360-linear01-%s' % noise , tc(3, 360, 'lin', noise)),
-#    
-#    ('rand-2D-fov270-pow3_sat-%s' % noise , tc(2, 270, 'powa', noise)),
-#    ('rand-2D-fov270-pow7_sat-%s' % noise , tc(2, 270, 'powb', noise)),
-#    ('rand-2D-fov270-linear01-%s' % noise , tc(2, 270, 'lin', noise)),
+    ('rand-3D-fov360-pow3_sat-%s' % noise , tc(3, 360, 'powa', noise), 0),
+    ('rand-3D-fov360-pow7_sat-%s' % noise , tc(3, 360, 'powb', noise), 0),
+    ('rand-3D-fov360-linear01-%s' % noise , tc(3, 360, 'lin', noise), 0),
+    
+    ('rand-2D-fov270-pow3_sat-%s' % noise , tc(2, 270, 'powa', noise), 0),
+    ('rand-2D-fov270-pow7_sat-%s' % noise , tc(2, 270, 'powb', noise), 0),
+    ('rand-2D-fov270-linear01-%s' % noise , tc(2, 270, 'lin', noise), 0),
     ('rand-2D-fov315-pow3_sat-%s' % noise , tc(2, 315, 'powa', noise)),
     ('rand-2D-fov315-pow7_sat-%s' % noise , tc(2, 315, 'powb', noise)),
     ('rand-2D-fov315-linear01-%s' % noise , tc(2, 315, 'lin', noise)),
-#    ('rand-2D-fov360-pow3_sat-%s' % noise , tc(2, 360, 'powa', noise)),
+    ('rand-2D-fov360-pow3_sat-%s' % noise , tc(2, 360, 'powa', noise), 0),
     ('rand-2D-fov360-pow7_sat-%s' % noise , tc(2, 360, 'powb', noise)),
     ('rand-2D-fov360-linear01-%s' % noise , tc(2, 360, 'lin', noise)),
      
     ('rand-2D-fov45-pow3_sat-%s' % noise , tc(2, 45, 'powa', noise)),
     ('rand-2D-fov45-pow7_sat-%s' % noise , tc(2, 45, 'powb', noise)),
     ('rand-2D-fov45-linear01-%s' % noise , tc(2, 45, 'lin', noise)),
-#    ('rand-2D-fov90-pow3_sat-%s' % noise , tc(2, 90, 'powa', noise)),
+    ('rand-2D-fov90-pow3_sat-%s' % noise , tc(2, 90, 'powa', noise), 0),
     ('rand-2D-fov90-pow7_sat-%s' % noise , tc(2, 90, 'powb', noise)),
     ('rand-2D-fov90-linear01-%s' % noise , tc(2, 90, 'lin', noise))
 ])
 
 tex_tc.append(('fly', '\\flydataset'))
 
+for i in range(len(tex_tc)):
+    tup = tex_tc[i]
+    if len(tup) == 2:
+        tex_tc[i] = (tup[0], tup[1], 1)
 
+tex_tc = [ (a, b) for (a, b, c) in tex_tc if c >= 0]
+table_dir = '~/rss/tables_all'
 
 def create_tables_for_paper(comb_id, tc_ids, alg_ids, deps):
     print('%r' % tc_ids)
@@ -136,7 +143,8 @@ def create_tables_for_paper(comb_id, tc_ids, alg_ids, deps):
      
     
 def write_table(comb_id, table_id, data, rows, cols):
-    directory = os.path.expanduser('~/rss/tables/%s/' % comb_id)
+    
+    directory = os.path.expanduser('%s/%s/' % (table_dir, comb_id))
     if not os.path.exists(directory):
         os.makedirs(directory)
         
