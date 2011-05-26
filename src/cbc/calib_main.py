@@ -14,9 +14,10 @@ from .reports import (create_report_test_case, create_report_comb_stats,
                       create_report_iterations)
 from .tools import expand_string 
 
-from cbc.test_cases.fly import get_fly_testcase 
-from cbc.combinations import get_list_of_combinations
-from cbc.reports.paper_tables import create_tables_for_paper
+from .test_cases.fly import get_fly_testcase 
+from .combinations import get_list_of_combinations
+from .reports.paper_tables import create_tables_for_paper
+from .test_cases.mino import get_mino_testcases
 
 join = os.path.join
 # cbc_main --data_sick cbc_submission_data/sick.pickle \                                            
@@ -35,6 +36,8 @@ def main():
 
     group.add_option("--data_sick", default=None,
                      help='.pickle file containing Sick data.')
+    group.add_option("--data_mino", default=None,
+                     help='directory containing Mino data.')
     group.add_option("--data_fly", default=None,
                      help='.pickle file containing fly simulation data.')
     
@@ -91,6 +94,10 @@ def main():
     if options.data_fly is not None:
         print('Preparing fly data...')
         test_cases.update(get_fly_testcase(options.data_fly))
+    
+    if options.data_mino is not None:
+        print('Preparing Mino data...')
+        test_cases.update(get_mino_testcases(options.data_mino))
         
     check('dict(str: tuple(Callable, dict))', test_cases)
 
@@ -184,9 +191,6 @@ def main():
         job_id += '-write'
         filename = join(options.outdir, 'stats', '%s.html' % comb_id)
         comp(write_report, report, filename, job_id=job_id)
-
-
-
 
     if options.report or options.report_stats:
         if options.report:

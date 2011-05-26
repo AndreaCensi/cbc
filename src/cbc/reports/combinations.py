@@ -16,13 +16,14 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
                 res = deps[(tc_id, alg_id)]
                 res['spearman_score'] = res['spearman'] / max_spearman
     
-    def tablevar(var, format='%.2f'):
+    def tablevar(var, format='%.2f', not_found=np.NaN):
         def getter(tc_id, alg_id):
             res = deps[(tc_id, alg_id)]
             if var in res:
                 return format % res[var]
             else:
-                return '/'
+#                return '/'
+                return not_found
         return getter
 
     if has_ground_truth:
@@ -57,11 +58,16 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
 
     for tc_id in tc_ids:
         rtc = r.node(tc_id)
-        def variable(var):
+        def variable(var, not_found=np.NaN):
             def get_trace(alg_id):
                 res = deps[(tc_id, alg_id)]
                 its = res['iterations']
-                return [it[var] for it in its]
+                def getvar(it, var):
+                    if var in it:
+                        return it[var]
+                    else: 
+                        return not_found
+                return [getvar(it, var) for it in its]
             return get_trace
             
         ftc = rtc.figure(cols=5, caption='Error per iteration')

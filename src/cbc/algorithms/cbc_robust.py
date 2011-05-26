@@ -8,7 +8,6 @@ from ..tools  import (scale_score, best_embedding_on_sphere,
                       cosines_from_distances)
  
 
-
 class CBC_robust(CalibAlgorithm):
     ''' Starts from either a 2pi or 1pi guess, chooses the best. '''
     def _solve(self, R):
