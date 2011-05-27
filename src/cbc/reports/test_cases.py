@@ -31,7 +31,7 @@ def tc_ground_truth_plots(tc, rid='ground_truth'):
     r = Report(rid)
     assert tc.has_ground_truth
     
-    cols = 4
+    cols = 5
     if tc.true_kernel is not None:
         cols += 1
     
@@ -47,8 +47,16 @@ def tc_ground_truth_plots(tc, rid='ground_truth'):
     n = r.data('true_D', tc.true_D).display('scale')  
     f.sub(n, 'Actual distance matrix')
     
+    with r.data_pylab('linearity_func') as pylab:
+        x = tc.true_C.flat
+        y = tc.R.flat
+        pylab.plot(x, y, '.', markersize=0.2)
+        pylab.xlabel('true_C')
+        pylab.ylabel('R')
+    r.last().add_to(f, 'Relation (function)')
+    
     n = plot_one_against_the_other(r, 'true_CvsR', tc.true_C, tc.R)
-    f.sub(n, 'Sample histogram')
+    f.sub(n, 'Relation (Sample histogram)')
     
     true_C_order = scale_score(tc.true_C)
     R_order = scale_score(tc.R)

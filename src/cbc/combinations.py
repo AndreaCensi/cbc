@@ -134,12 +134,14 @@ def get_list_of_combinations():
                                         'rand-3D-fov45-pow7_sat-zero'])
 
     
-    combinations['mino2d'] = Combination(['embed2', 'CBC2dw', 'CBC2dr50w', 'cheat'],
+    combinations['mino2d'] = Combination(['embed2', 'CBC2d', 'CBC2dw', 'CBC2dr50w', 'cheat'],
                                        ['mino1_center-*',
-                                        'mino1_middle-*',
+                                        'mino1_middle-*'])
+    combinations['mino3d'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
+                                       ['mino1_grid24-*',
+                                        'mino1_patch32-*',
+                                        'mino1_patch32s4-*',
                                         'mino1_midcen-*'])
-    combinations['mino3d'] = Combination(['embed3', 'CBC3d', 'CBC3dr50w', 'cheat'],
-                                       ['mino1_grid24-*'])
 
 
     return combinations

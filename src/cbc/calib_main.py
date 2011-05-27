@@ -80,26 +80,26 @@ def main():
     assert not args 
     assert options.outdir is not None 
     
-    test_cases = {}
+    available_test_cases = {}
     
     print('Generating synthetic test cases...')
     synthetic = get_syntethic_test_cases()
-    test_cases.update(synthetic)
+    available_test_cases.update(synthetic)
     
     if options.data_sick is not None:
         print('Preparing Sick data...')
         real = get_real_test_cases(options.data_sick)
-        test_cases.update(real)
+        available_test_cases.update(real)
     
     if options.data_fly is not None:
         print('Preparing fly data...')
-        test_cases.update(get_fly_testcase(options.data_fly))
+        available_test_cases.update(get_fly_testcase(options.data_fly))
     
     if options.data_mino is not None:
         print('Preparing Mino data...')
-        test_cases.update(get_mino_testcases(options.data_mino))
+        available_test_cases.update(get_mino_testcases(options.data_mino))
         
-    check('dict(str: tuple(Callable, dict))', test_cases)
+    check('dict(str: tuple(Callable, dict))', available_test_cases)
 
 
     print('Creating list of algorithms..')
@@ -119,19 +119,25 @@ def main():
     
     use_filesystem(compmake_storage)
 
-    # Stage creation of test cases
-    for k in list(test_cases.keys()):
-        command, args = test_cases[k]
-        job_id = 'test_case_data-%s' % k
-        test_cases[k] = comp(command, job_id=job_id, **args)
+    # Stage creation of all test cases
+    # (removed)
+#    for k in list(test_cases.keys()):
+#        command, args = test_cases[k]
+#        job_id = 'test_case_data-%s' % k
+#        test_cases[k] = comp(command, job_id=job_id, **args)
 
-    
     print('Available %d test cases and %d algorithms' % 
-          (len(test_cases), len(algorithms)))
+          (len(available_test_cases), len(algorithms)))
     
     print('Staging creation of test cases reports')
+    test_cases = {}
     test_case_reports = {} 
     def stage_test_case_report(tcid):
+        if not tcid in test_cases:
+            command, args = available_test_cases[tcid]
+            job_id = 'test_case_data-%s' % tcid
+            test_cases[tcid] = comp(command, job_id=job_id, **args)
+        
         if not tcid in  test_case_reports:
             job_id = 'test_case-%s-report' % tcid
             report = comp(create_report_test_case,
@@ -171,7 +177,7 @@ def main():
     for comb_id in which:
         comb = combinations[comb_id]
         alg_ids = expand_string(comb.algorithms, algorithms.keys())
-        tc_ids = expand_string(comb.test_cases, test_cases.keys())
+        tc_ids = expand_string(comb.test_cases, available_test_cases.keys())
         
         print('Set %r has %d test cases and %d algorithms (~%d jobs in total).' % 
           (comb_id, len(alg_ids), len(tc_ids), len(alg_ids) * len(tc_ids) * 2))
