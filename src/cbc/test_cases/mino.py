@@ -10,8 +10,19 @@ import os
 @contracts(returns='dict(str: tuple(Callable, dict))')
 def get_mino_testcases(directory):
     print('Loading Mino data from disk...')
-    sets = ['mino1_grid24', 'mino1_center', 'mino1_middle', 'mino1_midcen',
-            'mino1_patch32', 'mino1_patch32s4']
+    sets = ['mino1_grid24',
+            'mino1_center',
+            'mino1_middle',
+            'mino1_midcen',
+            'mino1_patch32',
+            'mino1_patch32s4',
+            'mino1_grid24art',
+            'mino1_centerart',
+            'mino1_middleart',
+            'mino1_midcenart',
+            'mino1_patch32art',
+            'mino1_patch32s4art']
+    
     
     tcs = {}
     ticker = Ticker('Generating real cases')
