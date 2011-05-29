@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 from warp import svds
 from cbc.tools import (best_embedding_on_sphere, \
-    cosines_from_directions, distances_from_directions, assert_allclose)
+     distances_from_directions, assert_allclose)
 from contracts import contracts
 from numpy.core.numeric import allclose
 import sys

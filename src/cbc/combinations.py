@@ -135,13 +135,27 @@ def get_list_of_combinations():
 
     
     combinations['mino2d'] = Combination(['embed2', 'CBC2d', 'CBC2dw', 'CBC2dr50w', 'cheat'],
-                                       ['mino*_center*',
-                                        'mino*_middle*'])
+                                       ['mino4_center*',
+                                        'mino4_middle*'])
+    
     combinations['mino3d'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
-                                       ['mino*_grid24*',
-                                        'mino*_patch32*',
-                                        'mino*_patch32s4*',
-                                        'mino*_midcen*'])
+                                       ['mino4_grid24-*',
+                                        'mino4_grid24art-*',
+					])
+
+
+    combinations['mino3d_all'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
+                                       ['mino4_grid24-*',
+                                        'mino4_patch32-*',
+                                        'mino4_patch32s4-*',
+                                        'mino4_midcen-*'])
+
+    combinations['mino3dart'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
+                                       ['mino4_grid24art-*',
+                                        'mino4_patch32art-*',
+                                        'mino4_patch32s4art-*',
+                                        'mino4_midcenart-*'])
+
 
 
     return combinations

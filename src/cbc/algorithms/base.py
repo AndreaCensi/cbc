@@ -3,11 +3,12 @@ import numpy as np
 from contracts import check_multiple, check
 
 from ..tools import (find_best_orthogonal_transform,
-                    overlap_error_after_orthogonal_transform,
-                    compute_relative_error, scale_score, compute_diameter,
-                    correlation_coefficient,
-                    find_closest_multiple, angles_from_directions,
-                    distances_from_cosines, cosines_from_directions)
+                     overlap_error_after_orthogonal_transform,
+                     scale_score, compute_diameter,
+                     correlation_coefficient, compute_relative_error,
+                     find_closest_multiple, angles_from_directions,
+                     distances_from_cosines, cosines_from_directions)
+
 
 class CalibAlgorithm(object):
     
@@ -16,7 +17,8 @@ class CalibAlgorithm(object):
     
     def solve(self, R, true_S=None):
         self.R = R
-        self.R_order = scale_score(self.R)
+        self.R_order = scale_score(self.R).astype('int32')
+        self.R_sorted = np.sort(R.flat)
         self.iterations = []
         self.true_S = true_S
         if true_S is not None:
@@ -24,6 +26,10 @@ class CalibAlgorithm(object):
         self._solve(R)
         self.n = R.shape[0]
         
+        for it in self.iterations:
+            if 'C' in it:
+                del it['C']
+                
         last_iteration = self.iterations[-1]
         results = {}
         copy_fields = ['rel_error' , 'rel_error_deg', 'spearman', 'spearman_robust',
@@ -65,22 +71,29 @@ class CalibAlgorithm(object):
         C = cosines_from_directions(S)
         C_order = scale_score(C)
         data['spearman'] = correlation_coefficient(C_order, self.R_order)
+
+
+        Re = self.R_sorted[C_order.astype('int32')]
+        data['Ddist'] = np.abs(self.R - Re).mean()
+#        # NEW STUFF (SLEEPY)
+#        D = distances_from_cosines(C)
+#        D_sorted = -np.sort((-D).flat)
+#        De = D_sorted[self.R_order]
+#        
+#        data['Ddist'] = np.abs(D - De).mean() / D.mean()
+        # R_k = f(d_k)
+        
+        ## 
+        
+        data['RCorder_diff'] = np.abs(C_order - self.R_order).sum() / C_order.size
         
         valid = self.R_order > self.R.size * 0.6
         data['spearman_robust'] = correlation_coefficient(C_order[valid],
                                                           self.R_order[valid])
-#        if False:              
-#            order = C_order.astype('int')
-#            Cdot = np.diff(C.flat[order])
-#            Rdot = np.diff(self.R.flat[order])
-#            stat = np.sign(Cdot * Rdot).mean() 
-#            data['deriv_sign'] = stat
                      
         data['diameter'] = compute_diameter(S)
         data['diameter_deg'] = np.degrees(data['diameter'])
         
-        
-        # data['robust'] = data['deriv_sign'] 
         data['robust'] = data['spearman_robust']
         
         # These are unobservable statistics
@@ -105,7 +118,6 @@ class CalibAlgorithm(object):
 
             # only valid in 2d
             if K == 2:
-
                 true_angles_deg = np.degrees(angles_from_directions(self.true_S))
                 angles_deg = np.degrees(angles_from_directions(data['S_aligned']))
                 angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)
@@ -134,9 +146,10 @@ class CalibAlgorithm(object):
                   varstat('spearman', '%.8f', label='spear') + 
                   varstat('spearman_robust', '%.8f', label='sp_rob') + 
                   varstat('error_deg', '%5.3f', sign= -1) + 
-                  varstat('rel_error_deg', '%5.3f', sign= -1) + 
-                  varstat('angles_corr', '%.8f')  
-#                      + varstat('robust', '%.8f')
+                  varstat('Ddist', '%.5f', label='Ddist', sign= -1)    
+#                  varstat('RCorder_diff', '%.3f', label='RCorder')
+#                  varstat('rel_error_deg', '%5.3f', sign= -1) + 
+#                  varstat('angles_corr', '%.8f')  
                   )
         print(status)
             
@@ -156,7 +169,7 @@ class CalibAlgorithm(object):
             return False
         
 
-    def param(self, name, value, desc=None):
+    def param(self, name, value, desc=None): #@UnusedVariable XXX:
         self.params[name] = value
         
     def __str__(self):

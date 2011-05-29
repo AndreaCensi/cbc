@@ -55,6 +55,13 @@ def best_embedding_slow(C, ndim):
     check_multiple([ ('array[NxN]', U),
                      ('array[N]', S),
                      ('array[NxN]', V) ])
+#    
+#    Sn = S / S[0]
+#    print('- Sn=S/s[0]: %s' % Sn[:5])
+#    print('- sum S [3:]: %s' % S[3:].sum())
+#    print('- sum Sn[3:]: %s' % Sn[3:].sum())
+#    print('- s[2]/S[3]: %s' % (S[2] / S[3]))
+#    
     coords = V[:ndim, :]
     for i in range(ndim):
         coords[i, :] = coords[i, :]  * np.sqrt(S[i])

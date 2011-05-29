@@ -23,6 +23,18 @@ def get_mino_testcases(directory):
             'mino1_patch32art',
             'mino1_patch32s4art']
     
+    sets += ['mino4_grid24',
+            'mino4_center',
+            'mino4_middle',
+            'mino4_midcen',
+            'mino4_patch32',
+            'mino4_patch32s4',
+            'mino4_grid24art',
+            'mino4_centerart',
+            'mino4_middleart',
+            'mino4_midcenart',
+            'mino4_patch32art',
+            'mino4_patch32s4art']
     
     tcs = {}
     ticker = Ticker('Generating real cases')
