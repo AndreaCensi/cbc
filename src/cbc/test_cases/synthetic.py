@@ -8,27 +8,11 @@ from ..tools import (directions_from_angles, cosines_from_directions,
                      random_directions_bounded)
 from . import CalibTestCase
 import sys
+from geometry.mds import euclidean_distances
+from cbc.tools.math_utils import distances_from_cosines, \
+    distances_from_directions, cosines_from_distances
+from .utils import Ticker, add_distance_noise
 
-class Ticker(object):
-    def __init__(self, msg, num_expected=None, stream=sys.stderr):
-        self.msg = msg
-        self.num_expected = num_expected
-        self.num = 0
-        self.stream = stream
-        self.current = None
-        self.update()
-        
-    def update(self):
-        s = '%s %4d %s' % (self.msg, self.num, self.current)
-        self.stream.write(s.ljust(80))
-        self.stream.write('\r')
-        self.stream.flush()
-            
-    def __call__(self, value):
-        self.current = value
-        self.num += 1
-        self.update()
-        
         
 
 kernels = []
@@ -125,19 +109,6 @@ def get_syntethic_test_cases():
                      abs_cos_noise_std=0.01)
         add_test_case(tcid, func, args)
 
-        #        if False:
-#            if fov_deg == 45:
-#                tcid = 'rand-%dD-fov%d-%s-zero-many' % (ndim, fov_deg, kernel.__name__)
-#                ticker(tcid)
-#                tc = generate_random_test_case(tcid=tcid,
-#                                                 num=10 * num,
-#                                                 ndim=ndim,
-#                                                 fov=np.radians(fov_deg),
-#                                                 kernel=kernel,
-#                                                 dist_noise=0,
-#                                                 abs_cos_noise_std=0.001)
-#                tcs[tcid] = tc
-        
     return tcs
 
 
@@ -181,14 +152,9 @@ def generate_circular_test_case(tcid, fov, num, kernel,
     angles += np.random.randn(num) * np.radians(wiggle_std_deg)
         
     S = directions_from_angles(angles)
-    
-    C = cosines_from_directions(S)
-    # get real distances
-    D = np.arccos(C)
-    # Multiplicative noise
-    noise = np.random.randn(*(D.shape))
-    D2 = D + dist_noise * D * noise
-    C2 = np.cos(D2)
+    D = distances_from_directions(S)
+    D2 = add_distance_noise(D, dist_noise)
+    C2 = cosines_from_distances(D2)
     
     R = kernel(C2)
     

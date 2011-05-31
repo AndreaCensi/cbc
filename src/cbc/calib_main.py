@@ -18,6 +18,7 @@ from .test_cases.fly import get_fly_testcase
 from .combinations import get_list_of_combinations
 from .reports.paper_tables import create_tables_for_paper
 from .test_cases.mino import get_mino_testcases
+from .test_cases.synthetic_euclidean import get_euclidean_test_cases
 
 join = os.path.join
 # cbc_main --data_sick cbc_submission_data/sick.pickle \                                            
@@ -85,6 +86,9 @@ def main():
     print('Generating synthetic test cases...')
     synthetic = get_syntethic_test_cases()
     available_test_cases.update(synthetic)
+    
+    euclidean = get_euclidean_test_cases()
+    available_test_cases.update(euclidean)
     
     if options.data_sick is not None:
         print('Preparing Sick data...')

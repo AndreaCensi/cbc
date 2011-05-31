@@ -1,7 +1,6 @@
-from contracts import contract, check_multiple, new_contract
+from contracts import contract, new_contract
 import numpy as np
-
-import scipy.linalg
+ 
 from geometry import distribution_radius
 
 
@@ -43,47 +42,6 @@ def distances_from_directions(S):
     return distances_from_cosines(C)
 
 
-@contract(R='array[NxN]', ndim='int,>0,K', returns='array[KxN],directions')
-def best_embedding_on_sphere(R, ndim):
-    coords = best_embedding(R, ndim)
-    proj = project_vectors_onto_sphere(coords)
-    return proj
-
-@contract(C='array[NxN]', ndim='int,>0,K', returns='array[KxN]')
-def best_embedding_slow(C, ndim):
-    U, S, V = np.linalg.svd(C, full_matrices=0)
-    check_multiple([ ('array[NxN]', U),
-                     ('array[N]', S),
-                     ('array[NxN]', V) ])
-#    
-#    Sn = S / S[0]
-#    print('- Sn=S/s[0]: %s' % Sn[:5])
-#    print('- sum S [3:]: %s' % S[3:].sum())
-#    print('- sum Sn[3:]: %s' % Sn[3:].sum())
-#    print('- s[2]/S[3]: %s' % (S[2] / S[3]))
-#    
-    coords = V[:ndim, :]
-    for i in range(ndim):
-        coords[i, :] = coords[i, :]  * np.sqrt(S[i])
-    return coords
-
-@contract(C='array[NxN]', ndim='int,>0,K', returns='array[KxN]')
-def best_embedding_fast(C, ndim): 
-    n = C.shape[0]
-    eigvals = (n - ndim, n - 1)
-    S, V = scipy.linalg.eigh(C, eigvals=eigvals)
-    
-    check_multiple([ ('K', ndim),
-                     ('array[NxK]', V),
-                     ('array[K]', S)  ])
-    coords = V.T
-    for i in range(ndim):
-        coords[i, :] = coords[i, :]  * np.sqrt(S[i])
-    return coords
-
-best_embedding = best_embedding_fast
-#best_embedding = best_embedding_slow
-
 
 def scale_score(x):
     y = x.copy()
@@ -110,17 +68,7 @@ def compute_relative_error(true_S, S, neighbours_deg=20):
     average_error = errors_sum / nvalid
     return average_error
     
-@contract(S='array[KxN],K>=2', returns='array[KxN]')
-def project_vectors_onto_sphere(S, atol=1e-7):
-    K, N = S.shape
-    coords_proj = np.zeros((K, N))
-    for i in range(N):
-        v = S[:, i]
-        nv = np.linalg.norm(v)
-        if np.fabs(nv) < atol:
-            raise ValueError('Vector too small: %s' % v)
-        coords_proj[:, i] = v / nv
-    return coords_proj
+
 
 def cov2corr(covariance, zero_diagonal=False):
     ''' 

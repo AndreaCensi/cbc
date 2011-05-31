@@ -138,11 +138,19 @@ def get_list_of_combinations():
                                        ['mino4_center*',
                                         'mino4_middle*'])
     
-    combinations['mino3d'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
+    combinations['nips_mino3d'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
                                        ['mino4_grid24-*',
                                         'mino4_grid24art-*',
 					])
 
+    combinations['nips_fly'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
+                                       ['fly'])
+
+
+    combinations['mino3d_tmp'] = Combination(['CBC3dw'],
+                                       ['mino4_grid24-*',
+                                        'mino4_grid24art-*',
+                    ])
 
     combinations['mino3d_all'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
                                        ['mino4_grid24-*',
@@ -156,6 +164,9 @@ def get_list_of_combinations():
                                         'mino4_patch32s4art-*',
                                         'mino4_midcenart-*'])
 
+
+    combinations['euclidean2d_tmp'] = Combination(['emds2', 'echeat'],
+                                       ['E2-*'])
 
 
     return combinations

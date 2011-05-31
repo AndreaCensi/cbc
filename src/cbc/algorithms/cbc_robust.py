@@ -32,13 +32,14 @@ class CBC_robust(CalibAlgorithm):
                               trust_top_perc=trust_top_perc,
                               phase='pi1')
         
-        if False:
+        if True:
             self.solve_from_start(R_order, Mpi2,
                               ndim=ndim, num_iterations=num_iterations,
                               trust_top_perc=trust_top_perc,
                               phase='pi2')
 
-        measure = 'spearman_robust'
+#        measure = 'spearman_robust'
+        measure = 'spearman'
         best_iteration = self.get_best_so_far(measure) 
         phase = best_iteration['phase']
         self.iteration(best_iteration)

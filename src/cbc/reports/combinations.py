@@ -30,6 +30,8 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
         r.table('spearman_score', caption='Spearman correlation (normalized)',
             **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.4f')))
 
+    print deps.values()[0]['iterations'][0].keys()
+    
     has_angles_corr = 'angles_corr' in  deps.values()[0]['iterations'][0]
     
     if has_angles_corr:
@@ -41,6 +43,12 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     
     r.table('abs_rel_error_deg', caption='Final average relative error (deg)',
             **generic_table(tc_ids, alg_ids, tablevar('rel_error_deg')))
+
+    r.table('scaled_rel_error', caption='Final relative error (after scaling)',
+            **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error', '%.4f')))
+    r.table('scaled_error', caption='Final abs error (after scaling+ortho.)',
+            **generic_table(tc_ids, alg_ids, tablevar('scaled_error', '%.4f')))
+
 
     r.table('spearman', caption='Spearman correlation',
             **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.4f')))
@@ -82,8 +90,7 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
                                caption='Spearman correlation (rob)')
         generic_iteration_plot(rtc, ftc, 'diameter', plot_alg_ids, variable('diameter_deg'),
                                caption='Diameter of solution')
-#        generic_iteration_plot(rtc, ftc, 'deriv_sign', plot_alg_ids, variable('deriv_sign'),
-#                               caption='deriv_sign')
+
         generic_iteration_plot(rtc, ftc, 'robust', plot_alg_ids, variable('robust'),
                                caption='robust')
 
@@ -98,12 +105,7 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
                                 variable('spearman_robust'),
                                 variable('error_deg'),
                                 caption='absolute error vs spearman_robust')
- 
-#        compared_iteration_plot(rtc, ftc, 'error_vs_deriv_sign',
-#                                alg_ids,
-#                                variable('deriv_sign'),
-#                                variable('error_deg'),
-#                                caption='absolute error vs deriv_sign')
+  
 
         compared_iteration_plot(rtc, ftc, 'error_vs_robust',
                                 plot_alg_ids,

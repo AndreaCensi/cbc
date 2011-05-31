@@ -51,7 +51,7 @@ def warp_fit(D, min_ratio, max_ratio, nratios,
     S = best_embedding_on_sphere(C, ndim)
     
     if true_S is not None:
-        error_deg = overlap_error_after_orthogonal_transform(S, true_S)
+        error_deg = np.rad2deg(overlap_error_after_orthogonal_transform(S, true_S))
     else:
         error_deg = None
     

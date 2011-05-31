@@ -2,69 +2,95 @@ import numpy as np
 
 from reprep import Report 
 
-#from ..algorithms import CBC
 from ..tools import (scale_score, find_closest_multiple,
-                     distances_from_cosines,
+                     distances_from_cosines, euclidean_distances,
                      cosines_from_directions, angles_from_directions)
+from ..algorithms.base import SPHERICAL, EUCLIDEAN
+from .utils import util_plot_euclidean_coords2d, zero_diagonal, \
+    plot_and_display_coords, add_order_comparison_figure
+
+
 
 def create_report_iterations(exc_id, results):
     r = Report(exc_id)
         
     has_ground_truth = 'true_S' in results and results['true_S'] is not None
 
-    if has_ground_truth:
-        r.add_child(create_report_final_solution(results))
-        r.add_child(create_report_generic_iterations(results))
-    else:
-        r.add_child(create_report_generic_iterations_observable(results))
+    if results['geometry'] == SPHERICAL:
+        if has_ground_truth:
+            r.add_child(create_report_final_solution(results))
+            r.add_child(create_report_generic_iterations(results))
+        else:
+            r.add_child(create_report_generic_iterations_observable(results))
+            
+    if results['geometry'] == EUCLIDEAN:
+        if has_ground_truth:
+            r.add_child(create_report_final_solution_euclidean(results))
+#            r.add_child(create_report_generic_iterations_euclidean(results))
+#        else:
+#            r.add_child(create_report_generic_iterations_observable_euclidean(results))
     return r
 
-def zero_diagonal(R):
-    ''' Returns a copy with diagonal set to zero. '''
-    n = R.shape[0]
-    return R * (1 - np.eye(n))
 
 def create_report_final_solution(results):
-    r = Report('final_solution')
-    
     R = results['R']
+    true_S = results['true_S']
+    S_aligned = results['S_aligned']
+    ########
+    r = Report('final_solution')    
+    f = r.figure('unobservable_measures',
+                 caption='Comparisons with ground truth (unobservable)', cols=4)
     
-    if 'true_S' in results:
-        print results.keys()
-        true_S = results['true_S']
-        S_aligned = results['S_aligned']
-        
-        f = r.figure('unobservable_measures',
-                     caption='Comparisons with ground truth (unobservable)', cols=4)
-        
-        if S_aligned.shape[0] == 2:
-            solutions_comparison_plots(r, f, true_S, S_aligned)
-    
-        f2 = r.figure('observable_measures', cols=3, caption='Computable measures')
-        C_order = scale_score(cosines_from_directions(S_aligned))
-        R_order = scale_score(R)
-        with r.data_pylab('r_order_vs_est_c_order') as pylab:
-            pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
-            pylab.xlabel('estimated cosine (order)')
-            pylab.ylabel('correlation measure (order)')
-    
-        r.last().add_to(f2, 'order comparison (spearman: %.7f)' % results['spearman'])
-    else:
-        pass
-    
+    if S_aligned.shape[0] == 2:
+        solutions_comparison_plots(r, f, true_S, S_aligned)
+
+    f2 = r.figure('observable_measures', cols=3, caption='Computable measures')
+    C_order = scale_score(cosines_from_directions(S_aligned))
+    R_order = scale_score(R)
+    with r.data_pylab('r_order_vs_est_c_order') as pylab:
+        pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
+        pylab.xlabel('estimated cosine (order)')
+        pylab.ylabel('correlation measure (order)')
+    r.last().add_to(f2, 'order comparison (spearman: %.7f)' % results['spearman'])
     return r
         
-def plot_and_display_coords(r, f, nid, coords, caption=None):    
-    n = r.data(nid, coords)
-    with n.data_pylab('plot') as pylab:
-        plot_coords(pylab, coords)
-    f.sub(n, caption=caption)
+def create_report_final_solution_euclidean(results):
+    R = results['R']
+    S = results['S']
+    D = euclidean_distances(S)
+    true_S = results['true_S']
+    true_D = euclidean_distances(true_S)
+    R_order = scale_score(R)
+    D_order = scale_score(-D)
+    true_D_order = scale_score(-true_D)
+    ndim = S.shape[0] 
+    #########
+    r = Report('final_solution')
+    
+    f = r.figure('unobservable_measures',
+                 caption='Comparisons with ground truth (unobservable)', cols=4)
+    
+    if ndim == 2:
+    
+        util_plot_euclidean_coords2d(r, f, 'S', S)
+        util_plot_euclidean_coords2d(r, f, 'true_S', true_S)
+                
+    f2 = r.figure('order comparisons', cols=3)
+
+    add_order_comparison_figure(r, f2, 'Order comparison (results)',
+                                D_order, R_order, 'distances (estimated)', 'similarity')
+   
+    add_order_comparison_figure(r, f2, 'Order comparison (ground truth)',
+                                true_D_order, R_order, 'distances (g.t.)', 'similarity')
+    
+    return r
+
 
 def solutions_comparison_plots(r, f, true_S, S_aligned):
     true_theta = np.degrees(angles_from_directions(true_S))
     theta = np.degrees(angles_from_directions(S_aligned))
     theta = find_closest_multiple(theta, true_theta, 360)
-
+    #########
     plot_and_display_coords(r, f, 'true_S', true_S, 'Ground truth')
     plot_and_display_coords(r, f, 'S_aligned', S_aligned, 'Solution, aligned')
 
@@ -83,20 +109,17 @@ def solutions_comparison_plots(r, f, true_S, S_aligned):
 
 def create_report_generic_iterations(results):
     ''' Black box plots for generic algorithm. '''
-    r = Report('generic_iterations')
-
     R = results['R']
-    
     true_S = results['true_S']
-    twod = true_S.shape[0] == 2
-    
-    if twod:
-        true_theta_deg = np.degrees(angles_from_directions(true_S))
+    ndim = true_S.shape[0]
     true_C = results['true_C']
+    true_dist = distances_from_cosines(true_C)
     iterations = results['iterations']
     R_order = results['R_order']
-
-    true_dist = distances_from_cosines(true_C)
+    #######
+    r = Report('generic_iterations')
+    if ndim == 2:
+        true_theta_deg = np.degrees(angles_from_directions(true_S))
 
     f = r.figure(cols=3, caption='Data and ground truth')
     f.data('R', R).display('posneg', max_value=1).add_to(f, 'Given R')
@@ -116,7 +139,7 @@ def create_report_generic_iterations(results):
     r.data('gt_dist', true_dist).display('scale').add_to(f, 'ground truth distance matrix')
 
     cols = 3
-    if twod: cols += 1
+    if ndim == 2: cols += 1
     
     fit = r.figure(cols=cols)
     
@@ -127,21 +150,25 @@ def create_report_generic_iterations(results):
         rel_error_deg = it['rel_error_deg']
         C = cosines_from_directions(S)
         C_order = scale_score(C)
-        if twod:
+        if ndim == 2:
             theta_deg = np.degrees(angles_from_directions(S_aligned))
             theta_deg = find_closest_multiple(theta_deg, true_theta_deg, 360)
 
         rit = r.node('iteration%d' % i) 
 
-        def display_coords(nid, coords, caption=None):    
-            n = rit.data(nid, coords)
-            with n.data_pylab('plot') as pylab:
-                plot_coords(pylab, coords)
-            fit.sub(n, caption=caption)
-        
-        display_coords('S', S,
-                       'Guess for coordinates (errors %.2f / %.2f deg)' % 
-                       (error_deg , rel_error_deg))
+        plot_and_display_coords(rit, fit, 'S', S,
+                                'Guess for coordinates (errors %.2f / %.2f deg)' % 
+                                (error_deg , rel_error_deg))
+#        
+#        def display_coords(nid, coords, caption=None):    
+#            n = rit.data(nid, coords)
+#            with n.data_pylab('plot') as pylab:
+#                plot_coords(pylab, coords)
+#            fit.sub(n, caption=caption)
+#        
+#        display_coords('S', S,
+#                       'Guess for coordinates (errors %.2f / %.2f deg)' % 
+#                       (error_deg , rel_error_deg))
         
         with rit.data_pylab('r_vs_est_c') as pylab:
             pylab.plot(C.flat, R.flat, '.', markersize=0.2)
@@ -149,18 +176,7 @@ def create_report_generic_iterations(results):
             pylab.ylabel('correlation measure')
 #            pylab.axis((-1, 1, -1, 1))
         rit.last().add_to(fit, 'R vs current C') 
-
-#        with rit.data_pylab('r_dot_vs_est_c_dot') as pylab:
-#            order = C_order.astype('int')
-#            Cdot = np.diff(C.flat[order])
-#            Rdot = np.diff(R.flat[order])
-#            ratio = np.log(Rdot) - np.log(Cdot)
-#            pylab.plot(Cdot, ratio, '.', markersize=0.2)
-#            pylab.xlabel('estimated dot cosine')
-#            pylab.ylabel('ratio dot ')
-##            pylab.axis((-1, 1, -1, 1))
-#        rit.last().add_to(fit, 'R dot vs current C dot') 
-        
+ 
         with rit.data_pylab('r_order_vs_est_c_order') as pylab:
             pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
             pylab.xlabel('estimated cosine (order)')
@@ -169,7 +185,7 @@ def create_report_generic_iterations(results):
                             (it['spearman'], it['spearman_robust']))
 
         # if groundtruth
-        if twod:
+        if ndim == 2:
             with rit.data_pylab('theta_compare') as pylab:
                 pylab.plot(true_theta_deg, true_theta_deg, 'k--')
                 pylab.plot(true_theta_deg, theta_deg, '.')
@@ -179,11 +195,6 @@ def create_report_generic_iterations(results):
             rit.last().add_to(fit, 'True vs estimated angles.')
           
     return r
-
-def plot_coords(pylab, coords):
-    pylab.plot(coords[0, :], coords[1, :], 'k-')
-    pylab.plot(coords[0, :], coords[1, :], '.')
-    pylab.axis('equal')
 
 
 
@@ -212,14 +223,17 @@ def create_report_generic_iterations_observable(results):
         C_order = scale_score(C)
         rit = r.node('iteration%d' % i) 
 
-        def display_coords(nid, coords, caption=None):    
-            n = rit.data(nid, coords)
-            with n.data_pylab('plot') as pylab:
-                plot_coords(pylab, coords)
-            fit.sub(n, caption=caption)
+#        def display_coords(nid, coords, caption=None):    
+#            n = rit.data(nid, coords)
+#            with n.data_pylab('plot') as pylab:
+#                plot_coords(pylab, coords)
+#            fit.sub(n, caption=caption)
+#        display_coords('S', S,
+#                       'Guess for coordinates')
         
-        display_coords('S', S,
-                       'Guess for coordinates')
+        
+        plot_and_display_coords(rit, fit, 'S', S, 'Guess for coordinates')
+#        
         
         with rit.data_pylab('r_vs_est_c') as pylab:
             pylab.plot(C.flat, R.flat, '.', markersize=0.2)

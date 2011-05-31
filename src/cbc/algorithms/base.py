@@ -7,24 +7,44 @@ from ..tools import (find_best_orthogonal_transform,
                      scale_score, compute_diameter,
                      correlation_coefficient, compute_relative_error,
                      find_closest_multiple, angles_from_directions,
-                     distances_from_cosines, cosines_from_directions)
+                     distances_from_cosines, cosines_from_directions,
+                     euclidean_distances,
+                     mean_euclidean_distance_after_orthogonal_transform)
 
 
+SPHERICAL = 'S'
+EUCLIDEAN = 'E'
+GEOMETRIES = [SPHERICAL, EUCLIDEAN]
+    
+    
 class CalibAlgorithm(object):
     
-    def __init__(self, params):
+    def __init__(self, params, geometry=SPHERICAL):
         self.params = params
+        assert geometry in GEOMETRIES
+        self.geometry = geometry
+    
+    def is_spherical(self):
+        return self.geometry == SPHERICAL
+    
+    def is_euclidean(self):
+        return self.geometry == EUCLIDEAN   
     
     def solve(self, R, true_S=None):
         self.R = R
         self.R_order = scale_score(self.R).astype('int32')
         self.R_sorted = np.sort(R.flat)
+        
+        self.n = R.shape[0]
+        
         self.iterations = []
         self.true_S = true_S
-        if true_S is not None:
-            check('directions', true_S)
+        
+        if self.is_spherical():
+            if true_S is not None:
+                check('directions', true_S)
+        
         self._solve(R)
-        self.n = R.shape[0]
         
         for it in self.iterations:
             if 'C' in it:
@@ -34,7 +54,8 @@ class CalibAlgorithm(object):
         results = {}
         copy_fields = ['rel_error' , 'rel_error_deg', 'spearman', 'spearman_robust',
                        'error', 'error_deg', 'S', 'S_aligned', 'diameter',
-                       'diameter_deg', 'angles_corr', 'deriv_sign', 'phase']
+                       'diameter_deg', 'angles_corr', 'deriv_sign', 'phase',
+                       'scaled_error', 'scaled_rel_error']
         for f in copy_fields:
             if f in last_iteration:
                 results[f] = last_iteration[f]
@@ -45,13 +66,13 @@ class CalibAlgorithm(object):
         results['params'] = self.params
         results['true_S'] = true_S
         
-
-        if true_S is not None:
-            results['true_C'] = cosines_from_directions(true_S)
-            results['true_dist'] = distances_from_cosines(results['true_C'])
-            
+        if self.is_spherical():
+            if true_S is not None:
+                results['true_C'] = cosines_from_directions(true_S)
+                results['true_dist'] = distances_from_cosines(results['true_C'])
+                
         results['iterations'] = self.iterations
-            
+        results['geometry'] = self.geometry
         self.results = results
         return self.results
     
@@ -64,41 +85,36 @@ class CalibAlgorithm(object):
         S = data['S']
         check_multiple([('array[NxN]', self.R), ('array[*xN]', S)])
             
-        check('directions', S)
+        if self.is_spherical():
+            check('directions', S)
             
-        
-        # Observable errors
-        C = cosines_from_directions(S)
-        C_order = scale_score(C)
-        data['spearman'] = correlation_coefficient(C_order, self.R_order)
+            # Observable errors
+            C = cosines_from_directions(S)
+            C_order = scale_score(C)
+            data['spearman'] = correlation_coefficient(C_order, self.R_order)
 
-
-        Re = self.R_sorted[C_order.astype('int32')]
-        data['Ddist'] = np.abs(self.R - Re).mean()
-#        # NEW STUFF (SLEEPY)
-#        D = distances_from_cosines(C)
-#        D_sorted = -np.sort((-D).flat)
-#        De = D_sorted[self.R_order]
-#        
-#        data['Ddist'] = np.abs(D - De).mean() / D.mean()
-        # R_k = f(d_k)
+            # data['RCorder_diff'] = np.abs(C_order - self.R_order).sum() / C_order.size
         
-        ## 
-        
-        data['RCorder_diff'] = np.abs(C_order - self.R_order).sum() / C_order.size
-        
-        valid = self.R_order > self.R.size * 0.6
-        data['spearman_robust'] = correlation_coefficient(C_order[valid],
+            valid = self.R_order > self.R.size * 0.6
+            data['spearman_robust'] = correlation_coefficient(C_order[valid],
                                                           self.R_order[valid])
                      
-        data['diameter'] = compute_diameter(S)
-        data['diameter_deg'] = np.degrees(data['diameter'])
+            data['diameter'] = compute_diameter(S)
+            data['diameter_deg'] = np.degrees(data['diameter'])
+        
+        if self.is_euclidean():
+            D = euclidean_distances(S)
+            D_order = scale_score(D)
+            data['spearman'] = correlation_coefficient(-D_order, self.R_order)
+            valid = self.R_order > self.R.size * 0.6
+            data['spearman_robust'] = correlation_coefficient(-D_order[valid],
+                                                          self.R_order[valid])
+
         
         data['robust'] = data['spearman_robust']
         
         # These are unobservable statistics
-        if self.true_S is not None:
-            
+        if self.is_spherical() and self.true_S is not None:
             # add more rows to S if necessary
             K = S.shape[0]
             if K != self.true_S.shape[0]:
@@ -123,6 +139,31 @@ class CalibAlgorithm(object):
                 angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)
                 data['angles_corr'] = correlation_coefficient(true_angles_deg, angles_deg)
             
+        if self.is_euclidean() and self.true_S is not None:
+            D = euclidean_distances(S)
+            true_D = euclidean_distances(self.true_S)
+            
+            rel_error = np.abs(D - true_D).mean()
+            data['rel_error'] = rel_error 
+
+            scale = true_D.mean() / D.mean()  
+            scaled_rel_error = np.abs(D * scale - true_D).mean()
+            data['scaled_rel_error'] = scaled_rel_error
+            
+            scaled_S = scale * S 
+            def remove_mean(x):
+                k, n = x.shape
+                m = np.tile(x.mean(axis=1).reshape((k, 1)), (1, n))
+                assert m.shape == x.shape
+                return x - m
+            
+            trans_scaled_S = remove_mean(scaled_S)
+            trans_true_S = remove_mean(self.true_S)
+            data['scaled_error'] = \
+                mean_euclidean_distance_after_orthogonal_transform(
+                            trans_scaled_S, trans_true_S)
+           
+            
         def varstat(x, format='%.3f', label=None, sign= +1):
             if label is None: label = x[:5]
             if not x in data: return ' %s: /' % label
@@ -144,13 +185,19 @@ class CalibAlgorithm(object):
         status = ('It: %2d' % len(self.iterations) + 
                   varstat('diameter_deg', '%3d') + 
                   varstat('spearman', '%.8f', label='spear') + 
-                  varstat('spearman_robust', '%.8f', label='sp_rob') + 
-                  varstat('error_deg', '%5.3f', sign= -1) + 
-                  varstat('Ddist', '%.5f', label='Ddist', sign= -1)    
-#                  varstat('RCorder_diff', '%.3f', label='RCorder')
-#                  varstat('rel_error_deg', '%5.3f', sign= -1) + 
+                  varstat('spearman_robust', '%.8f', label='sp_rob'))
+        
+        if self.is_spherical():
+            status += (varstat('error_deg', '%5.3f', sign= -1) + 
+                      varstat('rel_error_deg', '%5.3f', sign= -1))
+        if self.is_euclidean():
+            status += (varstat('scaled_error', '%5.3f', sign= -1, label='s_err') + 
+                      varstat('scaled_rel_error', '%5.3f', sign= -1, label='s_r_err'))
+            
+#                  varstat('Ddist', '%.5f', label='Ddist', sign= -1)    
+#                  varstat('RCorder_diff', '%.3f', label='RCorder')  
 #                  varstat('angles_corr', '%.8f')  
-                  )
+                  
         print(status)
             
         self.iterations.append(data)

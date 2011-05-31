@@ -4,8 +4,6 @@ from . import CalibAlgorithm
 
 from ..tools  import (scale_score, best_embedding_on_sphere,
                       cosines_from_directions,
-                      distances_from_directions,
-                      cosines_from_distances,
                       distances_from_cosines)
 from .warp_fit import warp_fit
 
@@ -33,13 +31,14 @@ class CBCchoose(CalibAlgorithm):
                               ndim=ndim, num_iterations=num_iterations,
                               phase='pi1')
         
-        if False:
+        if True:
             self.solve_from_start(R_order, Mpi2,
                               ndim=ndim, num_iterations=num_iterations,
                               phase='pi2')
 
         # Choose the best one 
         measure = 'robust'
+#        measure = 'spearman'
         best_iteration = self.get_best_so_far(measure) 
         self.iteration(best_iteration)
         phase = best_iteration['phase']
@@ -50,6 +49,14 @@ class CBCchoose(CalibAlgorithm):
             r = warp_fit(D, min_ratio=0.1, max_ratio=2, nratios=100,
                   nlandmarks=300, ndim=ndim, true_S=self.true_S)
             print('Solved: ratio=%f error_deg=%s' % (r.ratio, r.error_deg))
+            
+#            spread = 0.9
+#            min_ratio = r.ratio * spread
+#            max_ratio = r.ratio / spread
+#            r = warp_fit(D, min_ratio=min_ratio, max_ratio=max_ratio, nratios=20,
+#                  nlandmarks=self.n / 2, ndim=ndim, true_S=self.true_S)
+#            print('Solved: ratio=%f error_deg=%s' % (r.ratio, r.error_deg))
+#            
             self.iteration(dict(S=r.S, phase='%s_warp_fit' % phase,
                                 ratios=r.ratios, measures=r.measure))
             
