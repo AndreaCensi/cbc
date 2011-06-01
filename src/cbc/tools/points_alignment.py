@@ -36,6 +36,8 @@ def mean_euclidean_distance_after_orthogonal_transform(X, Y):
         are optimally rotated/mirrored to best overlap with each other. 
         The result is returned in average degrees.
     '''
+    assert np.isfinite(X).all()
+    assert np.isfinite(Y).all()
     O = find_best_orthogonal_transform(X, Y)
     X2 = np.dot(O, X)
     return average_euclidean_error(X2, Y)
@@ -43,6 +45,6 @@ def mean_euclidean_distance_after_orthogonal_transform(X, Y):
 @contract(X='array[KxN],(K=2|K=3)', Y='array[KxN]', returns='float,>=0')
 def average_euclidean_error(X, Y):
     d2 = ((X - Y) * (X - Y)).sum(axis=0)
-    d = np.sqrt(d2)
+    d = np.sqrt(np.maximum(d2, 0))
     return d.mean()
 

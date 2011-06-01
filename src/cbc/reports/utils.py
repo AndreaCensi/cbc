@@ -12,12 +12,22 @@ def util_plot_euclidean_coords2d(report, f, nid, S):
         pylab.ylabel('x2')
     report.last().add_to(f)
     
-def add_order_comparison_figure(report, figure, caption, x_order, y_order, xlabel, ylabel):
-    with report.data_pylab(caption) as pylab:
-        pylab.plot(x_order.flat, y_order.flat, '.', markersize=0.2)
-        pylab.axis('equal')
+def add_order_comparison_figure(report, nid, figure, caption,
+                                x_order, y_order, xlabel, ylabel):
+    x_order = np.array(x_order.flat)
+    y_order = np.array(y_order.flat)
+    n = x_order.size
+    assert x_order.max() == n - 1
+    assert y_order.max() == n - 1
+    with report.data_pylab(nid, figsize=(6, 6)) as pylab:
+        pylab.plot(x_order, y_order, 'k.', markersize=0.2)
         pylab.xlabel(xlabel)
         pylab.ylabel(ylabel)
+        pylab.xticks([], [])
+        pylab.yticks([], [])
+        pylab.axis([0, n - 1, 0, n - 1])
+#        pylab.axis('equal')
+#        pylab.axis([0, n - 1, 0, n - 1])
     report.last().add_to(figure, caption)
 
 def plot_and_display_coords(r, f, nid, coords, caption=None):    
@@ -29,12 +39,16 @@ def plot_and_display_coords(r, f, nid, coords, caption=None):
         pylab.xlabel('x1')
         pylab.ylabel('x2')
     f.sub(n, caption=caption)
-    
 
-#def plot_coords(pylab, coords):
-#        pylab.plot(coords[0, :], coords[1, :], 'k-')
-#        pylab.plot(coords[0, :], coords[1, :], '.')
-#        pylab.axis('equal')
+
+def util_plot_xy_generic(r, f, nid, x, y, xlabel, ylabel, caption):
+    with r.data_pylab(nid) as pylab:
+        pylab.plot(x, y, 'b.', markersize=0.2)
+        pylab.xlabel(xlabel)
+        pylab.ylabel(ylabel)
+#            pylab.axis((-1, 1, -1, 1))
+    r.last().add_to(f, caption)
+        
 
 def plot_one_against_the_other(r, nid, xval, yval):
     h = create_histogram_2d(xval, yval, resolution=128)

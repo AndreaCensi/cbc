@@ -1,7 +1,6 @@
-from ..tools  import scale_score    
 import numpy as np
-from . import CalibAlgorithm
 from geometry import mds
+from . import CalibAlgorithm
 from .base import EUCLIDEAN
 
 class EuclideanMDS(CalibAlgorithm):

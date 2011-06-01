@@ -8,14 +8,29 @@ from ..tools import (find_best_orthogonal_transform,
                      correlation_coefficient, compute_relative_error,
                      find_closest_multiple, angles_from_directions,
                      distances_from_cosines, cosines_from_directions,
-                     euclidean_distances,
+                     euclidean_distances, distances_from_directions,
                      mean_euclidean_distance_after_orthogonal_transform)
+
 
 
 SPHERICAL = 'S'
 EUCLIDEAN = 'E'
 GEOMETRIES = [SPHERICAL, EUCLIDEAN]
+
+def scaled_error(D1, D2, also_scale=False):
+    D1_mean = D1.mean()
+    assert D1_mean > 0
+    D2_mean = D2.mean()
+    assert D2_mean > 0            
+    scale = D2_mean / D1_mean   
+    assert np.isfinite(scale)
+    scaled_rel_error = np.abs(D1 * scale - D2).mean()
     
+    if also_scale:
+        return scaled_rel_error, scale
+    else:
+        return scaled_rel_error
+
     
 class CalibAlgorithm(object):
     
@@ -52,10 +67,19 @@ class CalibAlgorithm(object):
                 
         last_iteration = self.iterations[-1]
         results = {}
-        copy_fields = ['rel_error' , 'rel_error_deg', 'spearman', 'spearman_robust',
-                       'error', 'error_deg', 'S', 'S_aligned', 'diameter',
+        copy_fields = ['rel_error' ,
+                       'rel_error_deg',
+                       'spearman', 'spearman_robust',
+                       'error',
+                       'error_deg',
+                       'S', 'S_aligned', 'diameter',
                        'diameter_deg', 'angles_corr', 'deriv_sign', 'phase',
-                       'scaled_error', 'scaled_rel_error']
+                       'scaled_error',
+                       'scaled_error_deg',
+                       'scaled_rel_error',
+                       'scaled_rel_error_deg',
+                       
+                       ]
         for f in copy_fields:
             if f in last_iteration:
                 results[f] = last_iteration[f]
@@ -110,6 +134,8 @@ class CalibAlgorithm(object):
             data['spearman_robust'] = correlation_coefficient(-D_order[valid],
                                                           self.R_order[valid])
 
+            data['diameter'] = 2 * euclidean_distribution_radius(S)
+            data['diameter_deg'] = data['diameter']
         
         data['robust'] = data['spearman_robust']
         
@@ -138,17 +164,18 @@ class CalibAlgorithm(object):
                 angles_deg = np.degrees(angles_from_directions(data['S_aligned']))
                 angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)
                 data['angles_corr'] = correlation_coefficient(true_angles_deg, angles_deg)
+
+            D = distances_from_directions(S)
+            true_D = distances_from_directions(self.true_S)
+            data['scaled_rel_error'] = scaled_error(D, true_D)
+            data['scaled_rel_error_deg'] = np.degrees(data['scaled_rel_error'])  
             
         if self.is_euclidean() and self.true_S is not None:
             D = euclidean_distances(S)
             true_D = euclidean_distances(self.true_S)
             
-            rel_error = np.abs(D - true_D).mean()
-            data['rel_error'] = rel_error 
-
-            scale = true_D.mean() / D.mean()  
-            scaled_rel_error = np.abs(D * scale - true_D).mean()
-            data['scaled_rel_error'] = scaled_rel_error
+            data['rel_error'] = np.abs(D - true_D).mean()  
+            data['scaled_rel_error'], scale = scaled_error(D, true_D, also_scale=True)
             
             scaled_S = scale * S 
             def remove_mean(x):
@@ -163,6 +190,10 @@ class CalibAlgorithm(object):
                 mean_euclidean_distance_after_orthogonal_transform(
                             trans_scaled_S, trans_true_S)
            
+            data['error'] = \
+                mean_euclidean_distance_after_orthogonal_transform(
+                            remove_mean(S), remove_mean(self.true_S))
+                
             
         def varstat(x, format='%.3f', label=None, sign= +1):
             if label is None: label = x[:5]
@@ -189,10 +220,11 @@ class CalibAlgorithm(object):
         
         if self.is_spherical():
             status += (varstat('error_deg', '%5.3f', sign= -1) + 
-                      varstat('rel_error_deg', '%5.3f', sign= -1))
+                      varstat('rel_error_deg', '%5.3f', sign= -1) + 
+                      varstat('scaled_rel_error', '%5.3f', sign= -1, label='s_r_err'))
         if self.is_euclidean():
             status += (varstat('scaled_error', '%5.3f', sign= -1, label='s_err') + 
-                      varstat('scaled_rel_error', '%5.3f', sign= -1, label='s_r_err'))
+                       varstat('scaled_rel_error', '%5.3f', sign= -1, label='s_r_err'))
             
 #                  varstat('Ddist', '%.5f', label='Ddist', sign= -1)    
 #                  varstat('RCorder_diff', '%.3f', label='RCorder')  
@@ -222,4 +254,12 @@ class CalibAlgorithm(object):
     def __str__(self):
         params = "-".join('%s=%s' % (k, v) for k, v in self.params.items()) 
         return '%s(%s)' % (self.__class__.__name__, params)
-            
+          
+
+# FIXME: move away
+def euclidean_distribution_radius(S):
+    D = euclidean_distances(S)
+    distances = D.max(axis=0)
+    center = np.argmin(distances) 
+    return distances[center]
+  

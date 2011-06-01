@@ -8,6 +8,7 @@ from ..tools import (scale_score, find_closest_multiple,
 from ..algorithms.base import SPHERICAL, EUCLIDEAN
 from .utils import util_plot_euclidean_coords2d, zero_diagonal, \
     plot_and_display_coords, add_order_comparison_figure
+from cbc.reports.utils import util_plot_xy_generic
 
 
 
@@ -26,7 +27,7 @@ def create_report_iterations(exc_id, results):
     if results['geometry'] == EUCLIDEAN:
         if has_ground_truth:
             r.add_child(create_report_final_solution_euclidean(results))
-#            r.add_child(create_report_generic_iterations_euclidean(results))
+            r.add_child(create_report_generic_iterations_euclidean(results))
 #        else:
 #            r.add_child(create_report_generic_iterations_observable_euclidean(results))
     return r
@@ -77,10 +78,10 @@ def create_report_final_solution_euclidean(results):
                 
     f2 = r.figure('order comparisons', cols=3)
 
-    add_order_comparison_figure(r, f2, 'Order comparison (results)',
+    add_order_comparison_figure(r, 'order_cmp_results', f2, 'Order comparison (results)',
                                 D_order, R_order, 'distances (estimated)', 'similarity')
    
-    add_order_comparison_figure(r, f2, 'Order comparison (ground truth)',
+    add_order_comparison_figure(r, 'order_cmp_gt', f2, 'Order comparison (ground truth)',
                                 true_D_order, R_order, 'distances (g.t.)', 'similarity')
     
     return r
@@ -193,6 +194,63 @@ def create_report_generic_iterations(results):
                 pylab.ylabel('estimated angles (deg)')
                 pylab.axis('equal')
             rit.last().add_to(fit, 'True vs estimated angles.')
+          
+    return r
+
+
+
+def create_report_generic_iterations_euclidean(results):
+    ''' Black box plots for generic algorithm. '''
+    R = results['R']
+    true_S = results['true_S'] 
+    true_D = euclidean_distances(true_S)
+
+    true_D_order = scale_score(-true_D)
+    iterations = results['iterations']
+    R_order = results['R_order']
+    #######
+    
+    r = Report('generic_iterations')
+    
+    f = r.figure(cols=3, caption='Data and ground truth')
+    f.data('R', R).display('posneg', max_value=1).add_to(f, 'Given R')
+    f.data('R0', zero_diagonal(R)).display('posneg', max_value=1).\
+        add_to(f, 'Given R (diagonal set to 0).')
+    
+    r.data('R_order', R_order).display('scale').add_to(f, 'Order for R')
+    
+    util_plot_xy_generic(r=r, f=f, nid='true_D_vs_R', x=true_D.flat, y=R.flat,
+                         xlabel='true distance', ylabel='correlation',
+                         caption='Unknown function distance -> correlation')
+    util_plot_xy_generic(r=r, f=f, nid='true_D_order_vs_R_order',
+                         x=true_D_order.flat, y=R_order.flat,
+                         xlabel='true distance', ylabel='correlation',
+                         caption='Distance Oderd vs Correlation order')
+
+#    r.data('true_C', true_C).display('posneg', max_value=1).add_to(f, 'ground truth cosine matrix')
+#    r.data('gt_dist', true_dist).display('scale').add_to(f, 'ground truth distance matrix')
+ 
+    fit = r.figure(cols=3)
+    
+    for i, it in enumerate(iterations): 
+        S = it['S']
+#        S_aligned = it['S_aligned']
+        D = euclidean_distances(S)
+        D_order = scale_score(D) 
+
+        rit = r.node('iteration%d' % i) 
+
+        plot_and_display_coords(rit, fit, 'S', S, 'Guess for coordinates')
+
+        # TODO: add aligned
+        
+        util_plot_xy_generic(r=rit, f=fit, nid='D[i]_vs_R', x=D.flat, y=R.flat,
+                         xlabel='distance (k=%d)' % i, ylabel='correlation',
+                         caption='Unknown function distance -> correlation')
+        util_plot_xy_generic(r=rit, f=fit, nid='D[i]_order_vs_R_order',
+                         x=D_order.flat, y=R_order.flat,
+                         xlabel='distance order (k=%d)' % i, ylabel='correlation',
+                         caption='Distance Order vs Correlation order')
           
     return r
 

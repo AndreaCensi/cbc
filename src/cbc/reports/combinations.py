@@ -7,11 +7,14 @@ from ..tools import natsorted
 def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     r = Report('set-%s' % comb_id)
     
-    has_ground_truth = 'cheat' in alg_ids
+    has_ground_truth = 'cheat' in alg_ids or 'echeat' in alg_ids
     
+    if 'cheat' in alg_ids: cheater = 'cheat'
+    if 'echeat' in alg_ids: cheater = 'echeat'
+     
     if has_ground_truth:
         for tc_id in tc_ids:
-            max_spearman = deps[(tc_id, 'cheat')]['spearman']
+            max_spearman = deps[(tc_id, cheater)]['spearman']
             for alg_id in alg_ids:
                 res = deps[(tc_id, alg_id)]
                 res['spearman_score'] = res['spearman'] / max_spearman
@@ -30,7 +33,7 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
         r.table('spearman_score', caption='Spearman correlation (normalized)',
             **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.4f')))
 
-    print deps.values()[0]['iterations'][0].keys()
+#    print deps.values()[0]['iterations'][0].keys()
     
     has_angles_corr = 'angles_corr' in  deps.values()[0]['iterations'][0]
     
@@ -83,6 +86,10 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
                                caption='Absolute error')
         generic_iteration_plot(rtc, ftc, 'rel_error_deg', plot_alg_ids, variable('rel_error_deg'),
                                caption='Relative error')
+        
+        generic_iteration_plot(rtc, ftc, 'scaled_rel_error', plot_alg_ids, variable('scaled_rel_error'),
+                               caption='Relative error (after scaling)')
+
         generic_iteration_plot(rtc, ftc, 'spearman', plot_alg_ids, variable('spearman'),
                                caption='Spearman correlation')
         generic_iteration_plot(rtc, ftc, 'spearman_robust', plot_alg_ids,
@@ -134,7 +141,7 @@ def generic_table(tc_ids, alg_ids, get_element, sorted=True, mark_lower=True):
         if mark_lower:
             # re-convert two numbers
             # do not consider these for the stats:
-            avoid = ['rand2d', 'rand3d', 'cheat']
+            avoid = ['rand2d', 'rand3d', 'cheat', 'echeat']
             values = [float(x) for (algo, x) in zip(alg_ids, entries)]
             selected = [float(x) for (algo, x) in zip(alg_ids, entries)
                         if algo not in avoid]

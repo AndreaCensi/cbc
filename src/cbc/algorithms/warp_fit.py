@@ -17,13 +17,20 @@ def get_ratios(min_ratio, max_ratio, n):
 ScaleResult = namedtuple('ScaleResult',
     'S ratio ratios measure error_deg')
 
-print('ciao')
+
 def warp_fit(D, min_ratio, max_ratio, nratios,
-                  nlandmarks, ndim=3, true_S=None, true_alpha=None):
+                  nlandmarks, ndim=3, true_S=None):
     
     # subsample
     n = D.shape[0]
-    i = random_sample(n, nlandmarks)
+    
+    if True:
+        interval = int(np.ceil(n * 1.0 / nlandmarks))
+        i = range(0, n, interval)
+        print('Using every other %d: %s' % (interval, i))
+    else:
+        i = random_sample(n, nlandmarks)
+    
     Di = D[i, :][:, i]
 
     ratios = get_ratios(min_ratio, max_ratio, nratios)

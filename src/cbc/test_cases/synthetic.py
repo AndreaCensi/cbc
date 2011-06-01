@@ -6,9 +6,7 @@ from contracts import contracts, decorate, check
 
 from ..tools import (directions_from_angles, cosines_from_directions,
                      random_directions_bounded)
-from . import CalibTestCase
-import sys
-from geometry.mds import euclidean_distances
+from . import CalibTestCase 
 from cbc.tools.math_utils import distances_from_cosines, \
     distances_from_directions, cosines_from_distances
 from .utils import Ticker, add_distance_noise
@@ -40,6 +38,11 @@ def pow3_sat(x): return saturate(pow3, x)
 def pow7(x): return x ** 7
 @k
 def pow7_sat(x): return saturate(pow7, x)
+
+@k
+def pow3f(x): return linear01(x) ** 3
+@k
+def pow7f(x): return linear01(x) ** 7
 
 
 @nottest

@@ -137,6 +137,10 @@ def main():
     test_cases = {}
     test_case_reports = {} 
     def stage_test_case_report(tcid):
+        if not tcid in available_test_cases:
+            msg = ('Could not find test case %r \n %s' % 
+                   (tcid, available_test_cases.keys()))
+            raise Exception(msg)
         if not tcid in test_cases:
             command, args = available_test_cases[tcid]
             job_id = 'test_case_data-%s' % tcid

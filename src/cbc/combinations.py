@@ -138,12 +138,12 @@ def get_list_of_combinations():
                                        ['mino4_center*',
                                         'mino4_middle*'])
     
-    combinations['nips_mino3d'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
+    combinations['old_nips_mino3d'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
                                        ['mino4_grid24-*',
                                         'mino4_grid24art-*',
 					])
 
-    combinations['nips_fly'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
+    combinations['old_nips_fly'] = Combination(['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'cheat'],
                                        ['fly'])
 
 
@@ -165,8 +165,46 @@ def get_list_of_combinations():
                                         'mino4_midcenart-*'])
 
 
-    combinations['euclidean2d_tmp'] = Combination(['emds2', 'echeat'],
+    combinations['euclidean2d_tmp'] = Combination(['emds2', 'echeat', 'eCBC2dr50', 'eCBC2d',
+                                                    'eCBC2dr80', 'eCBC2dr10'],
                                        ['E2-*'])
 
+    nips_euclidean = ['emds2', 'echeat', 'eCBC2d']
+    nips_spherical2d = ['embed2', 'cheat', 'CBC2d']
+    nips_spherical2d_w = nips_spherical2d + [ 'CBC2dw']
+    nips_spherical3d = ['embed3', 'cheat', 'CBC3d', 'CBC3dw']
+    
+  
+    observable2d = ['rand-2D-fov315-pow3f-noisy',
+                      'rand-2D-fov315-pow7f-noisy']
+    
+    unobservable2d = ['rand-2D-fov45-pow3_sat-noisy',
+#                      'rand-2D-fov45-pow7_sat',
+                      'rand-2D-fov45-linear01-noisy',
+                      'rand-2D-fov90-pow3_sat-noisy',
+#                      'rand-2D-fov90-pow7_sat',
+                      'rand-2D-fov90-linear01-noisy']
 
+    combinations['nips_euclidean'] = Combination(nips_euclidean,
+                                       ['E2-grid-n180-eu_pow3',
+                                        'E2-grid-n180-eu_pow7',
+                                        'E2-grid-n180-eu_linear01'])
+ 
+    combinations['nips_spherical_real_3d'] = Combination(nips_spherical3d,
+                                       ['mino4_grid24-y_corr',
+                                        'mino4_midcen-y_corr',
+                                        'fly'])
+#    combinations['nips_spherical_real_2d'] = Combination(nips_spherical2d,
+#                                       )
+#    
+    combinations['nips_spherical_sim_2d_obs'] = Combination(nips_spherical2d,
+                                                            observable2d)
+    combinations['nips_spherical_sim_2d_unobs'] = Combination(nips_spherical2d_w,
+                                                            unobservable2d + 
+                                                            ['sick_front-y_corr',
+                                                             'sick_front-y_dot_sign_corr',
+                                                             'mino4_center*'
+                                                             ])
+    
+  
     return combinations

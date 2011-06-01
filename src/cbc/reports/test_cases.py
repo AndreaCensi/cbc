@@ -4,7 +4,8 @@ from reprep import Report
 
 from ..tools import scale_score 
 from .utils import plot_one_against_the_other, util_plot_euclidean_coords2d, \
-    plot_and_display_coords
+    plot_and_display_coords, add_order_comparison_figure
+from cbc.reports.utils import util_plot_xy_generic
 
 @nottest
 def create_report_test_case(tcid, tc):
@@ -34,6 +35,10 @@ def tc_problem_plots(tc, rid='problem_data'):
     return r
     
 def tc_ground_truth_plots_sph(tc, rid='ground_truth'):
+    true_C_order = scale_score(tc.true_C)
+    R_order = scale_score(tc.R)
+
+    
     r = Report(rid)
     assert tc.has_ground_truth
     
@@ -55,28 +60,17 @@ def tc_ground_truth_plots_sph(tc, rid='ground_truth'):
     n = r.data('true_D', tc.true_D).display('scale')  
     f.sub(n, 'Actual distance matrix')
     
-    with r.data_pylab('linearity_func') as pylab:
-        x = tc.true_C.flat
-        y = tc.R.flat
-        pylab.plot(x, y, '.', markersize=0.2)
-        pylab.xlabel('true_C')
-        pylab.ylabel('R')
-    r.last().add_to(f, 'Relation (function)')
+    util_plot_xy_generic(r, f, 'linearity_func',
+                          tc.true_C.flat,
+                          tc.R.flat, 'true_C', 'R', caption='Relation (function)')
     
     n = plot_one_against_the_other(r, 'true_CvsR', tc.true_C, tc.R)
     f.sub(n, 'Relation (Sample histogram)')
     
-    true_C_order = scale_score(tc.true_C)
-    R_order = scale_score(tc.R)
-    with r.data_pylab('linearity') as pylab:
-        x = true_C_order.flat
-        y = R_order.flat
-        pylab.plot(x, y, '.', markersize=0.2)
-        pylab.xlabel('true_C score')
-        pylab.ylabel('R score')
-        
-    f.sub('linearity', 'Linearity plot (the closer this is to a line, the better '
-                        'we can solve)')
+    add_order_comparison_figure(r, 'linearity', f,
+                        'Linearity plot (the closer this is to a line, the better ' + 
+                        'we can solve)', true_C_order, R_order,
+                        'true_C', 'R')
     
     if tc.true_kernel is not None:
         x = np.linspace(-1, 1, 512)
@@ -136,7 +130,7 @@ def tc_ground_truth_plots_euc(tc, rid='ground_truth'):
             pylab.plot(x, y)
             pylab.xlabel('distance')
             pylab.ylabel('R')
-#            pylab.axis((-1, 1, -1, 1))
+            pylab.axis((x.min(), x.max(), y.min(), y.max()))
         f.sub('kernel', caption='Actual analytical kernel')
     
     return r

@@ -2,18 +2,12 @@ import numpy as np
 import itertools
 from nose.tools import nottest
 
-from contracts import contracts, decorate, check
-
-from ..tools import (directions_from_angles, cosines_from_directions,
-                     random_directions_bounded)
-from . import CalibTestCase
-import sys
-from geometry.mds import euclidean_distances
-from cbc.tools.math_utils import distances_from_cosines, \
-    distances_from_directions, cosines_from_distances
-
+from contracts import contracts, decorate 
+ 
+from . import CalibTestCase 
 from .utils import Ticker, add_distance_noise
 
+from geometry import euclidean_distances 
 
 kernels = []
 def k(f):
@@ -27,7 +21,8 @@ DIAMETER = np.pi
 
 # Kernels are functions from cosine -> correlation ([-1,1]->[-1,1])
 # The should be able to operate on arrays and return arrays
-def saturate(f, d): return f(np.minimum(DIAMETER / 3, d))
+def saturate(f, d): return f(np.minimum(1, d))
+#def saturate(f, d): return f(np.minimum(DIAMETER / 2, d))
 
 @k
 def eu_linear01(d): return (1 - d / DIAMETER)
@@ -63,7 +58,7 @@ def get_euclidean_test_cases():
     num = 180
     dims = [2, 3]
     dist_noise = 0.01
-    dist_noise = 0
+#    dist_noise = 0
     wiggle_noise = 0.03
     
     for kernel, ndim in itertools.product(kernels, dims):
