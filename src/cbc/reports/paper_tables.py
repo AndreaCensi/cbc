@@ -172,6 +172,9 @@ def create_tables_for_paper(comb_id, tc_ids, alg_ids, deps):
             **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.4f')))
     
     write_table(comb_id, 'diameter',
+            **generic_table(tc_ids, alg_ids, tablevar('diameter', '%.4f'), sign=0))
+
+    write_table(comb_id, 'diameter_deg',
             **generic_table(tc_ids, alg_ids, tablevar('diameter_deg', '%.2f'), sign=0))
     
 #    write_table(comb_id, 'abs_rel_error_deg',

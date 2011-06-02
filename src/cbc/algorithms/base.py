@@ -25,7 +25,7 @@ def scaled_error(D1, D2, also_scale=False):
     scale = D2_mean / D1_mean   
     assert np.isfinite(scale)
     scaled_rel_error = np.abs(D1 * scale - D2).mean()
-    
+    print('scale: %f  error: %f' % (scale, scaled_rel_error))
     if also_scale:
         return scaled_rel_error, scale
     else:
@@ -84,17 +84,10 @@ class CalibAlgorithm(object):
             if f in last_iteration:
                 results[f] = last_iteration[f]
         
-        results['R'] = R
-        results['R_order'] = scale_score(R)        
+        results['R'] = R #.astype('float32')
         results['n'] = R.shape[0]
         results['params'] = self.params
-        results['true_S'] = true_S
-        
-        if self.is_spherical():
-            if true_S is not None:
-                results['true_C'] = cosines_from_directions(true_S)
-                results['true_dist'] = distances_from_cosines(results['true_C'])
-                
+        results['true_S'] = true_S                
         results['iterations'] = self.iterations
         results['geometry'] = self.geometry
         self.results = results

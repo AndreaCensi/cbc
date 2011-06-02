@@ -47,7 +47,7 @@ class CBCchoose(CalibAlgorithm):
             C = best_iteration['C']
             D = distances_from_cosines(C)
             r = warp_fit(D, min_ratio=0.1, max_ratio=2, nratios=100,
-                  nlandmarks=300, ndim=ndim, true_S=self.true_S)
+                  nlandmarks=500, ndim=ndim, true_S=self.true_S)
             print('Solved: ratio=%f error_deg=%s' % (r.ratio, r.error_deg))
             
 #            spread = 0.9

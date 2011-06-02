@@ -19,12 +19,12 @@ ScaleResult = namedtuple('ScaleResult',
 
 
 def warp_fit(D, min_ratio, max_ratio, nratios,
-                  nlandmarks, ndim=3, true_S=None):
+                  nlandmarks, ndim=3, true_S=None, random=False):
     
     # subsample
     n = D.shape[0]
     
-    if True:
+    if not(random):
         interval = int(np.ceil(n * 1.0 / nlandmarks))
         i = range(0, n, interval)
         print('Using every other %d: %s' % (interval, i))

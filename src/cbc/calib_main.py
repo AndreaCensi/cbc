@@ -236,7 +236,7 @@ def run_combination(test_case, algo_class, algo_params):
         
     results = algo.results
     
-    other = {'test_case': test_case,
+    other = {#'test_case': test_case,
              'algo_class': algo_class,
              'combid': '%s-%s' % (test_case.tcid, algo) }
     

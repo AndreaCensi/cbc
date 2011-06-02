@@ -176,6 +176,7 @@ def get_list_of_combinations():
     
   
     observable2d = ['rand-2D-fov315-pow3f-noisy',
+                    'rand-2D-fov315-linear01-noisy',
                       'rand-2D-fov315-pow7f-noisy']
     
     unobservable2d = ['rand-2D-fov45-pow3_sat-noisy',
@@ -197,13 +198,13 @@ def get_list_of_combinations():
 #    combinations['nips_spherical_real_2d'] = Combination(nips_spherical2d,
 #                                       )
 #    
-    combinations['nips_spherical_sim_2d_obs'] = Combination(nips_spherical2d,
+    combinations['nips_spherical_sim_2d_obs'] = Combination(nips_spherical2d_w,
                                                             observable2d)
-    combinations['nips_spherical_sim_2d_unobs'] = Combination(nips_spherical2d_w,
+    combinations['nips_spherical_sim_2d_unobs'] = Combination(nips_spherical2d,
                                                             unobservable2d + 
                                                             ['sick_front-y_corr',
                                                              'sick_front-y_dot_sign_corr',
-                                                             'mino4_center*'
+                                                             'mino4_center-*'
                                                              ])
     
   

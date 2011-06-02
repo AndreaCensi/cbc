@@ -3,15 +3,39 @@ from contracts import contract
 import numpy as np
 from ..tools import create_histogram_2d
 
+fsize = 2.5
+
 @contract(S='array[2xN]')
 def util_plot_euclidean_coords2d(report, f, nid, S):
-    with report.data_pylab(nid) as pylab: 
+    with report.data_pylab(nid, figsize=(3, 3)) as pylab: 
         pylab.plot(S[0, :], S[1, :], '.')
         pylab.axis('equal')
-        pylab.xlabel('x1')
-        pylab.ylabel('x2')
+#        pylab.xlabel('x1')
+#        pylab.ylabel('x2')
+
     report.last().add_to(f)
     
+    
+
+def add_distance_vs_sim_figure(report, nid, figure, caption,
+                                D, R, xlabel, ylabel):
+    D = np.array(D.flat)
+    R = np.array(R.flat)
+    
+    with report.data_pylab(nid, figsize=(fsize, fsize)) as pylab:
+        pylab.plot(D, R, 'k.', markersize=0.2)
+        pylab.xlabel(xlabel)
+        pylab.ylabel(ylabel)
+        pylab.yticks([], [])
+        pylab.axis([D.min(), D.max(), R.min(), R.max()])
+#        xt, xl = pylab.xticks()
+#        pylab.xticks([xt[0], xt[-1]], [xl[0].get_text(), xl[-1].get_text()])
+        m = D.max()
+        pylab.xticks([0, m], ['0', '%.2f' % m])
+
+    report.last().add_to(figure, caption)
+    
+
 def add_order_comparison_figure(report, nid, figure, caption,
                                 x_order, y_order, xlabel, ylabel):
     x_order = np.array(x_order.flat)
@@ -19,7 +43,7 @@ def add_order_comparison_figure(report, nid, figure, caption,
     n = x_order.size
     assert x_order.max() == n - 1
     assert y_order.max() == n - 1
-    with report.data_pylab(nid, figsize=(6, 6)) as pylab:
+    with report.data_pylab(nid, figsize=(fsize, fsize)) as pylab:
         pylab.plot(x_order, y_order, 'k.', markersize=0.2)
         pylab.xlabel(xlabel)
         pylab.ylabel(ylabel)
@@ -32,9 +56,11 @@ def add_order_comparison_figure(report, nid, figure, caption,
 
 def plot_and_display_coords(r, f, nid, coords, caption=None):    
     n = r.data(nid, coords)
-    with n.data_pylab('plot') as pylab:
-        pylab.plot(coords[0, :], coords[1, :], 'k-')
+    with n.data_pylab('plot', figsize=(fsize, fsize)) as pylab:
+#        pylab.plot(coords[0, :], coords[1, :], 'k-')
         pylab.plot(coords[0, :], coords[1, :], '.')
+#        pylab.axis([coords[0, :].min(), coords[0, :].max(),
+#                    coords[1, :].min(), coords[1, :].max()])
         pylab.axis('equal')
         pylab.xlabel('x1')
         pylab.ylabel('x2')
