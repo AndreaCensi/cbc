@@ -1,7 +1,6 @@
 from contracts import contracts
 import re
 
-
 def flatten(seq):
     res = []
     for l in seq: res.extend(l)
