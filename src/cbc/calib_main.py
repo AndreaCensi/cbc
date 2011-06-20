@@ -19,6 +19,7 @@ from .combinations import get_list_of_combinations
 from .reports.paper_tables import create_tables_for_paper
 from .test_cases.mino import get_mino_testcases
 from .test_cases.synthetic_euclidean import get_euclidean_test_cases
+from .test_cases.standard import standard_test_dir
 
 join = os.path.join
 # cbc_main --data_sick cbc_submission_data/sick.pickle \                                            
@@ -34,6 +35,8 @@ def main():
     group.add_option("--outdir",
                       help='Directory with variables.pickle and where '
                            'the output will be placed.')
+
+    group.add_option("--testdir", default=None)
 
     group.add_option("--data_sick", default=None,
                      help='.pickle file containing Sick data.')
@@ -89,6 +92,9 @@ def main():
     
     euclidean = get_euclidean_test_cases()
     available_test_cases.update(euclidean)
+    
+    if options.testdir is not None:
+        available_test_cases.update(standard_test_dir(options.testdir))
     
     if options.data_sick is not None:
         print('Preparing Sick data...')
