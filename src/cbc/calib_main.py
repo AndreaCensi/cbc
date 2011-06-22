@@ -219,7 +219,6 @@ def main():
         compmake_console()
 
 
-
 def write_report(report, filename):
     print('Writing report %r to %r.' % (report.id, filename))
     rd = join(os.path.dirname(filename), 'images')
