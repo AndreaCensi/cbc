@@ -1,0 +1,10 @@
+import cPickle as pickle, os
+from .io import load_test_case
+
+def standard_test_dir(dirname):
+    tcs = {}
+    for d in os.listdir(dirname):        
+        tcdir = os.path.join(dirname, d) 
+        tcs[d] = (load_test_case, dict(dirname=tcdir))
+    return tcs
+    

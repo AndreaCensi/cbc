@@ -207,5 +207,9 @@ def get_list_of_combinations():
                                                              'mino4_center-*'
                                                              ])
     
+    combinations['GOPRO1'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w'], 
+        ['GOPRO-grid24-*',
+        ' mino-grid24-*'])
   
     return combinations

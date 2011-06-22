@@ -59,6 +59,11 @@ def get_list_of_algorithms():
         ('CBC3dr50', (CBC_robust, {'ndim': 3, 'num_iterations': nit, 'warp': False,
                                     'trust_top_perc': 50})),
 
+            ('CBC3dr50w', (CBC_robust, {'ndim': 3, 'num_iterations': nit, 'warp': True,
+                                        'trust_top_perc': 50})),
+            ('CBC3dr10w', (CBC_robust, {'ndim': 3, 'num_iterations': nit, 'warp': True,
+                                        'trust_top_perc': 10})),
+
         ('CBC3dw', (CBCchoose, {'ndim': 3, 'num_iterations': nit, 'warp': True})),
         ('CBC3dr50w', (CBC_robust, {'ndim': 3, 'num_iterations': nit, 'warp': True,
                                     'trust_top_perc': 50})),
