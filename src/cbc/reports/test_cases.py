@@ -1,11 +1,8 @@
-from nose.tools import nottest
-import numpy as np
-from reprep import Report
+from . import (nottest, np, Report, plot_one_against_the_other,
+    util_plot_euclidean_coords2d, plot_and_display_coords,
+    add_order_comparison_figure, util_plot_xy_generic)
+from ..tools import scale_score
 
-from ..tools import scale_score 
-from .utils import plot_one_against_the_other, util_plot_euclidean_coords2d, \
-    plot_and_display_coords, add_order_comparison_figure
-from cbc.reports.utils import util_plot_xy_generic
 
 @nottest
 def create_report_test_case(tcid, tc):

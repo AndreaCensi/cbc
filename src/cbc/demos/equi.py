@@ -1,9 +1,8 @@
-import numpy as np
+from . import np
 import itertools
-from warp import svds
-from cbc.tools import (best_embedding_on_sphere, \
+from . import svds, contract
+from ..tools import (best_embedding_on_sphere, \
      distances_from_directions, assert_allclose)
-from contracts import contracts
 from numpy.core.numeric import allclose
 import sys
 
@@ -67,8 +66,8 @@ def f2():
     
     D2 = distances_from_directions(S2)
     
-    @contracts(x='array[MxN]')
-    def pprint(x, format='%.3f'):
+    @contract(x='array[MxN]')
+    def pprint(x, format='%.3f'): #@ReservedAssignment
         for a in range(x.shape[0]):
             sys.stdout.write('[')
             for b in range(x.shape[1]):
@@ -98,7 +97,7 @@ def f2():
               
     
     
-@contracts(s1='direction', s2='direction')
+@contract(s1='direction', s2='direction')
 def midpoint_on_sphere(s1, s2):
     if allclose(s1, -s2): # TODO: add precision
         raise ValueError()

@@ -1,3 +1,5 @@
+#@PydevCodeAnalysisIgnore
+
 import numpy as np
 
 from contracts import check

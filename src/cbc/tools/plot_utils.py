@@ -1,4 +1,4 @@
-import numpy as np
+from . import np
 
 def create_histogram_2d(x, y, resolution):
     edges = np.linspace(-1, 1, resolution)

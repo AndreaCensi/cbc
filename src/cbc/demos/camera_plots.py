@@ -1,14 +1,10 @@
-import pickle
-from reprep import Report
+from . import Report, contract, np
+from ..tools import (best_embedding_on_sphere, distances_from_directions,
+    correlation_coefficient, cosines_from_distances, cosines_from_directions,
+    scale_score)
 from optparse import OptionParser
-from contracts import contracts
-import numpy
-import numpy as np
+import cPickle as pickle
 import itertools
-from cbc.tools.math_utils import best_embedding_on_sphere, \
-    distances_from_directions, correlation_coefficient, cosines_from_distances, \
-    cosines_from_directions
-from be1011.generic_bgds_boot_plots import scale_score
 
 def main():
     
@@ -30,23 +26,23 @@ def main():
 
 
     # find indices
-    ref_sensel = numpy.zeros(num_ref, dtype='int')
+    ref_sensel = np.zeros(num_ref, dtype='int')
     for i in range(num_ref):
-        ref_sensel[i] = numpy.argmax(R[i, :])
+        ref_sensel[i] = np.argmax(R[i, :])
         
     print ref_sensel
     # Which pixels where there?
-    samples = numpy.zeros(num_sensels)
+    samples = np.zeros(num_sensels)
     samples[ref_sensel] = 1
     samples = toimg(samples)
     
     Rf = R[:, ref_sensel]
     
-    R2 = numpy.empty_like(Rf)
+    R2 = np.empty_like(Rf)
     for i, j in itertools.product(range(num_ref), range(num_ref)):
         vi = R[i, :] 
         vj = R[j, :]
-        norm = numpy.linalg.norm
+        norm = np.linalg.norm
         vi = vi / norm(vi)
         vj = vj / norm(vj)
         
@@ -55,12 +51,12 @@ def main():
     Sref_embed = reduced_rank_embed(R2, 3)
     #Sref_cbc = simplified_algo(R2, 3, iterations=8, warp=20)
      
-    @contracts(Sref='array[KxM]', ref_sensels='array[M]',
+    @contract(Sref='array[KxM]', ref_sensels='array[M]',
                similarity='array[MxN]', returns='array[KxN]')
     def interpolate(Sref, ref_sensels, similarity):
         num_sensels = similarity.shape[1]
         num_coords = Sref.shape[0] 
-        S = numpy.zeros((num_coords, num_sensels))
+        S = np.zeros((num_coords, num_sensels))
         for i in range(num_coords):
             S[i, ref_sensels] = Sref[i, :]
             
@@ -111,7 +107,7 @@ def main():
 
 def colorful_correlation(R, toimg, colors):
     h, w = toimg(R[0, :]).shape
-    rgb = numpy.zeros((h, w, 3), dtype='float32')
+    rgb = np.zeros((h, w, 3), dtype='float32')
     for sensel, color in colors:
         r = R[sensel, :]
         best = np.argmax(r)
@@ -130,27 +126,27 @@ def colorful_correlation(R, toimg, colors):
     return  rgb.astype('uint8')
 
 
-@contracts(S='array[MxN],M<N')
+@contract(S='array[MxN],M<N')
 def display_coordinates(label, S, toimg):
     r = Report(label)
     M = S.shape[0]
     f = r.figure('Coordinates.', cols=M)
     
     for i in range(M):
-        id = 'coord%d' % i
+        nid = 'coord%d' % i
         Si = toimg(S[i, :])
-        r.data(id, Si).display('posneg')
-        f.sub(id)
+        r.data(nid, Si).display('posneg')
+        f.sub(nid)
     return r    
 
 
-@contracts(R='array[KxN],K<=N', ndim='int,>0,M', returns='array[MxN]')
+@contract(R='array[KxN],K<=N', ndim='int,>0,M', returns='array[MxN]')
 def reduced_rank_embed(R, ndim):
     K, N = R.shape #@UnusedVariable
-    U, S, V = numpy.linalg.svd(R, full_matrices=0) #@UnusedVariable
+    U, S, V = np.linalg.svd(R, full_matrices=0) #@UnusedVariable
     coords = V[:ndim, :]
     for i in range(ndim):
-        coords[i, :] = coords[i, :]  * numpy.sqrt(S[i])
+        coords[i, :] = coords[i, :] * np.sqrt(S[i])
     return coords
 
 def show_some_correlations(R, toimg, num=30, cols=6):
@@ -162,10 +158,10 @@ def show_some_correlations(R, toimg, num=30, cols=6):
     f.sub('sum', caption="Sum of correlations")
     
     for i in range(num):
-        id = 'sensel%d' % i
+        nid = 'sensel%d' % i
         Ri = toimg(R[i, :])
-        r.data(id, Ri).display('posneg')
-        f.sub(id)
+        r.data(nid, Ri).display('posneg')
+        f.sub(nid)
     return r
 
 

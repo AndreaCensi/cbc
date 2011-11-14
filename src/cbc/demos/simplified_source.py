@@ -10,7 +10,7 @@ in this file. At least, they should be able to clarify doubts from reading
 the pseudocode. Note that some steps are simplified.
 
 '''
-
+#@PydevCodeAnalysisIgnore
 import numpy as np
 
 
@@ -18,7 +18,7 @@ def SSE(C, ndim):
     U, S, V = np.linalg.svd(C, full_matrices=0) 
     coords = V[:ndim, :]
     for i in range(ndim):
-        coords[i, :] = coords[i, :]  * np.sqrt(S[i])
+        coords[i, :] = coords[i, :] * np.sqrt(S[i])
     N = coords.shape[1]
     for k in range(N):
         coords[:, k] = coords[:, k] / np.linalg.norm(coords[:, k])

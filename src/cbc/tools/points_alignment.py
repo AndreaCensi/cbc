@@ -1,5 +1,5 @@
-import numpy as np
-from contracts import contract, check 
+from . import np, contract, check
+ 
 import geometry # for the orthogonal contract @UnusedImport
 
 # TODO: use the native ones

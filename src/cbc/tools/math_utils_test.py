@@ -1,9 +1,9 @@
-import time
-import numpy as np
-
-from cbc.tools import (cosines_from_directions, best_embedding_on_sphere,
+from . import np
+from ..tools import (cosines_from_directions, best_embedding_on_sphere,
     overlap_error_after_orthogonal_transform, angles_from_directions,
     directions_from_angles, assert_allclose, random_directions)
+import time
+
 
 
 def get_angles_from_S_test():
@@ -45,8 +45,8 @@ if __name__ == '__main__':
     import contracts  
     contracts.disable_all()
     import cProfile
-    file = 'prof'
-    cProfile.run('best_embedding_test()', file)
+    filename = 'prof'
+    cProfile.run('best_embedding_test()', filename)
     import pstats
     p = pstats.Stats(file)
     p.sort_stats('cumulative').print_stats(20)

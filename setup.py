@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(name='CBC',
         author="Andrea Censi",
         author_email="andrea@cds.caltech.edu",
-        version="0.1",
+        version="1.0",
         package_dir={'':'src'},
         packages=['cbc'],
         entry_points={

@@ -1,15 +1,9 @@
-import numpy as np
+from . import CalibTestCase, contract, np, add_distance_noise, nottest
+from ..tools import (distances_from_directions, cosines_from_distances,
+    directions_from_angles, cosines_from_directions, random_directions_bounded)
+from ..utils import Ticker
+from contracts import decorate, check
 import itertools
-from nose.tools import nottest
-
-from contracts import contracts, decorate, check
-
-from ..tools import (directions_from_angles, cosines_from_directions,
-                     random_directions_bounded)
-from . import CalibTestCase 
-from cbc.tools.math_utils import distances_from_cosines, \
-    distances_from_directions, cosines_from_distances
-from .utils import Ticker, add_distance_noise
 
         
 
@@ -46,7 +40,7 @@ def pow7f(x): return linear01(x) ** 7
 
 
 @nottest
-@contracts(returns='dict(str: tuple(Callable, dict))')
+@contract(returns='dict(str: tuple(Callable, dict))')
 def get_syntethic_test_cases():
     # check that we don't have repeated names
     all_names = [f.__name__ for f in kernels]
@@ -116,7 +110,7 @@ def get_syntethic_test_cases():
 
 
 @nottest
-@contracts(tcid=str, num='int,>0', ndim='2|3', fov='<6.29', # XXX: pi
+@contract(tcid=str, num='int,>0', ndim='2|3', fov='<6.29', # XXX: pi
            kernel='Callable', returns='test_case')
 def generate_random_test_case(tcid, ndim, fov, num, kernel,
                                 dist_noise=0, abs_cos_noise_std=0):
@@ -146,7 +140,7 @@ def generate_random_test_case(tcid, ndim, fov, num, kernel,
 
 
 @nottest
-@contracts(tcid=str, num='int,>0', kernel='Callable', returns='test_case')
+@contract(tcid=str, num='int,>0', kernel='Callable', returns='test_case')
 def generate_circular_test_case(tcid, fov, num, kernel,
                                 wiggle_std_deg=0, dist_noise=0, abs_cos_noise_std=0):
     angles = np.linspace(-fov / 2, fov / 2, num)

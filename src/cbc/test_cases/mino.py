@@ -1,13 +1,9 @@
-import pickle 
-from nose.tools import nottest 
-
-from contracts import contracts 
-from cbc.test_cases import CalibTestCase 
-from .synthetic import Ticker
+from . import CalibTestCase, contract, pickle, nottest
+from ..utils import Ticker
 import os
 
 @nottest
-@contracts(returns='dict(str: tuple(Callable, dict))')
+@contract(returns='dict(str: tuple(Callable, dict))')
 def get_mino_testcases(directory):
     print('Loading Mino data from disk...')
     sets = ['mino1_grid24',

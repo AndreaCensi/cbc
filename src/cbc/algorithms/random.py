@@ -1,7 +1,7 @@
-import numpy as np
+from . import CalibAlgorithm, np
+from ..tools import project_vectors_onto_sphere
 
-from ..tools  import project_vectors_onto_sphere   
-from . import CalibAlgorithm
+
 
 class Random(CalibAlgorithm):
     ''' This is used for debugging. Provides a random guess. '''

@@ -1,13 +1,10 @@
-import numpy as np
+from . import CalibTestCase, np, contract, nottest, add_distance_noise
+from ..tools import euclidean_distances
+from ..utils import Ticker
+from contracts import decorate
 import itertools
-from nose.tools import nottest
 
-from contracts import contracts, decorate 
- 
-from . import CalibTestCase 
-from .utils import Ticker, add_distance_noise
 
-from geometry import euclidean_distances 
 
 kernels = []
 def k(f):
@@ -41,7 +38,7 @@ def eu_pow7_sat(d): return saturate(eu_pow7, d)
 
 
 @nottest
-@contracts(returns='dict(str: tuple(Callable, dict))')
+@contract(returns='dict(str: tuple(Callable, dict))')
 def get_euclidean_test_cases():
     # check that we don't have repeated names
     all_names = [f.__name__ for f in kernels]
@@ -101,7 +98,7 @@ def generate_grid_euclidean_test_case(tcid, num, ndim, kernel, wiggle_noise, dis
     num = side * side
     k = 0
     
-    def wiggle(): return np.random.randn()*wiggle_noise
+    def wiggle(): return np.random.randn() * wiggle_noise
     
     S = np.zeros((ndim, num))
     for i, j in itertools.product(range(side), range(side)):

@@ -1,20 +1,19 @@
-from contracts import contracts
-from contracts.main import new_contract
-from ..tools.math_utils import cosines_from_directions, distances_from_cosines
-from geometry.mds import euclidean_distances
+from . import contract, new_contract
+from ..tools import (cosines_from_directions, distances_from_cosines,
+    euclidean_distances)
 
 
 # TODO: decorator
 class CalibTestCase(object):
     
-    @contracts(tcid=str, R='array[NxN]')
+    @contract(tcid=str, R='array[NxN]')
     def __init__(self, tcid, R, geometry='S'):
         self.tcid = tcid
         self.R = R
         self.has_ground_truth = False
         self.geometry = geometry
 
-    @contracts(S='array[(2|3)xN]', kernel='None|Callable')        
+    @contract(S='array[(2|3)xN]', kernel='None|Callable')        
     def set_ground_truth(self, S, kernel):
         self.has_ground_truth = True
         self.true_S = S

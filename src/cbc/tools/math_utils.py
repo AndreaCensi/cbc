@@ -1,7 +1,6 @@
-from contracts import contract, new_contract
-import numpy as np
- 
-from geometry import distribution_radius
+from . import np, contract, new_contract
+from ..tools import distribution_radius
+
 
 
 def create_histogram_2d(x, y, resolution):

@@ -1,12 +1,9 @@
-from cbc.tools import (
-    random_direction, geodesic_distance_on_sphere,
-    rotation_from_axis_angle, distances_from_directions,
-     cosines_from_distances, directions_from_angles)
-import numpy as np
-from contracts import contracts
-from reprep import Report
+from . import np, contract, Report
+from ..tools import (random_direction, geodesic_distance_on_sphere,
+    rotation_from_axis_angle, distances_from_directions, cosines_from_distances,
+    directions_from_angles)
 
-@contracts(N='int,>0,N',
+@contract(N='int,>0,N',
            radius_deg='number,>0,<=180',
            ndim='K',
            returns='array[KxN], directions')
@@ -15,7 +12,7 @@ def get_distribution(ndim, N, radius_deg):
     
     if ndim == 3:
         center = random_direction()
-        @contracts(returns='direction')
+        @contract(returns='direction')
         def one():
             axis = random_direction()
             angle = np.random.rand() * radius

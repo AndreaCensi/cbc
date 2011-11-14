@@ -1,6 +1,6 @@
-import os
+from . import np
 from reprep.out.platex import Latex
-import numpy as np
+import os
 
 tex_algo = [
     ('cheat', '\\oracle'),
@@ -148,7 +148,7 @@ def create_tables_for_paper(comb_id, tc_ids, alg_ids, deps):
                 res = deps[(tc_id, alg_id)]
                 res['spearman_score'] = res['spearman'] / max_spearman
     
-    def tablevar(var, format='%.2f', not_found=np.NaN):
+    def tablevar(var, format='%.2f', not_found=np.NaN): #@ReservedAssignment
         def getter(tc_id, alg_id):
             res = deps[(tc_id, alg_id)]
             if var in res:
@@ -219,9 +219,10 @@ def write_table(comb_id, table_id, data, rows, cols):
         fragment.tabular_simple(data, row_desc=rows, col_desc=cols, write_col_desc=False)
 
     
-def generic_table(tc_ids, alg_ids, get_element, sorted=True, mark_lower=True, sign= +1):
-    named_tcs = [id for id, string in tex_tc] #@UnusedVariable
-    named_algos = [id for id, string in tex_algo] #@UnusedVariable
+def generic_table(tc_ids, alg_ids, get_element,
+                  sorted=True, mark_lower=True, sign= +1): #@ReservedAssignment
+    named_tcs = [tid for tid, _ in tex_tc]
+    named_algos = [tid for tid, _ in tex_algo]
     for tc_id in tc_ids:
         if not tc_id in named_tcs:
             print('Warning: cannot find TeX name for test case %r' % tc_id)
@@ -230,8 +231,8 @@ def generic_table(tc_ids, alg_ids, get_element, sorted=True, mark_lower=True, si
             print('Warning: cannot  find TeX name for algo  %r' % alg_id)
 
     # Only select the one we care and in the right order 
-    tc_ids = [tc_id for tc_id, tex_string in tex_tc if tc_id in tc_ids] #@UnusedVariable
-    alg_ids = [alg_id for alg_id, tex_string in tex_algo if alg_id in alg_ids] #@UnusedVariable
+    tc_ids = [tc_id for tc_id, _ in tex_tc if tc_id in tc_ids]
+    alg_ids = [alg_id for alg_id, _ in tex_algo if alg_id in alg_ids] 
         
     print('Using only test cases: %r' % tc_ids)
     print('Using only algorithms: %r' % alg_ids)

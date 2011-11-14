@@ -1,10 +1,8 @@
-import unittest
-import numpy as np
-
-from geometry import random_rotation, random_directions, assert_allclose
-
+from . import np
+from ..tools import random_rotation, random_directions, assert_allclose
 from .points_alignment import (find_best_orthogonal_transform,
-                               overlap_error_after_orthogonal_transform)
+    overlap_error_after_orthogonal_transform)
+import unittest
 
 
 N = 10

@@ -1,9 +1,7 @@
-import cPickle as pickle
-import numpy as np
-from contracts import check
-
+from . import np, check, pickle
 from ..tools import cov2corr
-from .real import test_case
+from . import test_case
+
 
 def get_fly_testcase(filename):
     print('Loading fly data...')

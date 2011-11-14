@@ -1,7 +1,7 @@
 ''' Collection of plotting utils. '''
-from contracts import contract
-import numpy as np
+from . import contract, np
 from ..tools import create_histogram_2d
+
 
 fsize = 2.5
 

@@ -1,8 +1,6 @@
-import numpy as np
+from . import np, Report
+from ..utils import natsorted
 
-from reprep import Report
-
-from ..tools import natsorted
 
 def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     r = Report('set-%s' % comb_id)
@@ -19,7 +17,7 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
                 res = deps[(tc_id, alg_id)]
                 res['spearman_score'] = res['spearman'] / max_spearman
     
-    def tablevar(var, format='%.2f', not_found=np.NaN):
+    def tablevar(var, format='%.2f', not_found=np.NaN): #@ReservedAssignment
         def getter(tc_id, alg_id):
             res = deps[(tc_id, alg_id)]
             if var in res:
@@ -128,7 +126,8 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     
     return r
     
-def generic_table(tc_ids, alg_ids, get_element, sorted=True, mark_lower=True):
+def generic_table(tc_ids, alg_ids, get_element,
+                  sorted=True, mark_lower=True): #@ReservedAssignment
     if sorted:
         tc_ids = natsorted(tc_ids)
         alg_ids = natsorted(alg_ids)
@@ -178,7 +177,8 @@ def generic_iteration_plot(report, f, nid, alg_ids, get_trace, caption=None):
         for alg_id, trace in zip(alg_ids, traces):
             if len(trace) == 1:
                 # one iteration, write continuous line
-                pylab.plot([0, max_trace_length], [trace, trace], '-', label=alg_id)
+                pylab.plot([0, max_trace_length], [trace, trace],
+                           '-', label=alg_id)
             else:
                 pylab.plot(trace, 'x-', label=alg_id)
 #        pylab.legend()
@@ -186,7 +186,8 @@ def generic_iteration_plot(report, f, nid, alg_ids, get_trace, caption=None):
     f.sub(report.last(), caption=caption)
     
 
-def compared_iteration_plot(report, f, nid, alg_ids, get_trace1, get_trace2, caption=None):
+def compared_iteration_plot(report, f, nid, alg_ids, get_trace1, get_trace2,
+                            caption=None):
     with report.data_pylab(nid) as pylab:
         for alg_id  in alg_ids:
             x = get_trace1(alg_id)

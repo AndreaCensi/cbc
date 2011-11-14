@@ -1,3 +1,5 @@
+#@PydevCodeAnalysisIgnore
+
 import numpy as np
 
 from ..tools  import (scale_score, best_embedding_on_sphere, cosines_from_directions)    

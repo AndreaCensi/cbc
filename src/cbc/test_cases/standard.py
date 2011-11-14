@@ -1,5 +1,5 @@
-import cPickle as pickle, os
-from .io import load_test_case
+from . import load_test_case
+import os
 
 def standard_test_dir(dirname):
     tcs = {}

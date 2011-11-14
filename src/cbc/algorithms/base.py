@@ -1,5 +1,4 @@
-import numpy as np
-
+from . import np
 from contracts import check_multiple, check
 
 from ..tools import (find_best_orthogonal_transform,
@@ -7,7 +6,7 @@ from ..tools import (find_best_orthogonal_transform,
                      scale_score, compute_diameter,
                      correlation_coefficient, compute_relative_error,
                      find_closest_multiple, angles_from_directions,
-                     distances_from_cosines, cosines_from_directions,
+                     cosines_from_directions,
                      euclidean_distances, distances_from_directions,
                      mean_euclidean_distance_after_orthogonal_transform)
 
@@ -188,7 +187,7 @@ class CalibAlgorithm(object):
                             remove_mean(S), remove_mean(self.true_S))
                 
             
-        def varstat(x, format='%.3f', label=None, sign= +1):
+        def varstat(x, format='%.3f', label=None, sign= +1): #@ReservedAssignment
             if label is None: label = x[:5]
             if not x in data: return ' %s: /' % label
             current = data[x]

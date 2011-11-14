@@ -1,25 +1,20 @@
-import os
-import itertools
-from optparse import OptionParser, OptionGroup
-from compmake import comp, compmake_console, batch_command, use_filesystem
-
-import numpy
-
-from contracts import check
-from contracts.enabling import disable_all
-
+from . import comp, compmake_console, batch_command, use_filesystem, np
 from .algorithms import get_list_of_algorithms
-from .test_cases import (get_syntethic_test_cases, get_real_test_cases)
-from .reports import (create_report_test_case, create_report_comb_stats,
-                      create_report_iterations)
-from .tools import expand_string 
-
-from .test_cases.fly import get_fly_testcase 
 from .combinations import get_list_of_combinations
+from .reports import (create_report_test_case, create_report_comb_stats,
+    create_report_iterations)
 from .reports.paper_tables import create_tables_for_paper
+from .test_cases import get_syntethic_test_cases, get_real_test_cases
+from .test_cases.fly import get_fly_testcase
 from .test_cases.mino import get_mino_testcases
-from .test_cases.synthetic_euclidean import get_euclidean_test_cases
 from .test_cases.standard import standard_test_dir
+from .test_cases.synthetic_euclidean import get_euclidean_test_cases
+from .utils import expand_string
+from contracts import check, disable_all
+from optparse import OptionParser, OptionGroup
+import itertools
+import os
+
 
 join = os.path.join
 # cbc_main --data_sick cbc_submission_data/sick.pickle \                                            
@@ -49,8 +44,8 @@ def main():
 
     group = OptionGroup(parser, "Experiments options")
 
-    group.add_option("--fast", default=False, action='store_true',
-                      help='Disables sanity checks.')
+    group.add_option("--contracts", default=False, action='store_true',
+                      help='Enables PyContacts sanity checks.')
     
     group.add_option("--set", default='*',
                       help='[= %default] Which combinations to run.')
@@ -76,9 +71,9 @@ def main():
     (options, args) = parser.parse_args() #@UnusedVariable
     
     
-    numpy.random.seed(options.seed)    
+    np.random.seed(options.seed)    
     
-    if options.fast:
+    if not options.contracts:
         disable_all()
 
     assert not args 

@@ -1,12 +1,8 @@
-import numpy as np 
-
-from . import CalibAlgorithm
-
-from ..tools  import (scale_score)
-
-from geometry import mds, euclidean_distances
+from . import CalibAlgorithm, np
+from ..tools import scale_score, mds, euclidean_distances
 from .base import EUCLIDEAN
- 
+
+
 
 class MDS_robust(CalibAlgorithm):
     
@@ -58,7 +54,7 @@ class MDS_robust(CalibAlgorithm):
         
         self.iteration(dict(S=current_guess_for_S, phase=phase))
 
-        R_percentile = R_order * 100.0 / R_order.size
+        #R_percentile = R_order * 100.0 / R_order.size
 
         for iteration in range(num_iterations): #@UnusedVariable
             guess_for_D = euclidean_distances(current_guess_for_S)

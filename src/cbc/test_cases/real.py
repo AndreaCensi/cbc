@@ -1,18 +1,11 @@
-import pickle
-import sys
-import numpy as np
-from nose.tools import nottest
+from . import CalibTestCase, contract, check, np, nottest, pickle
+from ..tools import cov2corr, directions_from_angles, scale_score
+from ..utils import Ticker
 import itertools
-
-from contracts import contracts, check
-
-from cbc.tools import cov2corr, directions_from_angles
-from cbc.test_cases import CalibTestCase
-from cbc.tools import scale_score
-from .synthetic import Ticker
+import sys
 
 @nottest
-@contracts(returns='dict(str: tuple(Callable, dict))')
+@contract(returns='dict(str: tuple(Callable, dict))')
 def get_real_test_cases(filename):
     print('Loading Sick data from disk...')
     with open(filename) as f: 
@@ -65,8 +58,8 @@ def get_real_test_cases(filename):
         S = directions_from_angles(ground_truth[select])
         
         # Put all of these together
-        vars = ['y_corr', 'y_dot_sign_corr', 'y_dot_abs_corr', 'y_dot_corr', 'y_infsim']
-        all = dict(statistics)
+        vars = ['y_corr', 'y_dot_sign_corr', 'y_dot_abs_corr', 'y_dot_corr', 'y_infsim'] #@ReservedAssignment
+        all = dict(statistics) #@ReservedAssignment
         raws = [all[k] for k in vars]
         scores = [scale_score(x[select, :][:, select]) for x in raws]
         RR = scores[0] + scores[1] + scores[2] + scores[4]
@@ -83,15 +76,16 @@ def get_real_test_cases(filename):
 
     return tcs
 
+@nottest
 def test_case(tcid, R, S, kernel):
     tc = CalibTestCase(tcid, R)
     tc.set_ground_truth(S, kernel=kernel)
     return tc
 
-@contracts(single='array[NxK]', joint='array[NxNxKxK]',
+@contract(single='array[NxK]', joint='array[NxNxKxK]',
            returns='tuple(array[N],array[NxN])')
 def compute_hdist(single, joint):
-    N, K = single.shape
+    N, _ = single.shape
     
     H = np.zeros(N)
     for i in range(N):
@@ -110,7 +104,7 @@ def compute_hdist(single, joint):
 
     return H, D
 
-#@contracts(f='array(>=0)', returns='float,>=0')
+#@contract(f='array(>=0)', returns='float,>=0')
 def shannon_entropy(f):
     s = f.sum()
     if s == 0:
@@ -121,7 +115,7 @@ def shannon_entropy(f):
     logpd = np.log(pd)
     pd[zeros] = 0
 
-    return - (pd * logpd).sum()
+    return -(pd * logpd).sum()
     
 
 if __name__ == '__main__':

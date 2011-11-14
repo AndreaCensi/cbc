@@ -5,8 +5,8 @@ from reprep import Report
 from ..tools import (scale_score, find_closest_multiple,
                       euclidean_distances, distances_from_directions,
                      cosines_from_directions, angles_from_directions)
-from ..algorithms.base import SPHERICAL, EUCLIDEAN
-from .utils import util_plot_euclidean_coords2d, zero_diagonal, \
+from ..algorithms import SPHERICAL, EUCLIDEAN
+from . import util_plot_euclidean_coords2d, zero_diagonal, \
     plot_and_display_coords, add_order_comparison_figure, \
     util_plot_xy_generic, add_distance_vs_sim_figure
 
