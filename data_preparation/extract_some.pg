@@ -1,0 +1,19 @@
+--- model extract_some
+""" Extracts some pixels from an image"""
+config file "Input video filename."
+config hdf  "Output HDF file." 
+config filter = middle_line_filter
+
+
+|mplayer file=$file| --> rgb --> |rgb2gray| --> gray
+
+
+import tc_filters
+
+    gray --> |$filter| --> y 
+    
+    
+y --> |hdfwrite file=$hdf|
+    
+    
+    

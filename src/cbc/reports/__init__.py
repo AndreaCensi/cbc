@@ -7,3 +7,4 @@ from .test_cases import *
 
 
 
+from .paper_tables import *

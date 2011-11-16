@@ -9,11 +9,16 @@ setup(name='CBC',
         packages=['cbc'],
         entry_points={
          'console_scripts': [
-           'cbc_main  = cbc.calib_main:main',
+           'cbc_main  = cbc.manager.calib_main:main',
            'camera_plots = cbc.demos.camera_plots:main'
            ]
         },
-        install_requires=['reprep', 'numpy', 'PyContracts', 'PyGeometry', 'nose'],
+        install_requires=['reprep>=1.1,<2', 'numpy',
+                          'nose', # conf_tools
+                          'PyGeometry>=1.1,<2',
+                          'conf_tools<2',
+                          'compmake>=1.1,<2',
+                          'PyContracts>=1.1,<2'],
         extras_require={},
 )
 

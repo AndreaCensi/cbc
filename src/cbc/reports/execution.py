@@ -1,14 +1,13 @@
+from . import (util_plot_euclidean_coords2d, zero_diagonal,
+    plot_and_display_coords, add_order_comparison_figure, util_plot_xy_generic,
+    add_distance_vs_sim_figure)
+from ..algorithms import SPHERICAL, EUCLIDEAN
+from ..tools import (scale_score, find_closest_multiple, euclidean_distances,
+    distances_from_directions, cosines_from_directions, angles_from_directions)
+from reprep import Report
 import numpy as np
 
-from reprep import Report 
 
-from ..tools import (scale_score, find_closest_multiple,
-                      euclidean_distances, distances_from_directions,
-                     cosines_from_directions, angles_from_directions)
-from ..algorithms import SPHERICAL, EUCLIDEAN
-from . import util_plot_euclidean_coords2d, zero_diagonal, \
-    plot_and_display_coords, add_order_comparison_figure, \
-    util_plot_xy_generic, add_distance_vs_sim_figure
 
 
 LABEL_D = 'distance'
@@ -58,8 +57,8 @@ def create_report_final_solution(results):
     if S_aligned.shape[0] == 2:
         solutions_comparison_plots(r, f, true_S, S_aligned)
  
-    util_plot_euclidean_coords2d(r, f, 'S_aligned', S)
-    util_plot_euclidean_coords2d(r, f, 'true_S', true_S)
+        util_plot_euclidean_coords2d(r, f, 'S_aligned', S)
+        util_plot_euclidean_coords2d(r, f, 'true_S', true_S)
 
     f2 = r.figure('observable_measures', cols=3, caption='Computable measures')
      

@@ -1,15 +1,15 @@
-from . import comp, compmake_console, batch_command, use_filesystem, np
-from .algorithms import get_list_of_algorithms
+from .. import comp, compmake_console, batch_command, use_filesystem, np
+from ..algorithms import get_list_of_algorithms
+from ..configuration import TCConfig
+from ..reports import (create_report_test_case, create_report_comb_stats,
+    create_report_iterations, create_tables_for_paper)
+from ..tc import CalibTestCase, get_syntethic_test_cases, get_real_test_cases
+from ..tc.fly import get_fly_testcase
+from ..tc.io.load import tc_load_spec
+from ..tc.mino import get_mino_testcases
+from ..tc.synthetic_euclidean import get_euclidean_test_cases
+from ..utils import expand_string
 from .combinations import get_list_of_combinations
-from .reports import (create_report_test_case, create_report_comb_stats,
-    create_report_iterations)
-from .reports.paper_tables import create_tables_for_paper
-from .test_cases import get_syntethic_test_cases, get_real_test_cases
-from .test_cases.fly import get_fly_testcase
-from .test_cases.mino import get_mino_testcases
-from .test_cases.standard import standard_test_dir
-from .test_cases.synthetic_euclidean import get_euclidean_test_cases
-from .utils import expand_string
 from contracts import check, disable_all
 from optparse import OptionParser, OptionGroup
 import itertools
@@ -19,8 +19,10 @@ import os
 join = os.path.join
 # cbc_main --data_sick cbc_submission_data/sick.pickle \                                            
 #          --data_fly  cbc_submission_data/fly.pickle \
-#          --set 'paper*' --fast \
+#          --set 'paper*'  \
 #          --outdir cbc_main_output
+             
+             
              
 def main():
     parser = OptionParser()
@@ -31,7 +33,7 @@ def main():
                       help='Directory with variables.pickle and where '
                            'the output will be placed.')
 
-    group.add_option("--testdir", default=None)
+#    group.add_option("--testdir", default=None)
 
     group.add_option("--data_sick", default=None,
                      help='.pickle file containing Sick data.')
@@ -39,7 +41,10 @@ def main():
                      help='directory containing Mino data.')
     group.add_option("--data_fly", default=None,
                      help='.pickle file containing fly simulation data.')
-    
+   
+    group.add_option("--test_cases", default=None,
+                    help='Base dire for test cases.')
+ 
     parser.add_option_group(group)
 
     group = OptionGroup(parser, "Experiments options")
@@ -76,11 +81,18 @@ def main():
     if not options.contracts:
         disable_all()
 
-    assert not args 
+    
     assert options.outdir is not None 
     
     available_test_cases = {}
+
+    if options.test_cases is not None:
+        TCConfig.load(options.test_cases)
     
+        for tc_id in TCConfig.test_cases:
+            available_test_cases[tc_id] = \
+                (tc_load_spec, {'spec': TCConfig.test_cases[tc_id]})
+            
     print('Generating synthetic test cases...')
     synthetic = get_syntethic_test_cases()
     available_test_cases.update(synthetic)
@@ -88,8 +100,8 @@ def main():
     euclidean = get_euclidean_test_cases()
     available_test_cases.update(euclidean)
     
-    if options.testdir is not None:
-        available_test_cases.update(standard_test_dir(options.testdir))
+#    if options.testdir is not None:
+#        available_test_cases.update(standard_test_dir(options.testdir))
     
     if options.data_sick is not None:
         print('Preparing Sick data...')
@@ -124,12 +136,6 @@ def main():
     
     use_filesystem(compmake_storage)
 
-    # Stage creation of all test cases
-    # (removed)
-#    for k in list(test_cases.keys()):
-#        command, args = test_cases[k]
-#        job_id = 'test_case_data-%s' % k
-#        test_cases[k] = comp(command, job_id=job_id, **args)
 
     print('Available %d test cases and %d algorithms' % 
           (len(available_test_cases), len(algorithms)))
@@ -143,9 +149,11 @@ def main():
                    (tcid, available_test_cases.keys()))
             raise Exception(msg)
         if not tcid in test_cases:
-            command, args = available_test_cases[tcid]
+            f, args = available_test_cases[tcid]
+            
             job_id = 'test_case_data-%s' % tcid
-            test_cases[tcid] = comp(command, job_id=job_id, **args)
+            test_cases[tcid] = comp(test_case_generate, f=f,
+                                    args=args, job_id=job_id)
         
         if not tcid in  test_case_reports:
             job_id = 'test_case-%s-report' % tcid
@@ -219,9 +227,13 @@ def main():
     else:
         compmake_console()
 
+def test_case_generate(f, args):
+    res = f(**args)
+    assert isinstance(res, CalibTestCase)
+    return res
 
 def write_report(report, filename):
-    print('Writing report %r to %r.' % (report.id, filename))
+    print('Writing report %r to %r.' % (report.nid, filename))
     rd = join(os.path.dirname(filename), 'images')
     report.to_html(filename, resources_dir=rd)
 

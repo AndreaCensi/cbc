@@ -208,8 +208,13 @@ def get_list_of_combinations():
                                                              ])
     
     combinations['GOPRO1'] = Combination(
-        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w'], 
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w'],
         ['GOPRO-grid24-*',
         ' mino-grid24-*'])
+  
+    combinations['tmp2'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w', 'cheat'],
+        ['GOPRO-grid24-*'])
+  
   
     return combinations

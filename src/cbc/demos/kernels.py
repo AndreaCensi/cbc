@@ -3,7 +3,7 @@ import numpy as np
 from reprep import Report
  
 from warp import svds, get_distribution
-from cbc.test_cases.synthetic import  linear01_sat, pow3_sat, pow7_sat
+from cbc.tc.synthetic import  linear01_sat, pow3_sat, pow7_sat
 
 def identity(x):
     return x    

@@ -2,10 +2,14 @@ from . import (nottest, np, Report, plot_one_against_the_other,
     util_plot_euclidean_coords2d, plot_and_display_coords,
     add_order_comparison_figure, util_plot_xy_generic)
 from ..tools import scale_score
+from cbc.tc.base import CalibTestCase
 
 
 @nottest
 def create_report_test_case(tcid, tc):
+    assert isinstance(tcid, str)
+    assert isinstance(tc, CalibTestCase), (type(tc), str(tc))
+    
     r = Report('test_case-%s' % tcid)
     
     r.add_child(tc_problem_plots(tc)) 
