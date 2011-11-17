@@ -46,13 +46,19 @@ def warp_fit(D, min_ratio, max_ratio, nratios,
         ev = np.abs(ev)
         SS[l, :] = ev
         SSn[l, :] = SS[l, :] / SS[l, 0] 
-        measure[l] = SSn[l, 2] / SSn[l, 3]
-        
-        print('ratio: %.3f  measure: %.3f' % (ratio, measure[l]))
+        measure_3_4 = SSn[l, 2] / SSn[l, 3]
+        measure_123 = np.sum(SSn[l, :3]) / np.sum(SSn[l, 3:])
+        measure_4s = -np.sum(SSn[l, 3:])
+        measure_3_4s = SSn[l, 2] / np.sum(SSn[l, 3])
+        measure[l] = measure_3_4 # This is the one that worked
+#        measure[l] = measure_4s
+        print(('ratio: %.3f  (1/ratio: %.3f)  *M(s[2]/s[3]): %.3f  M(sum(:3)/sum(3:)): %.3f '
+              '  M(-sum(4:) = %.3f  %.3f ') 
+              % (ratio, 1.0 / ratio, measure_3_4, measure_123, measure_4s, measure_3_4s))
     
     classifica = np.argsort(-measure)
     best_ratio = ratios[classifica[0]]
-    print('Best ratio: %s' % best_ratio)
+    print('Best ratio: %.3f  (1/ratio: %.3f)' % (best_ratio, 1 / best_ratio))
     
     C = np.cos(best_ratio * D)
     S = best_embedding_on_sphere(C, ndim)

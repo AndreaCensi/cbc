@@ -213,8 +213,19 @@ def get_list_of_combinations():
         ' mino-grid24-*'])
   
     combinations['tmp2'] = Combination(
-        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w', 'cheat'],
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'cheat'],
         ['GOPRO-grid24-*'])
   
+
+    combinations['tmp3'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        ['GOPRO-grid24-corr', 'GOPRO-grid24-art'])
   
+  
+    combinations['tmp4'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        ['GOPRO-grid24-corr', 'mino-grid24-corr'])
     return combinations

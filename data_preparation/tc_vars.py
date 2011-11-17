@@ -1,10 +1,11 @@
 from tc_filters import grid24, midcen, patch32s4, patch32, middle, center
-from tc_stats import y_dot_sign_corr, y_dot_corr, y_corr, artificial
+from tc_stats import y_dot_sign_corr, y_dot_corr, y_corr, artificial, \
+    y_corr_norm
 
 class Const:
     data_dir = 'data/'
     videos = [
-#      'mino02', 'mino03', 'mino05', 'mino06',
+      'mino02', 'mino03', 'mino05', 'mino06',
         'GOPR0612',
         'GOPR0613', 'GOPR0614', 'GOPR0615'
     ]
@@ -28,7 +29,7 @@ class Const:
         'GOPRO': ['GOPR0612',
                   'GOPR0613', 'GOPR0614', 'GOPR0615'
                   ],
-        #'mino': ['mino02', 'mino03', 'mino05', 'mino06']
+        'mino': ['mino02', 'mino03', 'mino05', 'mino06']
     }
              
     stats = {  
@@ -36,5 +37,6 @@ class Const:
         'y_dot_corr': dict(id='y_dot_corr', function=y_dot_corr, needs_gt=False, desc=""),
         'y_dot_sign_corr': dict(id='y_dot_sign_corr', function=y_dot_sign_corr, needs_gt=False, desc=""),
         'art': dict(id='art', function=artificial, needs_gt=True, desc=""),
+        'corr_n': dict(id='corr', function=y_corr_norm, needs_gt=False, desc=""),
     }
 

@@ -159,7 +159,10 @@ class CalibAlgorithm(object):
 
             D = distances_from_directions(S)
             true_D = distances_from_directions(self.true_S)
-            data['scaled_rel_error'] = scaled_error(D, true_D)
+            
+            scaled_rel_error, scaled_scale = scaled_error(D, true_D, also_scale=True)
+            data['scaled_rel_error'] = scaled_rel_error
+            data['scaled_scale'] = scaled_scale
             data['scaled_rel_error_deg'] = np.degrees(data['scaled_rel_error'])  
             
         if self.is_euclidean() and self.true_S is not None:
@@ -213,10 +216,10 @@ class CalibAlgorithm(object):
         if self.is_spherical():
             status += (varstat('error_deg', '%5.3f', sign= -1) + 
                       varstat('rel_error_deg', '%5.3f', sign= -1) + 
-                      varstat('scaled_rel_error', '%5.3f', sign= -1, label='s_r_err'))
+                      varstat('scaled_rel_error_deg', '%5.3fd', sign= -1, label='s_r_err'))
         if self.is_euclidean():
             status += (varstat('scaled_error', '%5.3f', sign= -1, label='s_err') + 
-                       varstat('scaled_rel_error', '%5.3f', sign= -1, label='s_r_err'))
+                       varstat('scaled_rel_error_deg', '%5.3fd', sign= -1, label='s_r_err'))
             
 #                  varstat('Ddist', '%.5f', label='Ddist', sign= -1)    
 #                  varstat('RCorder_diff', '%.3f', label='RCorder')  

@@ -23,15 +23,12 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
             if var in res:
                 return format % res[var]
             else:
-#                return '/'
                 return not_found
         return getter
 
     if has_ground_truth:
         r.table('spearman_score', caption='Spearman correlation (normalized)',
             **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.4f')))
-
-#    print deps.values()[0]['iterations'][0].keys()
     
     has_angles_corr = 'angles_corr' in  deps.values()[0]['iterations'][0]
     
@@ -50,6 +47,11 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
     r.table('scaled_error', caption='Final abs error (after scaling+ortho.)',
             **generic_table(tc_ids, alg_ids, tablevar('scaled_error', '%.4f')))
 
+
+    r.table('scaled_rel_error_deg', caption='Final relative error (deg) (after scaling)',
+            **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error_deg', '%.4f')))
+    r.table('scaled_error_deg', caption='Final abs error (deg) (after scaling+ortho.)',
+            **generic_table(tc_ids, alg_ids, tablevar('scaled_error_deg', '%.4f')))
 
     r.table('spearman', caption='Spearman correlation',
             **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.4f')))
@@ -81,12 +83,13 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
             
         ftc = rtc.figure(cols=5, caption='Error per iteration')
         generic_iteration_plot(rtc, ftc, 'error_deg', plot_alg_ids, variable('error_deg'),
-                               caption='Absolute error')
+                               caption='Absolute error (deg')
         generic_iteration_plot(rtc, ftc, 'rel_error_deg', plot_alg_ids, variable('rel_error_deg'),
-                               caption='Relative error')
+                               caption='Relative error (deg)')
         
-        generic_iteration_plot(rtc, ftc, 'scaled_rel_error', plot_alg_ids, variable('scaled_rel_error'),
-                               caption='Relative error (after scaling)')
+        generic_iteration_plot(rtc, ftc, 'scaled_rel_error_deg', plot_alg_ids,
+                               variable('scaled_rel_error_deg'),
+                               caption='Relative error (deg), after scaling)')
 
         generic_iteration_plot(rtc, ftc, 'spearman', plot_alg_ids, variable('spearman'),
                                caption='Spearman correlation')
@@ -181,11 +184,21 @@ def generic_iteration_plot(report, f, nid, alg_ids, get_trace, caption=None):
                            '-', label=alg_id)
             else:
                 pylab.plot(trace, 'x-', label=alg_id)
-#        pylab.legend()
+        pylab.legend()
         
     f.sub(report.last(), caption=caption)
     
 
+    with report.data_pylab('%s_full' % nid) as pylab:
+        for alg_id, trace in zip(alg_ids, traces):
+            if len(trace) == 1:
+                # one iteration, write continuous line
+                pylab.plot([0, max_trace_length], [trace, trace],
+                           '-', label=alg_id)
+            else:
+                pylab.plot(trace, 'x-', label=alg_id)
+    
+    
 def compared_iteration_plot(report, f, nid, alg_ids, get_trace1, get_trace2,
                             caption=None):
     with report.data_pylab(nid) as pylab:
@@ -193,7 +206,9 @@ def compared_iteration_plot(report, f, nid, alg_ids, get_trace1, get_trace2,
             x = get_trace1(alg_id)
             y = get_trace2(alg_id)
             pylab.plot(x, y, 'x', label=alg_id)
-#        pylab.legend()
+        pylab.legend()
         
     f.sub(report.last(), caption=caption)
+
+    
      

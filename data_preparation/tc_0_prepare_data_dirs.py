@@ -8,7 +8,6 @@ import os
 import scipy.io
 
         
-
 def main():
   
     for video in Const.videos:
@@ -20,6 +19,7 @@ def main():
         if os.path.exists(calibration):
             S = get_groundtruth(calibration)
         else:
+            print('  No ground truth file %r found.' % calibration)
             S = None
 
         for conf_id, config in Const.filters.items():

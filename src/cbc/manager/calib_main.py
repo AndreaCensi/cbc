@@ -14,6 +14,7 @@ from contracts import check, disable_all
 from optparse import OptionParser, OptionGroup
 import itertools
 import os
+from cbc.utils.filesystem import make_sure_dir_exists
 
 
 join = os.path.join
@@ -168,25 +169,31 @@ def main():
     # set of tuple (algo, test_case)
     executions = {}
     def stage_execution(tcid, algid):
+        exc_id = '%s-%s' % (tcid, algid)
         stage_test_case_report(tcid)
         
         key = (tcid, algid)
         if not key in executions:
             test_case = test_cases[tcid]
+            if not algid in algorithms:
+                raise Exception('No %r known in %s' % (algid, algorithms.keys()))
             algo_class, algo_params = algorithms[algid]
-            job_id = 'calib-%s-%s-run' % (tcid, algid)
-            results = comp(run_combination, test_case, algo_class, algo_params,
-                            job_id=job_id)
-            executions[key] = results
             
-            exc_id = '%s-%s' % (tcid, algid)
+            executions[key] = comp(run_combination, test_case, algo_class, algo_params,
+                                   job_id='calib-%s-run' % exc_id)
+    
+            basename = join(options.outdir, 'results', '%s-%s' % (tcid, algid))
+            comp(save_results, basename=basename,
+                 results=executions[key],
+                    job_id='calib-%s-save' % exc_id)        
+            
             # Create iterations report
-            job_id = 'calib-%s-report' % exc_id
-            report = comp(create_report_iterations, exc_id, results, job_id=job_id)
+            report = comp(create_report_iterations, exc_id, executions[key],
+                          job_id='calib-%s-report' % exc_id)
             
-            job_id += '-write'
             filename = join(options.outdir, 'executions', '%s-%s.html' % (tcid, algid))
-            comp(write_report, report, filename, job_id=job_id)
+            comp(write_report, report, filename,
+                 job_id='calib-%s-report-write' % exc_id)
             
         return executions[key]
      
@@ -237,7 +244,21 @@ def write_report(report, filename):
     rd = join(os.path.dirname(filename), 'images')
     report.to_html(filename, resources_dir=rd)
 
-
+def save_results(results, basename):
+    # results = return values of run_combination
+    filename = basename + '.mat'
+    
+    data = {}
+    data['similarity'] = results['R'].astype('float32')
+    data['S'] = results['S'].astype('float32')
+    data['true_S'] = results['true_S'].astype('float32')
+        
+    import scipy.io
+    make_sure_dir_exists(filename)
+    print('Writing to %r.' % filename)
+    scipy.io.savemat(filename, data)
+    
+         
 def run_combination(test_case, algo_class, algo_params):
     print('Running %s - %s(%s)' % (test_case.tcid, algo_class.__name__, algo_params))
     algo = algo_class(algo_params)
