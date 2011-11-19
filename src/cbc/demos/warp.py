@@ -2,6 +2,7 @@ from . import np, contract, Report
 from ..tools import (random_direction, geodesic_distance_on_sphere,
     rotation_from_axis_angle, distances_from_directions, cosines_from_distances,
     directions_from_angles)
+from reprep.constants import MIME_PDF
 
 @contract(N='int,>0,N',
            radius_deg='number,>0,<=180',
@@ -55,7 +56,8 @@ def main():
     curvature 2*pi. 
     """.format(**locals()) 
     
-    mime = 'application/pdf'; figsize = (4, 3)
+    mime = MIME_PDF 
+    figsize = (4, 3)
     f = r.figure(caption=caption)
 
     for ndim in [2, 3]:

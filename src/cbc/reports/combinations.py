@@ -1,5 +1,7 @@
 from . import np, Report
 from ..utils import natsorted
+from reprep.plot_utils import y_axis_extra_space
+from reprep.plot_utils.axes import x_axis_extra_space_right
 
 
 def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
@@ -83,8 +85,9 @@ def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
             
         ftc = rtc.figure(cols=5, caption='Error per iteration')
         generic_iteration_plot(rtc, ftc, 'error_deg', plot_alg_ids, variable('error_deg'),
-                               caption='Absolute error (deg')
-        generic_iteration_plot(rtc, ftc, 'rel_error_deg', plot_alg_ids, variable('rel_error_deg'),
+                               caption='Absolute error (deg)')
+        generic_iteration_plot(rtc, ftc, 'rel_error_deg', plot_alg_ids,
+                               variable('rel_error_deg'),
                                caption='Relative error (deg)')
         
         generic_iteration_plot(rtc, ftc, 'scaled_rel_error_deg', plot_alg_ids,
@@ -184,19 +187,19 @@ def generic_iteration_plot(report, f, nid, alg_ids, get_trace, caption=None):
                            '-', label=alg_id)
             else:
                 pylab.plot(trace, 'x-', label=alg_id)
+        x_axis_extra_space_right(pylab, fraction=0.5)
+        y_axis_extra_space(pylab)
         pylab.legend()
-        
     f.sub(report.last(), caption=caption)
-    
 
-    with report.data_pylab('%s_full' % nid) as pylab:
-        for alg_id, trace in zip(alg_ids, traces):
-            if len(trace) == 1:
-                # one iteration, write continuous line
-                pylab.plot([0, max_trace_length], [trace, trace],
-                           '-', label=alg_id)
-            else:
-                pylab.plot(trace, 'x-', label=alg_id)
+#    with report.data_pylab('%s_full' % nid) as pylab:
+#        for alg_id, trace in zip(alg_ids, traces):
+#            if len(trace) == 1:
+#                # one iteration, write continuous line
+#                pylab.plot([0, max_trace_length], [trace, trace],
+#                           '-', label=alg_id)
+#            else:
+#                pylab.plot(trace, 'x-', label=alg_id)
     
     
 def compared_iteration_plot(report, f, nid, alg_ids, get_trace1, get_trace2,

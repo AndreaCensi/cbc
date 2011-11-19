@@ -1,0 +1,26 @@
+#!/usr/bin/env pg
+--- model compare_rgb_diff
+config file 
+config out 
+
+import extract_components
+
+|mplayer file=$file| --> |resize width=320| --> |astype dtype='float32'| --> rgb 
+
+rgb --> |extract_component i=0| --> r
+rgb --> |extract_component i=1| --> g
+rgb --> |extract_component i=2| --> b
+
+r, g -->|sync|-->|-|-->|posneg skim=5|-->rg 
+g, b -->|sync|-->|-|-->|posneg skim=5|-->gb 
+r, b -->|sync|-->|-|-->|posneg skim=5|-->rb
+
+rg,rb,gb-->|sync|-->|grid cols=4|-->|mencoder file="${out}"|
+
+
+
+#r -> |mencoder file="${basename}r.mp4"|
+#g -> |mencoder file="${basename}g.mp4"|
+#b -> |mencoder file="${basename}b.mp4"|
+   
+    

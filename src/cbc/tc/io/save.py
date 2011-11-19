@@ -18,7 +18,7 @@ def tc_write(dirname, tc_id, R, true_S, attrs={}):
         pickle.dump(dict(similarity=R), f)
     
     scipy.io.savemat(os.path.join(dirname, tc_file_mat),
-                     dict(similarity=R))
+                     dict(similarity=R), oned_as='row')
         
     if true_S is not None:
         # TODO: check
@@ -27,7 +27,7 @@ def tc_write(dirname, tc_id, R, true_S, attrs={}):
             pickle.dump(dict(true_S=true_S), f)
             
         scipy.io.savemat(os.path.join(dirname, gt_file_mat),
-                         dict(true_S=true_S))
+                         dict(true_S=true_S), oned_as='row')
         
     else: 
         gt_file = None

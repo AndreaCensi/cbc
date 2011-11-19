@@ -184,7 +184,7 @@ class CalibAlgorithm(object):
             data['scaled_error'] = \
                 mean_euclidean_distance_after_orthogonal_transform(
                             trans_scaled_S, trans_true_S)
-           
+            data['scaled_error_deg'] = np.rad2deg(data['scaled_error'])
             data['error'] = \
                 mean_euclidean_distance_after_orthogonal_transform(
                             remove_mean(S), remove_mean(self.true_S))

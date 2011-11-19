@@ -6,6 +6,15 @@ def y_corr(Y, true_S):
     R = np.corrcoef(Y, rowvar=0)
     return R.astype('float32')
 
+
+def y_corr_m(Y, true_S):
+    Y2 = Y.copy().astype('float32')
+    Y2 = np.sqrt(Y2)
+#    for i in range(Y2.shape[0]):
+#        Y2[i, :] -= np.mean(Y2[i, :])
+    return y_corr(Y2, true_S)
+
+
 def y_dot_corr(Y, true_S):
     y0 = Y[:-1, :].astype('float32')
     y1 = Y[+1:, :].astype('float32')

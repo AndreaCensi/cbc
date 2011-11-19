@@ -8,13 +8,14 @@ from ..tc.fly import get_fly_testcase
 from ..tc.io.load import tc_load_spec
 from ..tc.mino import get_mino_testcases
 from ..tc.synthetic_euclidean import get_euclidean_test_cases
-from ..utils import expand_string
+from ..tools import align_distributions
+from ..utils import expand_string, make_sure_dir_exists
 from .combinations import get_list_of_combinations
 from contracts import check, disable_all
 from optparse import OptionParser, OptionGroup
+import datetime
 import itertools
 import os
-from cbc.utils.filesystem import make_sure_dir_exists
 
 
 join = os.path.join
@@ -245,19 +246,40 @@ def write_report(report, filename):
     report.to_html(filename, resources_dir=rd)
 
 def save_results(results, basename):
+    
     # results = return values of run_combination
     filename = basename + '.mat'
     
     data = {}
     data['similarity'] = results['R'].astype('float32')
     data['S'] = results['S'].astype('float32')
-    data['true_S'] = results['true_S'].astype('float32')
-        
+    if 'true_S' in results:
+        data['true_S'] = results['true_S'].astype('float32')
+        data['S_aligned'] = align_distributions(data['S'], data['true_S'])
+    else:
+        print('no ground truth - no aligned points')
+    data['description'] = """
+   
+   similarity:  input data
+   true_S:  the ground truth given
+   S: the estimated distribution
+   s_aligned: the estimated distribution, aligned to true_S
+    
+"""
+    data['creator'] = 'calib_main at %s' % isodate()
     import scipy.io
     make_sure_dir_exists(filename)
     print('Writing to %r.' % filename)
-    scipy.io.savemat(filename, data)
-    
+    scipy.io.savemat(filename, data, oned_as='row')
+   
+
+def isodate():
+    """ E.g., '2011-10-06-22:54' """
+    now = datetime.datetime.now()
+    date = now.isoformat('-')[:16]
+    return date
+
+ 
          
 def run_combination(test_case, algo_class, algo_params):
     print('Running %s - %s(%s)' % (test_case.tcid, algo_class.__name__, algo_params))

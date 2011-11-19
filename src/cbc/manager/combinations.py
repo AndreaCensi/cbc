@@ -228,4 +228,37 @@ def get_list_of_combinations():
         ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
           'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
         ['GOPRO-grid24-corr', 'mino-grid24-corr'])
+
+    combinations['tmp5'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        ['GOPRb-grid24-corr',
+         'GOPRb-grid24-corr_n',
+         'GOPRb-grid24-corr_m',
+         'GOPRb-grid24-y_dot_corr',
+         'GOPRb-grid24-y_dot_sign_corr',
+         'GOPRb-grid24-art'])
+
+    combinations['tmp6'] = Combination(
+        [ 
+         'cheat', 'CBC3dw', 'embed3' 
+          ],
+        [
+         'GOPRb-grid20-corr' 
+         ]) 
+    
+    
+    combinations['tmp7'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        ['GOPRb-grid24-corr',
+         'GOPRb-grid24-corr_m',
+         'GOPRb-grid24-art',
+         'GOPRK-grid24-corr',
+         'GOPRK-grid24-corr_m',
+         'GOPRK-grid24-art',
+         'mino-grid24-corr',
+         'mino-grid24-corr_m',
+         'mino-grid24-art',
+         ])
     return combinations

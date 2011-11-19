@@ -27,7 +27,12 @@ def midcen(gray):
 @simple_block
 def grid24(gray):
     return grid(gray, 24)
-    
+
+@simple_block
+def grid16(gray): return grid(gray, 16)
+@simple_block
+def grid20(gray): return grid(gray, 20)
+
 def grid(gray, interval):
     """ Extract a grid of pixels"""
     h, w = gray.shape

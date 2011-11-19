@@ -1,0 +1,18 @@
+#!/usr/bin/env pg
+--- model extract_components
+""" Extracts the three components of the video. """
+config file 
+config basename "Output is ${basename}{r,g,b}.mp4."
+
+import extract_components
+
+|mplayer file=$file| --> rgb 
+
+rgb --> |select_component i=0| --> r
+rgb --> |select_component i=1| --> g
+rgb --> |select_component i=2| --> b
+
+r -> |mencoder file="${basename}r.mp4"|
+g -> |mencoder file="${basename}g.mp4"|
+b -> |mencoder file="${basename}b.mp4"|
+   

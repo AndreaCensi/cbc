@@ -1,8 +1,9 @@
 from cbc.tc.io.save import tc_write
-from compmake import comp, compmake_console
+from compmake import comp, compmake_console, use_filesystem
 from tc_utils import reshape
 from tc_vars import Const
 import cPickle as pickle
+import itertools
 import numpy as np
 import os
 import tables
@@ -31,13 +32,14 @@ def signal_read_ground_truth(signal):
     
     
 def main():
+    use_filesystem(os.path.join(Const.signals_dir, 'compmake_stats'))
     
-    signals = list_signals()
-    
-    for signal in signals:
-        for stat in Const.stats:
-            comp(compute_and_write_stats, signal, stat,
-                 job_id='stats-%s-%s' % (signal, stat))
+#    signals = list_signals() # only do the compound ones
+#    signals = Const.osets.keys()
+    for id_oset, id_filter, id_stat in itertools.product(Const.osets, Const.filters, Const.stats):
+        signal = '%s-%s' % (id_oset, id_filter)
+        comp(compute_and_write_stats, signal, id_stat,
+             job_id='stats-%s-%s' % (signal, id_stat))
 
     compmake_console()
             
