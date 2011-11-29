@@ -1,0 +1,16 @@
+#!/usr/bin/env pg
+--- model video_correlation
+""" Visualizes the variance of the image. """
+config file "Video file"
+config out  "Output file (image file)"
+
+|mplayer file=$file| --> |rgb2gray| --> y
+
+
+y --> |derivative| --> y_dot --> |variance| -> y_dot_var
+
+y_dot_var --> |sieve n=25| --> |scale| --> mask
+
+mask -> |imwrite file=$out|
+
+mask -> |mencoder fps=25 file="${out}.mp4"|

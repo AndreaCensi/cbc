@@ -261,4 +261,21 @@ def get_list_of_combinations():
          'mino-grid24-corr_m',
          'mino-grid24-art',
          ])
+    
+    combinations['tmp8'] = Combination(
+        ['embed3', 'CBC3dw', 'cheat'],
+        ['omni-grid24-corr',
+         'omni-grid24-corr_m',
+         'omni-grid24-art'
+         ])
+    
+    combinations['tmp9'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        ['omni-grid16-corr',
+         'omni-grid16-corr_m',
+         'omni-grid16-corr_n',
+         'omni-grid16-art'
+         ])
+    
     return combinations

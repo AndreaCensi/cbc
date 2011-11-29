@@ -1,8 +1,10 @@
+#!/usr/bin/env python
 from compmake import comp, compmake_console, use_filesystem
 from tc_vars import Const
 import numpy as np
 import os
 import tables
+from tc_utils import desc
 
 def main():
     use_filesystem(os.path.join(Const.signals_dir, 'compmake_join'))
@@ -18,7 +20,36 @@ def main():
              job_id='join-%s' % master)
         
     compmake_console()
+
+def log_load_from_hdf(filename):
+    # These two just ignore the time
+    f = tables.openFile(filename)
+    y = np.array(f.root.procgraph.y[:]['value'])
+    f.close()
+    print('  hdf: loaded from %s: %s %s' % (filename, y.shape, y.dtype))
+    return y
+
+def log_write_to_hdf(filename, y):
+    print('  hdf: writing to %s: %s %s' % (filename, y.shape, y.dtype))
     
+    num = len(y)
+    value = y[-1]
+    print('Num: %s   last value: %s %s' % (num, value.dtype, value.shape))
+    
+    table_dtype = [ ('time', 'float64'),
+                        ('value', value.dtype, value.shape) ]
+    
+    Z = np.zeros(shape=num, dtype=table_dtype)
+    for i in range(num):
+        Z['time'][i] = i
+        Z['value'][i][:] = y[i]
+            
+    
+    f = tables.openFile(filename, 'w')
+    f.createGroup('/', 'procgraph')
+    f.createTable('/procgraph', 'y', Z)
+    f.close()
+
 def join_signals(master, pieces):
     print('* Creating %r from %s' % (master, pieces))
     master_dir = os.path.join(Const.signals_dir, master)
@@ -32,22 +63,18 @@ def join_signals(master, pieces):
         for piece in pieces:
             filename = os.path.join(Const.signals_dir, piece,
                                     Const.SIGNAL_FILE)
-            f = tables.openFile(filename)
-            y = np.array(f.root.procgraph.y[:])
-            print('  - loaded piece %s: %s %s' % (piece, y.shape, y.dtype))
-
+            y = log_load_from_hdf(filename)
             data.append(y)
-            f.close()
     
-        all_data = np.hstack(data)
+        all_data = np.vstack(data)
+        desc('first piece', data[0])
+        desc('all_data', all_data)
         print('  all data: %s %s' % (all_data.shape, all_data.dtype))
     
         print('  creating %r' % master_signal)
-        f = tables.openFile(master_signal, 'w')
-        f.createGroup('/', 'procgraph')
-        f.createTable('/procgraph', 'y', all_data)
-        f.close()
-
+        log_write_to_hdf(master_signal, all_data)
+        
+        
     gt = os.path.join(Const.signals_dir, pieces[0], Const.GT_FILE)
     gtm = os.path.join(Const.signals_dir, master, Const.GT_FILE)
     if os.path.exists(gt):

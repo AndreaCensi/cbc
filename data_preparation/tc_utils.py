@@ -71,6 +71,18 @@ def filter_S(S, filter, ndim): #@ReservedAssignment
         return true_S
 
 
+def filter_S_keep_dim(S, filter_function): 
+    S0 = filter_function(S[:, :, 0])
+    S1 = filter_function(S[:, :, 1])
+    S2 = filter_function(S[:, :, 2])
+    
+    shape = [3]
+    shape.extend(S0.shape)
+    SS = np.zeros(shape=shape, dtype='float32')
+    SS[0, ...] = S0
+    SS[1, ...] = S1
+    SS[2, ...] = S2
+    return SS
 
 def reshape(y, true_S):
     y0 = y[0, ...]
@@ -107,3 +119,12 @@ def reshape(y, true_S):
 
     return y, true_S
     
+def desc(name, a):
+    if a.dtype == np.dtype('bool'):
+        x = np.sum(a)
+        y = a.size
+        p = 100.0 * x / y
+        other = '%s/%s=%.1f%%' % (x, y, p)
+    else:
+        other = None
+    print(' %14s: %s %s %s' % (name, a.dtype, a.shape, other))

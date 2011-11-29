@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from cbc.tc.io.save import tc_write
 from compmake import comp, compmake_console, use_filesystem
 from tc_utils import reshape
@@ -7,7 +8,6 @@ import itertools
 import numpy as np
 import os
 import tables
-
 
 def list_signals():
     candidates = os.listdir(Const.signals_dir)
@@ -67,7 +67,6 @@ def compute_and_write_stats(signal, stat):
     
     stat_function = Const.stats[stat]['function']
     #stat_desc = Const.stats[stat]['desc']
-
 
     # Compute stats
     R = stat_function(y, true_S)

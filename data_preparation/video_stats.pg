@@ -1,0 +1,19 @@
+#!/usr/bin/env pg
+--- model video_stats
+""" Visualizes mean(y), var(y), var(y_dot) of the images. """
+config video "Video file"
+config out  "Output file (video)"
+
+|mplayer file=$video| --> |rgb2gray| --> y
+
+y --> |variance| -> y_var
+y --> |expectation| -> y_mean
+y --> |derivative| --> y_dot --> |variance| -> y_dot_var
+
+y_dot_var --> |sieve n=25| --> |scale min_value=0| --> y_dot_var_rgb
+    y_var --> |sieve n=25| --> |scale min_value=0| --> y_var_rgb
+   y_mean --> |sieve n=25| --> |scale min_value=0| --> y_mean_rgb
+
+y_dot_var_rgb, y_var_rgb, y_mean_rgb --> |sync| --> |grid cols=3| --> rgb
+
+rgb -> |mencoder fps=25 file=$out|

@@ -1,0 +1,8 @@
+#!/usr/bin/env pg
+--- model dir2video
+config dir "Directory"
+config out "Output filename"
+
+import procgraph_images
+
+|files_from_dir dir=$dir| -> |imread| -> |mencoder file=$out|

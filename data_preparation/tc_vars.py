@@ -12,9 +12,12 @@ class Const:
     GT_FILE = 'ground_truth.pickle'
     TC_FILE = 'stats.pickle'
     
-    
+    MASK_PATTERN = '%s_mask.png'
+    CALIBRATION_PATTERN = '%s_calibration.mat'
     
     videos = [
+        'omni02',
+        
         'mino02', 'mino03', 'mino05', 'mino06',
       
         'GOPR0612',
@@ -67,7 +70,8 @@ class Const:
                   'GOPRb0703',
                   'GOPRb0704'],
         'GOPRK': videos_rgb,
-        'mino': ['mino02', 'mino03', 'mino05', 'mino06']
+        'mino': ['mino02', 'mino03', 'mino05', 'mino06'],
+        'omni': ['omni02', 'omni02']
     }
              
     stats = {  
