@@ -1,7 +1,7 @@
 from . import np, Report
 from ..utils import natsorted
 from reprep.plot_utils import y_axis_extra_space
-from reprep.plot_utils.axes import x_axis_extra_space_right
+from reprep.plot_utils import x_axis_extra_space_right
 
 
 def create_report_comb_stats(comb_id, tc_ids, alg_ids, deps):
@@ -179,7 +179,7 @@ def generic_iteration_plot(report, f, nid, alg_ids, get_trace, caption=None):
     
     max_trace_length = max(len(tr) for tr in traces)
     
-    with report.data_pylab(nid) as pylab:
+    with report.plot(nid) as pylab:
         for alg_id, trace in zip(alg_ids, traces):
             if len(trace) == 1:
                 # one iteration, write continuous line
@@ -192,7 +192,7 @@ def generic_iteration_plot(report, f, nid, alg_ids, get_trace, caption=None):
         pylab.legend()
     f.sub(report.last(), caption=caption)
 
-#    with report.data_pylab('%s_full' % nid) as pylab:
+#    with report.plot('%s_full' % nid) as pylab:
 #        for alg_id, trace in zip(alg_ids, traces):
 #            if len(trace) == 1:
 #                # one iteration, write continuous line
@@ -204,7 +204,7 @@ def generic_iteration_plot(report, f, nid, alg_ids, get_trace, caption=None):
     
 def compared_iteration_plot(report, f, nid, alg_ids, get_trace1, get_trace2,
                             caption=None):
-    with report.data_pylab(nid) as pylab:
+    with report.plot(nid) as pylab:
         for alg_id  in alg_ids:
             x = get_trace1(alg_id)
             y = get_trace2(alg_id)

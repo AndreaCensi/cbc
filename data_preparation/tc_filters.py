@@ -25,11 +25,14 @@ def midcen(gray):
     return midcen
 
 @simple_block
-def grid24(gray):
-    return grid(gray, 24)
+def grid24(gray): return grid(gray, 24)
 
 @simple_block
 def grid16(gray): return grid(gray, 16)
+
+@simple_block
+def grid8(gray): return grid(gray, 8)
+
 @simple_block
 def grid20(gray): return grid(gray, 20)
 

@@ -12,13 +12,26 @@ import scipy.io
 import Image
 from tc_1_join_signals import log_load_from_hdf, log_write_to_hdf
 
-        
+def should_process(id_video, id_filter):
+    f = Const.filters[id_filter]
+    if 'only' in f:
+        if id_video in f['only']:
+            return True
+        else:
+            print('Skipping combination %r %r (only: %s) ' % 
+                  (id_video, id_filter, f['only']))
+            return False
+    else:
+        return True  
+    
 def main():
     from compmake import comp, compmake_console, use_filesystem
     use_filesystem(os.path.join(Const.signals_dir, 'compmake'))
     for id_video, id_filter in itertools.product(Const.videos, Const.filters):
-        comp(extract_signals, id_video, id_filter,
-             job_id='extract-%s-%s' % (id_video, id_filter))
+        if should_process(id_video, id_filter):
+            comp(extract_signals, id_video, id_filter,
+                 job_id='extract-%s-%s' % (id_video, id_filter))
+            
     compmake_console()
 
 def find_stem(s): 
@@ -29,6 +42,8 @@ def find_stem(s):
 
 def extract_signals(id_video, id_filter):
     filter_function = Const.filters[id_filter]['filter']
+    ndim = Const.filters[id_filter]['ndim']
+    assert ndim in [2, 3]
     
     mp4 = os.path.join(Const.data_dir, '%s.mp4' % id_video)
     should_exist(mp4)
@@ -85,9 +100,9 @@ def extract_signals(id_video, id_filter):
     should_exist(signal_file)
 
     if S is not None:
-        if mask is  None:
+        if mask is None:
             desc('S', S)
-            true_S = filter_S(S, filter_function, 3)
+            true_S = filter_S(S, filter_function, ndim)
             desc('true_S', true_S)
         else:
             true_S = filter_S_keep_dim(S, filter_function)

@@ -52,7 +52,7 @@ def tc_ground_truth_plots_sph(tc, rid='ground_truth'):
 
     plot_and_display_coords(r, f, 'true_S', tc.true_S)
 #
-#    with r.data('coordinates', tc.true_S).data_pylab('plot') as pylab:
+#    with r.data('coordinates', tc.true_S).plot('plot') as pylab:
 #        plot_coords(pylab, tc.true_S)
 
     n = r.data('true_C', tc.true_C).display('posneg')  
@@ -76,7 +76,7 @@ def tc_ground_truth_plots_sph(tc, rid='ground_truth'):
     if tc.true_kernel is not None:
         x = np.linspace(-1, 1, 512)
         y = tc.true_kernel(x)
-        with r.data_pylab('kernel') as pylab:
+        with r.plot('kernel') as pylab:
             pylab.plot(x, y)
             pylab.xlabel('cosine')
             pylab.ylabel('correlation')
@@ -101,7 +101,7 @@ def tc_ground_truth_plots_euc(tc, rid='ground_truth'):
     n = r.data('true_D', tc.true_D).display('scale')  
     f.sub(n, 'Actual distance matrix')
     
-    with r.data_pylab('linearity_func') as pylab:
+    with r.plot('linearity_func') as pylab:
         x = tc.true_D.flat
         y = tc.R.flat
         pylab.plot(x, y, '.', markersize=0.2)
@@ -114,7 +114,7 @@ def tc_ground_truth_plots_euc(tc, rid='ground_truth'):
     
     true_D_order = scale_score(tc.true_D)
     R_order = scale_score(tc.R)
-    with r.data_pylab('linearity') as pylab:
+    with r.plot('linearity') as pylab:
         x = true_D_order.flat
         y = R_order.flat
         pylab.plot(x, y, '.', markersize=0.2)
@@ -127,7 +127,7 @@ def tc_ground_truth_plots_euc(tc, rid='ground_truth'):
     if tc.true_kernel is not None:
         x = np.linspace(0, tc.true_D.max(), 512)
         y = tc.true_kernel(x)
-        with r.data_pylab('kernel') as pylab:
+        with r.plot('kernel') as pylab:
             pylab.plot(x, y)
             pylab.xlabel('distance')
             pylab.ylabel('R')

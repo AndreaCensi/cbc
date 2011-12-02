@@ -278,4 +278,85 @@ def get_list_of_combinations():
          'omni-grid16-art'
          ])
     
+    combinations['tmp10'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        [
+         'mino-grid24-corr_m',
+         'omni-grid16-corr_m',
+         'GOPRb-grid24-corr_m',
+         'mino-grid24-art',
+         'omni-grid16-art',
+         'GOPRb-grid24-art'
+         ])
+    
+    combinations['tmp11'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        [
+         'omni-grid16-*',
+         'omni-grid8-*'
+         ])
+    
+    combinations['tac-core'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        [
+         'mino-grid24-corr_m',
+         'GOPRb-grid24-corr_m',
+         'omni-grid8-corr_m',
+         ])
+    
+    combinations['tac-core-art'] = Combination(
+        ['embed3', 'CBC3d', 'CBC3dw', 'CBC3dr50w', 'CBC3dr10w',
+          'CBC3dr50w_pi2', 'CBC3dw_15', 'cheat'],
+        [
+         'mino-grid24-art',
+         'GOPRb-grid24-art',
+         'omni-grid8-art'
+         ])
+    
+    pami_algo_euclidean = ['emds2', 'echeat', 'eCBC2d']
+    pami_algo_spherical2d = ['embed2', 'cheat', 'CBC2d']
+    pami_algo_spherical2d_w = nips_spherical2d + [ 'CBC2dw']
+    pami_algo_spherical3d = ['embed3', 'cheat', 'CBC3d', 'CBC3dw']
+    
+  
+    pami_tc_observable2d = ['rand-2D-fov315-pow3f-noisy',
+                    'rand-2D-fov315-linear01-noisy',
+                      'rand-2D-fov315-pow7f-noisy']
+    
+    pami_tc_unobservable2d = ['rand-2D-fov45-pow3_sat-noisy',
+#                      'rand-2D-fov45-pow7_sat',
+                      'rand-2D-fov45-linear01-noisy',
+                      'rand-2D-fov90-pow3_sat-noisy',
+#                      'rand-2D-fov90-pow7_sat',
+                      'rand-2D-fov90-linear01-noisy']
+
+    combinations['pami_euclidean'] = Combination(pami_algo_euclidean,
+                                       ['E2-grid-n180-eu_pow3',
+                                        'E2-grid-n180-eu_pow7',
+                                        'E2-grid-n180-eu_linear01'])
+ 
+    combinations['pami_cameras'] = Combination(pami_algo_spherical3d,
+                                       ['mino-grid24-corr_m',
+                                         'GOPRb-grid24-corr_m',
+                                         'omni-grid8-corr_m'])
+                                    
+    combinations['pami_cameras_art'] = Combination(pami_algo_spherical3d,
+                                       ['mino-grid24-art',
+                                        'GOPRb-grid24-art',
+                                        'omni-grid8-art', ])
+     
+#    
+    combinations['pami_spherical_sim_2d_obs'] = Combination(pami_algo_spherical2d_w,
+                                                            pami_tc_observable2d)
+    combinations['pami_spherical_sim_2d_unobs'] = Combination(pami_algo_spherical2d,
+                                                            pami_tc_unobservable2d + 
+                                                            [
+                                                             'mino-center-corr_m',
+                                                             'GOPRb-center-corr_m'
+                                                             ])
+    
+    
     return combinations

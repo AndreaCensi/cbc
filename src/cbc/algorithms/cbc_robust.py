@@ -13,6 +13,8 @@ class CBC_robust(CalibAlgorithm):
         warp = self.params['warp']
         trust_top_perc = self.params['trust_top_perc']
         starting = self.params.get('starting', [1, 2])
+        measure = self.params['measure'] # = 'spearman_robust'
+
         
         # Score of each datum -- must be computed only once
         R_order = scale_score(R).astype('int32')
@@ -38,8 +40,6 @@ class CBC_robust(CalibAlgorithm):
                               trust_top_perc=trust_top_perc,
                               phase='pi2')
 
-#        measure = 'spearman_robust'
-        measure = 'spearman'
         best_iteration = self.get_best_so_far(measure) 
         phase = best_iteration['phase']
         self.iteration(best_iteration)
@@ -52,6 +52,10 @@ class CBC_robust(CalibAlgorithm):
             print('Solved: ratio=%f error_deg=%s' % (r.ratio, r.error_deg))
             self.iteration(dict(S=r.S, phase='%s_warp_fit' % phase,
                                 ratios=r.ratios, measures=r.measure))
+
+        # Finally, let's choose the best so far
+        best_iteration = self.get_best_so_far(measure) 
+        self.iteration(best_iteration)
              
     
     def get_best_so_far(self, measure='spearman', measure_sign= -1):

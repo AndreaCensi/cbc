@@ -23,11 +23,7 @@ tex_algo = [
     ('CBC3dr50w', '\\SBSErw'),
     ('CBC2dr50w', '\\SBSErw'),
     ('CBC2dr10w', '\\SBSErw'),
-]
-#    
-# nips_euclidean = ['emds2', 'echeat', 'eCBC2d']
-#    nips_spherical2d = ['embed2', 'cheat', 'CBC2d', 'CBC2dw', 'CBC2dr50']
-#    nips_spherical3d = ['embed3', 'cheat', 'CBC3d', 'CBC3dw']
+] 
 
 def tc(dim, fov_deg, func, noise):
     dim = {2:"$\\Sone$", 3:"$\\Stwo$"}[dim]
@@ -130,9 +126,9 @@ for i in range(len(tex_tc)):
         tex_tc[i] = (tup[0], tup[1], 1)
 
 tex_tc = [ (a, b) for (a, b, c) in tex_tc if c >= 0]
-table_dir = '~/rss/tables_all'
 
-def create_tables_for_paper(comb_id, tc_ids, alg_ids, deps):
+
+def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
     print('Creating table for set %r' % comb_id)
     print('   tc: %r' % tc_ids)
     print(' algo: %r' % alg_ids)
@@ -158,51 +154,51 @@ def create_tables_for_paper(comb_id, tc_ids, alg_ids, deps):
         return getter
 
     if has_ground_truth:
-        write_table(comb_id, 'spearn',
+        write_table(table_dir, comb_id, 'spearn',
             **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.4f')))
 
     has_angles_corr = 'angles_corr' in  deps.values()[0]['iterations'][0]
     
     if has_angles_corr:
-        write_table(comb_id, 'angcorr',
+        write_table(table_dir, comb_id, 'angcorr',
             **generic_table(tc_ids, alg_ids, tablevar('angles_corr', '%.4f')))
     
     
-    write_table(comb_id, 'spear',
+    write_table(table_dir, comb_id, 'spear',
             **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.4f')))
     
-    write_table(comb_id, 'diameter',
+    write_table(table_dir, comb_id, 'diameter',
             **generic_table(tc_ids, alg_ids, tablevar('diameter', '%.4f'), sign=0))
 
-    write_table(comb_id, 'diameter_deg',
+    write_table(table_dir, comb_id, 'diameter_deg',
             **generic_table(tc_ids, alg_ids, tablevar('diameter_deg', '%.2f'), sign=0))
     
 #    write_table(comb_id, 'abs_rel_error_deg',
 #            **generic_table(tc_ids, alg_ids, tablevar('abs_rel_error_deg', '%.4f'), sign=0))
     
-    write_table(comb_id, 'procustes_deg',
+    write_table(table_dir, comb_id, 'procustes_deg',
             **generic_table(tc_ids, alg_ids, tablevar('error_deg', '%.2f'), sign= -1))
     
-    write_table(comb_id, 'procustes',
+    write_table(table_dir, comb_id, 'procustes',
             **generic_table(tc_ids, alg_ids, tablevar('error'), sign= -1))
 
-    write_table(comb_id, 'rel_error',
+    write_table(table_dir, comb_id, 'rel_error',
             **generic_table(tc_ids, alg_ids, tablevar('rel_error', '%.4f'), sign=0))
 
-    write_table(comb_id, 'rel_error_deg',
+    write_table(table_dir, comb_id, 'rel_error_deg',
             **generic_table(tc_ids, alg_ids, tablevar('rel_error_deg', '%.2f'), sign=0))
     
-    write_table(comb_id, 'scaled_error',
+    write_table(table_dir, comb_id, 'scaled_error',
             **generic_table(tc_ids, alg_ids, tablevar('scaled_error', '%.4f'), sign=0))
 
-    write_table(comb_id, 'scaled_error_deg',
+    write_table(table_dir, comb_id, 'scaled_error_deg',
             **generic_table(tc_ids, alg_ids, tablevar('scaled_error_deg', '%.2f'), sign=0))
     
-    write_table(comb_id, 'scaled_rel_error_deg',
+    write_table(table_dir, comb_id, 'scaled_rel_error_deg',
             **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error_deg', '%.2f'), sign=0))
     
     
-def write_table(comb_id, table_id, data, rows, cols):
+def write_table(table_dir, comb_id, table_id, data, rows, cols):
     
     directory = os.path.expanduser('%s/%s/' % (table_dir, comb_id))
     if not os.path.exists(directory):

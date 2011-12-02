@@ -212,7 +212,8 @@ def main():
             deps[(t, a)] = stage_execution(t, a)
 
         job_id = 'tex-%s' % comb_id
-        comp(create_tables_for_paper, comb_id, tc_ids, alg_ids, deps,
+        tables_dir = join(options.outdir, 'tables')
+        comp(create_tables_for_paper, tables_dir, comb_id, tc_ids, alg_ids, deps,
              job_id=job_id)
         
         job_id = 'set-%s-report' % comb_id

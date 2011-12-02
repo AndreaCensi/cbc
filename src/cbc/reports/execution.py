@@ -121,12 +121,12 @@ def solutions_comparison_plots(r, f, true_S, S_aligned):
 #    plot_and_display_coords(r, f, 'true_S', true_S, 'Ground truth')
 #    plot_and_display_coords(r, f, 'S_aligned', S_aligned, 'Solution, aligned')
 
-    with r.data_pylab('sol_compare') as pylab:
+    with r.plot('sol_compare') as pylab:
         for i in range(len(theta)):
             pylab.plot([0, 1], [true_theta[i], theta[i]], '-')
     f.sub('sol_compare', 'Estimated (left) and true (right) angles.')
      
-    with r.data_pylab('theta_compare') as pylab:
+    with r.plot('theta_compare') as pylab:
         pylab.plot(true_theta, theta, '.')
         pylab.xlabel('true angles (deg)')
         pylab.ylabel('estimated angles (deg)')
@@ -155,7 +155,7 @@ def create_report_generic_iterations(results):
     
     r.data('R_order', R_order).display('scale').add_to(f, 'Order for R')
     
-    with r.data_pylab('r_vs_c') as pylab:
+    with r.plot('r_vs_c') as pylab:
         pylab.plot(true_C.flat, R.flat, '.', markersize=0.2)
         pylab.xlabel('real cosine')
         pylab.ylabel('correlation measure')
@@ -191,7 +191,7 @@ def create_report_generic_iterations(results):
 #        
 #        def display_coords(nid, coords, caption=None):    
 #            n = rit.data(nid, coords)
-#            with n.data_pylab('plot') as pylab:
+#            with n.plot('plot') as pylab:
 #                plot_coords(pylab, coords)
 #            fit.sub(n, caption=caption)
 #        
@@ -207,14 +207,14 @@ def create_report_generic_iterations(results):
                                 D, R, LABEL_D, LABEL_R)
 
 #
-#        with rit.data_pylab('r_vs_est_c') as pylab:
+#        with rit.plot('r_vs_est_c') as pylab:
 #            pylab.plot(C.flat, R.flat, '.', markersize=0.2)
 #            pylab.xlabel('estimated cosine')
 #            pylab.ylabel('correlation measure')
 ##            pylab.axis((-1, 1, -1, 1))
 #        rit.last().add_to(fit, 'R vs current C') 
  
-#        with rit.data_pylab('r_order_vs_est_c_order') as pylab:
+#        with rit.plot('r_order_vs_est_c_order') as pylab:
 #            pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
 #            pylab.xlabel('estimated cosine (order)')
 #            pylab.ylabel('correlation measure (order)')
@@ -223,7 +223,7 @@ def create_report_generic_iterations(results):
 
         # if groundtruth
         if ndim == 2:
-            with rit.data_pylab('theta_compare') as pylab:
+            with rit.plot('theta_compare') as pylab:
                 pylab.plot(true_theta_deg, true_theta_deg, 'k--')
                 pylab.plot(true_theta_deg, theta_deg, '.')
                 pylab.xlabel('true angles (deg)')
@@ -322,7 +322,7 @@ def create_report_generic_iterations_observable(results):
 
 #        def display_coords(nid, coords, caption=None):    
 #            n = rit.data(nid, coords)
-#            with n.data_pylab('plot') as pylab:
+#            with n.plot('plot') as pylab:
 #                plot_coords(pylab, coords)
 #            fit.sub(n, caption=caption)
 #        display_coords('S', S,
@@ -332,14 +332,14 @@ def create_report_generic_iterations_observable(results):
         plot_and_display_coords(rit, fit, 'S', S, 'Guess for coordinates')
 #        
         
-        with rit.data_pylab('r_vs_est_c') as pylab:
+        with rit.plot('r_vs_est_c') as pylab:
             pylab.plot(C.flat, R.flat, '.', markersize=0.2)
             pylab.xlabel('estimated cosine')
             pylab.ylabel('correlation measure')
 #            pylab.axis((-1, 1, -1, 1))
         rit.last().add_to(fit, 'R vs current C') 
  
-        with rit.data_pylab('r_order_vs_est_c_order') as pylab:
+        with rit.plot('r_order_vs_est_c_order') as pylab:
             pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
             pylab.xlabel('estimated cosine (order)')
             pylab.ylabel('correlation measure (order)')
