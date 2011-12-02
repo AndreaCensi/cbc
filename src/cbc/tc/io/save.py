@@ -1,10 +1,13 @@
 import os, cPickle as pickle
-from contracts import contract
+from . import contract
 import yaml
 import scipy.io
+from . import SPHERICAL
+from . import GEOMETRIES
 
 @contract(R='array[NxN]', true_S='None|array[3xN]')
-def tc_write(dirname, tc_id, R, true_S, attrs={}):
+def tc_write_11(dirname, tc_id, R, true_S=None, geometry=SPHERICAL, attrs={}):
+    assert geometry in GEOMETRIES
     if not os.path.exists(dirname):
         os.makedirs(dirname)
     tc_file = '%s.data.pickle' % tc_id
@@ -38,7 +41,8 @@ def tc_write(dirname, tc_id, R, true_S, attrs={}):
          'attrs': attrs,
          'file:data':tc_file,
          'file:gt': gt_file,
-         'format': ['calib_pickle', [1, 0]],
+         'geometry': geometry,
+         'format': ['calib_pickle', [1, 1]],
          'format_desc': ((
 'The file ``%s`` contains a dictionary with a field ``similarity``,'
 'which is a numpy array of size %s (%s).\n'
@@ -46,7 +50,10 @@ def tc_write(dirname, tc_id, R, true_S, attrs={}):
 'The file ``%s`` contains a dictionary with a field ``true_S``, '
 'which is a numpy array of size %s (%s).\n'
 
-'The mat files are the same but written in the MAT format.\n'     
+'The mat files are the same but written in Matlab format.\n'    
+
+'\n'
+'\n 1.1: added "geometry" field.'  
          ) % (tc_file, R.shape, R.dtype,
                 gt_file, R.dtype, true_S.dtype)).strip()
         }], f, default_flow_style=False)

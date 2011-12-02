@@ -9,12 +9,10 @@ from ..tools import (find_best_orthogonal_transform,
                      cosines_from_directions,
                      euclidean_distances, distances_from_directions,
                      mean_euclidean_distance_after_orthogonal_transform)
+from ..tc import SPHERICAL, EUCLIDEAN
 
 
 
-SPHERICAL = 'S'
-EUCLIDEAN = 'E'
-GEOMETRIES = [SPHERICAL, EUCLIDEAN]
 
 def scaled_error(D1, D2, also_scale=False):
     D1_mean = D1.mean()
@@ -34,8 +32,8 @@ def scaled_error(D1, D2, also_scale=False):
 class CalibAlgorithm(object):
     
     def __init__(self, params, geometry=SPHERICAL):
+        assert geometry in [ SPHERICAL, EUCLIDEAN] 
         self.params = params
-        assert geometry in GEOMETRIES
         self.geometry = geometry
     
     def is_spherical(self):
@@ -220,11 +218,7 @@ class CalibAlgorithm(object):
         if self.is_euclidean():
             status += (varstat('scaled_error', '%5.3f', sign= -1, label='s_err') + 
                        varstat('scaled_rel_error_deg', '%5.3fd', sign= -1, label='s_r_err'))
-            
-#                  varstat('Ddist', '%.5f', label='Ddist', sign= -1)    
-#                  varstat('RCorder_diff', '%.3f', label='RCorder')  
-#                  varstat('angles_corr', '%.8f')  
-                  
+             
         print(status)
             
         self.iterations.append(data)

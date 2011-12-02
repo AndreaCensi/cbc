@@ -6,6 +6,7 @@ from ..tools import (scale_score, find_closest_multiple, euclidean_distances,
     distances_from_directions, cosines_from_directions, angles_from_directions)
 from reprep import Report
 import numpy as np
+from cbc.reports.utils import util_plot_3D_points
 
 
 
@@ -44,9 +45,12 @@ def create_report_final_solution(results):
     S_aligned = results['S_aligned']
     S = results['S']
     D = distances_from_directions(S)
-    D_order = scale_score(-D) 
     true_D = distances_from_directions(true_S)
-    true_D_order = scale_score(-true_D)
+    # Before I was normalizing things
+    # D_order = scale_score(-D)
+    # true_D_order = scale_score(-true_D)
+    D_order = scale_score(D)
+    true_D_order = scale_score(true_D)
     R_order = scale_score(R)
 
     ########
@@ -56,9 +60,15 @@ def create_report_final_solution(results):
     
     if S_aligned.shape[0] == 2:
         solutions_comparison_plots(r, f, true_S, S_aligned)
- 
-        util_plot_euclidean_coords2d(r, f, 'S_aligned', S)
+        util_plot_euclidean_coords2d(r, f, 'S', S)
+        util_plot_euclidean_coords2d(r, f, 'S_aligned', S_aligned)
         util_plot_euclidean_coords2d(r, f, 'true_S', true_S)
+
+    if S_aligned.shape[0] == 3:
+        util_plot_3D_points(r, f, 'S_aligned', S_aligned, caption='S aligned')
+        util_plot_3D_points(r, f, 'S', S, caption='S')
+        util_plot_3D_points(r, f, 'true_S', true_S, caption='true_S')
+
 
     f2 = r.figure('observable_measures', cols=3, caption='Computable measures')
      
@@ -155,12 +165,17 @@ def create_report_generic_iterations(results):
     
     r.data('R_order', R_order).display('scale').add_to(f, 'Order for R')
     
-    with r.plot('r_vs_c') as pylab:
-        pylab.plot(true_C.flat, R.flat, '.', markersize=0.2)
-        pylab.xlabel('real cosine')
-        pylab.ylabel('correlation measure')
-        pylab.axis((-1, 1, -1, 1))
-    r.last().add_to(f, 'Unknown function cosine -> correlation')
+    util_plot_xy_generic(r, f, 'r_vs_c',
+                         true_C.flat, R.flat,
+                         'real cosine', 'correlation measure',
+                         'Unknown function cosine -> correlation')
+#
+#    with r.plot('r_vs_c') as pylab:
+#        pylab.plot(true_C.flat, R.flat, '.', markersize=0.2)
+#        pylab.xlabel('real cosine')
+#        pylab.ylabel('correlation measure')
+#        pylab.axis((-1, 1, -1, 1))
+#    r.last().add_to(f, 'Unknown function cosine -> correlation')
 
     r.data('true_C', true_C).display('posneg', max_value=1).add_to(f, 'ground truth cosine matrix')
     r.data('gt_dist', true_dist).display('scale').add_to(f, 'ground truth distance matrix')
@@ -331,19 +346,16 @@ def create_report_generic_iterations_observable(results):
         
         plot_and_display_coords(rit, fit, 'S', S, 'Guess for coordinates')
 #        
-        
-        with rit.plot('r_vs_est_c') as pylab:
-            pylab.plot(C.flat, R.flat, '.', markersize=0.2)
-            pylab.xlabel('estimated cosine')
-            pylab.ylabel('correlation measure')
-#            pylab.axis((-1, 1, -1, 1))
-        rit.last().add_to(fit, 'R vs current C') 
- 
-        with rit.plot('r_order_vs_est_c_order') as pylab:
-            pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
-            pylab.xlabel('estimated cosine (order)')
-            pylab.ylabel('correlation measure (order)')
-        rit.last().add_to(fit, 'order comparison (spearman: %f robust: %f)' % 
+        util_plot_xy_generic(r=rit, f=fit, nid='r_vs_est_c',
+                     x=C.flat, y=R.flat,
+                     xlabel='estimated cosine', ylabel='correlation measure',
+                     caption='R vs current C')
+
+        util_plot_xy_generic(r=rit, f=fit, nid='r_order_vs_est_c_order',
+                     x=C_order.flat, y=R_order.flat,
+                     xlabel='estimated cosine (order)',
+                     ylabel='correlation measure (order)',
+                     caption='order comparison (spearman: %f robust: %f)' % 
                             (it['spearman'], it['spearman_robust']))
           
     return r

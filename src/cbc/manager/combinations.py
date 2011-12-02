@@ -319,7 +319,8 @@ def get_list_of_combinations():
     pami_algo_euclidean = ['emds2', 'echeat', 'eCBC2d']
     pami_algo_spherical2d = ['embed2', 'cheat', 'CBC2d']
     pami_algo_spherical2d_w = nips_spherical2d + [ 'CBC2dw']
-    pami_algo_spherical3d = ['embed3', 'cheat', 'CBC3d', 'CBC3dw']
+    pami_algo_spherical3d = ['embed3', 'cheat', 'CBC3d', 'CBC3dw', # 'CBC3dw_15'
+                             ]
     
   
     pami_tc_observable2d = ['rand-2D-fov315-pow3f-noisy',
@@ -347,7 +348,16 @@ def get_list_of_combinations():
                                        ['mino-grid24-art',
                                         'GOPRb-grid24-art',
                                         'omni-grid8-art', ])
-     
+    
+    combinations['pami_statistics'] = Combination(
+                                                  ['cheat', 'CBC3dw'] ,
+                                       [ 
+                                        'omni-grid8-corr',
+                                        'omni-grid8-corr_n',
+                                        'omni-grid8-corr_m',
+                                        'omni-grid8-y_dot_corr',
+                                        'omni-grid8-y_dot_sign_corr'
+                                        ])
 #    
     combinations['pami_spherical_sim_2d_obs'] = Combination(pami_algo_spherical2d_w,
                                                             pami_tc_observable2d)

@@ -23,7 +23,7 @@ def as_1d(x):
 
 from geometry import rotation_from_axes_spec
 
-@contract(S='array[3xN],directions', returns='array[3xN]')
+@contract(S='array[3xN],directions', returns='array[3xN], directions')
 def project_2d(S):
     """Projects a spherical dist to 2d"""
     
@@ -43,13 +43,17 @@ def project_2d(S):
         limit = np.sin(np.deg2rad(2))
         if np.abs(cc[2]) > limit:
             angle = np.arcsin(np.abs(cc[2]))
-            raise Exception('Expected this to be planar: %s, while it is %s deg above' % (cc, np.rad2deg(angle)))
+            raise Exception('Expected this to be planar: %s, while it is %s deg above' 
+                            % (cc, np.rad2deg(angle)))
             
         # theta = np.arctan2(cc[1], cc[0])
         
         P[0:2, i] = cc[0:2]
         P[2, i] = 0
         
+        # Normalize
+        P[:, i] = P[:, i] / np.linalg.norm(P[:, i])
+         
     return P
     
     

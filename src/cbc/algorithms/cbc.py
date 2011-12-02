@@ -43,8 +43,8 @@ class CBCchoose(CalibAlgorithm):
         if warp and ndim > 2:
             C = best_iteration['C']
             D = distances_from_cosines(C)
-            r = warp_fit(D, min_ratio=0.1, max_ratio=2, nratios=100,
-                  nlandmarks=500, ndim=ndim, true_S=self.true_S)
+            r = warp_fit(D, min_ratio=0.1, max_ratio=2, nratios=300, # 100
+                  nlandmarks=1000, ndim=ndim, true_S=self.true_S) # 500
             print('Solved: ratio=%f error_deg=%s' % (r.ratio, r.error_deg))
              
             self.iteration(dict(S=r.S, phase='%s_warp_fit' % phase,

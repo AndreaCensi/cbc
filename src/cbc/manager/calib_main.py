@@ -16,6 +16,9 @@ from optparse import OptionParser, OptionGroup
 import datetime
 import itertools
 import os
+from cbc.reports.plot_params import init_matplotlib
+import reprep
+from reprep.constants import MIME_PDF
 
 
 join = os.path.join
@@ -27,6 +30,9 @@ join = os.path.join
              
              
 def main():
+    init_matplotlib()
+    reprep.RepRepDefaults.default_image_format = MIME_PDF
+    
     parser = OptionParser()
 
     group = OptionGroup(parser, "Files and directories")
@@ -101,9 +107,7 @@ def main():
     
     euclidean = get_euclidean_test_cases()
     available_test_cases.update(euclidean)
-    
-#    if options.testdir is not None:
-#        available_test_cases.update(standard_test_dir(options.testdir))
+     
     
     if options.data_sick is not None:
         print('Preparing Sick data...')
@@ -249,14 +253,27 @@ def write_report(report, filename):
 def save_results(results, basename):
     
     # results = return values of run_combination
-    filename = basename + '.mat'
+    
+    S = results['S'].astype('float32')
     
     data = {}
     data['similarity'] = results['R'].astype('float32')
-    data['S'] = results['S'].astype('float32')
+    data['S'] = S
     if 'true_S' in results:
-        data['true_S'] = results['true_S'].astype('float32')
-        data['S_aligned'] = align_distributions(data['S'], data['true_S'])
+        true_S = results['true_S'].astype('float32')
+
+        if S.shape[0] == 2 and true_S.shape[0] == 3:
+            S1 = np.zeros((3, S.shape[1]))
+            S1[0, :] = S[0, :]
+            S1[1, :] = S[1, :]
+            S1[2, :] = 0
+            S = S1
+#            assert_allclose(0, true_S[2, :])
+#            true_S = true_S[:2, :]
+            
+        data['true_S'] = true_S
+        # Only do if they have same dimension
+        data['S_aligned'] = align_distributions(S, true_S)
     else:
         print('no ground truth - no aligned points')
     data['description'] = """
@@ -264,11 +281,12 @@ def save_results(results, basename):
    similarity:  input data
    true_S:  the ground truth given
    S: the estimated distribution
-   s_aligned: the estimated distribution, aligned to true_S
+   S_aligned: the estimated distribution, aligned to true_S
     
 """
     data['creator'] = 'calib_main at %s' % isodate()
     import scipy.io
+    filename = basename + '.mat'
     make_sure_dir_exists(filename)
     print('Writing to %r.' % filename)
     scipy.io.savemat(filename, data, oned_as='row')

@@ -75,6 +75,32 @@ tex_tc.extend([
     ('mino4_center-y_corr', '\\tcCameraCenter'),
     ('mino4_centerart-y_corr', '\\tcCameraCenterArt'),
 ])
+#
+#for s in [
+#          
+#    ]:
+#    safe = s.replace('_','').replace('-','')
+#    
+#    tex_tc.extend([s,            
+#    ('mino-grid24-corr_m', '\\tcMino')
+#    
+#add_tex_name( 'GOPRb-grid24-corr_m')
+#add_tex_name('omni-grid8-corr_m')
+#add_tex_name('mino-grid24-corr_m')
+#add_tex_name('mino-grid24-corr_m')
+#add_tex_name('mino-grid24-corr_m')
+#
+#                                        ,
+#                                         ,
+#             'mino-grid24-art',
+#                                        'GOPRb-grid24-art',
+#                                        'omni-grid8-art', 
+#                                        'omni-grid8-corr',
+#                                        'omni-grid8-corr_n',
+#                                        'omni-grid8-corr_m',
+#                                        'omni-grid8-y_dot_corr',
+#                                        'omni-grid8-y_dot_sign_corr'
+
 
 tex_tc.extend([
     ('E2-grid-n180-eu_pow3', tce(2, 'grid', 180, 'powa', '')),
@@ -150,6 +176,8 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
             if var in res:
                 return format % res[var]
             else:
+                print('Warning: value not found (tc: %s, alg: %s, var: %s)' % 
+                      (tc_id, alg_id, var))
                 return not_found
         return getter
 
@@ -183,19 +211,23 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
             **generic_table(tc_ids, alg_ids, tablevar('error'), sign= -1))
 
     write_table(table_dir, comb_id, 'rel_error',
-            **generic_table(tc_ids, alg_ids, tablevar('rel_error', '%.4f'), sign=0))
+            **generic_table(tc_ids, alg_ids, tablevar('rel_error', '%.4f'), sign= -1))
 
     write_table(table_dir, comb_id, 'rel_error_deg',
-            **generic_table(tc_ids, alg_ids, tablevar('rel_error_deg', '%.2f'), sign=0))
+            **generic_table(tc_ids, alg_ids, tablevar('rel_error_deg', '%.2f'), sign= -1))
     
     write_table(table_dir, comb_id, 'scaled_error',
-            **generic_table(tc_ids, alg_ids, tablevar('scaled_error', '%.4f'), sign=0))
+            **generic_table(tc_ids, alg_ids, tablevar('scaled_error', '%.4f'), sign= -1))
 
     write_table(table_dir, comb_id, 'scaled_error_deg',
-            **generic_table(tc_ids, alg_ids, tablevar('scaled_error_deg', '%.2f'), sign=0))
+            **generic_table(tc_ids, alg_ids, tablevar('scaled_error_deg', '%.2f'), sign= -1))
     
     write_table(table_dir, comb_id, 'scaled_rel_error_deg',
-            **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error_deg', '%.2f'), sign=0))
+            **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error_deg', '%.2f'),
+                            sign= -1))
+
+    write_table(table_dir, comb_id, 'scaled_rel_error',
+            **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error', '%.3f'), sign= -1))
     
     
 def write_table(table_dir, comb_id, table_id, data, rows, cols):
@@ -214,25 +246,54 @@ def write_table(table_dir, comb_id, table_id, data, rows, cols):
     with Latex.fragment(filename, directory) as fragment:
         fragment.tabular_simple(data, row_desc=rows, col_desc=cols, write_col_desc=False)
 
-    
+def name_not_found(name):
+    print('Name %r not found.' % name)
+#    line = """tex_tc.append((%r, '\\??'))""" % name
+#    print(line)
+    #raise Exception(msg)
+
+def get_tc_tex_name(s):
+    names = dict(tex_tc)
+    if s in names:
+        return names[s]
+    else:
+        return make_tex_command_name(s)
+
+def make_tex_command_name(s):
+    s = s.replace('_', '').replace('-', '')
+    for i in range(10):
+        s = s.replace('%d' % i, '')
+    return s
+
 def generic_table(tc_ids, alg_ids, get_element,
-                  sorted=True, mark_lower=True, sign= +1): #@ReservedAssignment
-    named_tcs = [tid for tid, _ in tex_tc]
+                  sorted=True, mark_lower=True, sign=None): #@ReservedAssignment
+    if sign is None:
+        sign = +1
+    if sign == 0:
+        mark_best = False
+    else:
+        mark_best = True
+#    named_tcs = [tid for tid, _ in tex_tc]
     named_algos = [tid for tid, _ in tex_algo]
-    for tc_id in tc_ids:
-        if not tc_id in named_tcs:
-            print('Warning: cannot find TeX name for test case %r' % tc_id)
+#    for tc_id in tc_ids:
+#        if not tc_id in named_tcs:
+#            #msg = ('Warning: cannot find TeX name for test case %r' % tc_id)
+#            name_not_found(tc_id)
     for alg_id in alg_ids:
         if not alg_id in named_algos:
-            print('Warning: cannot  find TeX name for algo  %r' % alg_id)
+            # msg = ('Warning: cannot  find TeX name for algo  %r' % alg_id)
+            name_not_found(alg_id)
 
-    # Only select the one we care and in the right order 
-    tc_ids = [tc_id for tc_id, _ in tex_tc if tc_id in tc_ids]
+    # Only select the one we care and in the right order
+    known = dict(tex_tc) 
+    tc_ids = [tc_id for tc_id, _ in known.items() if tc_id in tc_ids] + \
+            [tc_id for tc_id in tc_ids if not tc_id in known]
+                # now add the others
     alg_ids = [alg_id for alg_id, _ in tex_algo if alg_id in alg_ids] 
         
     print('Using only test cases: %r' % tc_ids)
     print('Using only algorithms: %r' % alg_ids)
-    rows = [dict(tex_tc)[tc_id] for tc_id in tc_ids]
+    rows = [get_tc_tex_name(tc_id) for tc_id in tc_ids]
     cols = [dict(tex_algo)[alg_id] for alg_id in alg_ids]
     
     if 'cheat' in alg_ids: cheater = 'cheat'
@@ -267,7 +328,7 @@ def generic_table(tc_ids, alg_ids, get_element,
                     mark = 'markworst'
                 else:
                     mark = None
-                if mark:
+                if mark and mark_best:
                     entries[i] = '\\%s{%s}' % (mark, entries[i])
                     
         return entries 

@@ -1,8 +1,8 @@
 from . import (nottest, np, Report, plot_one_against_the_other,
     util_plot_euclidean_coords2d, plot_and_display_coords,
     add_order_comparison_figure, util_plot_xy_generic)
+from ..tc import CalibTestCase
 from ..tools import scale_score
-from cbc.tc.base import CalibTestCase
 
 
 @nottest
