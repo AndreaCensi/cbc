@@ -101,6 +101,7 @@ def tc_ground_truth_plots_euc(tc, rid='ground_truth'):
     n = r.data('true_D', tc.true_D).display('scale')  
     f.sub(n, 'Actual distance matrix')
     
+    # TODO: change these to standard
     with r.plot('linearity_func') as pylab:
         x = tc.true_D.flat
         y = tc.R.flat

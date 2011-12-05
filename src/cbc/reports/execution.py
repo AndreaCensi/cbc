@@ -4,9 +4,8 @@ from . import (util_plot_euclidean_coords2d, zero_diagonal,
 from ..algorithms import SPHERICAL, EUCLIDEAN
 from ..tools import (scale_score, find_closest_multiple, euclidean_distances,
     distances_from_directions, cosines_from_directions, angles_from_directions)
-from reprep import Report
-import numpy as np
-from cbc.reports.utils import util_plot_3D_points
+
+from . import util_plot_3D_points, np, Report
 
 
 
@@ -169,13 +168,7 @@ def create_report_generic_iterations(results):
                          true_C.flat, R.flat,
                          'real cosine', 'correlation measure',
                          'Unknown function cosine -> correlation')
-#
-#    with r.plot('r_vs_c') as pylab:
-#        pylab.plot(true_C.flat, R.flat, '.', markersize=0.2)
-#        pylab.xlabel('real cosine')
-#        pylab.ylabel('correlation measure')
-#        pylab.axis((-1, 1, -1, 1))
-#    r.last().add_to(f, 'Unknown function cosine -> correlation')
+# 
 
     r.data('true_C', true_C).display('posneg', max_value=1).add_to(f, 'ground truth cosine matrix')
     r.data('gt_dist', true_dist).display('scale').add_to(f, 'ground truth distance matrix')
@@ -203,16 +196,7 @@ def create_report_generic_iterations(results):
         plot_and_display_coords(rit, fit, 'S', S,
                                 'Guess for coordinates (errors %.2f / %.2f deg)' % 
                                 (error_deg , rel_error_deg))
-#        
-#        def display_coords(nid, coords, caption=None):    
-#            n = rit.data(nid, coords)
-#            with n.plot('plot') as pylab:
-#                plot_coords(pylab, coords)
-#            fit.sub(n, caption=caption)
-#        
-#        display_coords('S', S,
-#                       'Guess for coordinates (errors %.2f / %.2f deg)' % 
-#                       (error_deg , rel_error_deg))
+
         
         add_order_comparison_figure(rit, 'D_order_vs_R_order', fit,
                                     'Order comparison (results)',
@@ -220,21 +204,6 @@ def create_report_generic_iterations(results):
 
         add_distance_vs_sim_figure(rit, 'D_vs_R', fit, 'Kernel',
                                 D, R, LABEL_D, LABEL_R)
-
-#
-#        with rit.plot('r_vs_est_c') as pylab:
-#            pylab.plot(C.flat, R.flat, '.', markersize=0.2)
-#            pylab.xlabel('estimated cosine')
-#            pylab.ylabel('correlation measure')
-##            pylab.axis((-1, 1, -1, 1))
-#        rit.last().add_to(fit, 'R vs current C') 
- 
-#        with rit.plot('r_order_vs_est_c_order') as pylab:
-#            pylab.plot(C_order.flat, R_order.flat, '.', markersize=0.2)
-#            pylab.xlabel('estimated cosine (order)')
-#            pylab.ylabel('correlation measure (order)')
-#        rit.last().add_to(fit, 'order comparison (spearman: %f robust: %f)' % 
-#                            (it['spearman'], it['spearman_robust']))
 
         # if groundtruth
         if ndim == 2:

@@ -12,11 +12,12 @@ def util_plot_euclidean_coords2d(report, f, nid, S):
     print('util_plot_euclidean_coords2d(%s)' % nid)    
     
     with report.plot(nid, figsize=(fsize, fsize)) as pylab: 
-        pylab.plot(S[0, :], S[1, :], 's', markersize=0.1, rasterized=True)
+        # do not rasterize, they are small
+        pylab.plot(S[0, :], S[1, :], 'ks', markersize=0.2)
+        M = np.abs(S).max()
+        pylab.axis([-M, +M], [-M, +M])
         pylab.axis('equal')
-#        pylab.xlabel('x1')
-#        pylab.ylabel('x2')
-
+        
     report.last().add_to(f)
     
 @contract(S='directions', returns='array[2xK]')
@@ -121,7 +122,7 @@ def util_plot_3D_points(report, f, nid, S, caption=None):
 
         pylab.axis([-MA, MA, -ME, ME])
         pylab.ylabel('elevation')
-        pylab.xlabel('aximuth')
+        pylab.xlabel('azimuth')
         pylab.gca().xaxis.set_label_coords(0.5, -0.02)
         pylab.gca().yaxis.set_label_coords(-0.02, 0.5)
 
@@ -136,18 +137,12 @@ def add_distance_vs_sim_figure(report, nid, figure, caption,
     R = np.array(R.flat)
     
     with report.plot(nid, figsize=(fsize, fsize)) as pylab:
+        # try 's'
         pylab.plot(D, R, 'b.', markersize=0.5, alpha=0.2, rasterized=True)
         pylab.xlabel(xlabel)
-        pylab.ylabel(ylabel)
-        ###
-#        xt, xl = pylab.yticks()
-#        pylab.yticks([xt[0], xt[-1]], [xl[0].get_text(), xl[-1].get_text()])
-        ###
-        pylab.axis([D.min(), D.max(), R.min(), R.max()])
-#        xt, xl = pylab.xticks()
-#        pylab.xticks([xt[0], xt[-1]], [xl[0].get_text(), xl[-1].get_text()])
-        m = D.max()
-#        pylab.gca().xaxis.set_label_coords(0.5, -0.05)
+        pylab.ylabel(ylabel) 
+        pylab.axis([D.min(), D.max(), R.min(), R.max()]) 
+        m = D.max() 
         pylab.gca().yaxis.set_label_coords(-0.20, 0.5)
 
         def set_ticks(t, M):
@@ -203,20 +198,14 @@ def add_order_comparison_figure(report, nid, figure, caption,
                        xycoords='figure fraction')
         pylab.axis([0, n - 1, 0, n - 1])
         pylab.gca().xaxis.set_label_coords(0.5, -0.05)
-        pylab.gca().yaxis.set_label_coords(-0.05, 0.5)
-
-#        pylab.axis('equal')
-#        pylab.axis([0, n - 1, 0, n - 1])
+        pylab.gca().yaxis.set_label_coords(-0.05, 0.5) 
     report.last().add_to(figure, caption)
 
 def plot_and_display_coords(r, f, nid, coords, caption=None):
     print('plot_and_display_coords(%s)' % nid)    
     n = r.data(nid, coords)
     with n.plot('plot', figsize=(fsize, fsize)) as pylab:
-#        pylab.plot(coords[0, :], coords[1, :], 'k-')
-        pylab.plot(coords[0, :], coords[1, :], '.', rasterized=True)
-#        pylab.axis([coords[0, :].min(), coords[0, :].max(),
-#                    coords[1, :].min(), coords[1, :].max()])
+        pylab.plot(coords[0, :], coords[1, :], '.', rasterized=True) 
         pylab.axis('equal')
         pylab.xlabel('x1')
         pylab.ylabel('x2')
