@@ -6,9 +6,10 @@ import unittest
 
 
 N = 10
-    
+
+
 class UtilsTests(unittest.TestCase):
-        
+
     def test_find_best_rotation(self):
         for i in range(N): #@UnusedVariable
             X = random_directions(20)
@@ -18,7 +19,7 @@ class UtilsTests(unittest.TestCase):
             assert_allclose(R, Rest)
             Rest2 = find_best_orthogonal_transform(Y, X)
             assert_allclose(R.T, Rest2)
-            
+
     def test_overlap_error(self):
         for i in range(N): #@UnusedVariable
             X = random_directions(20)
@@ -29,4 +30,4 @@ class UtilsTests(unittest.TestCase):
             assert_allclose(e1, 0, atol=atol)
             e2 = overlap_error_after_orthogonal_transform(Y, X)
             assert_allclose(e2, 0, atol=atol)
-             
+

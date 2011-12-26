@@ -1,14 +1,15 @@
 from procgraph import  simple_block
 import numpy as np
 
+
 @simple_block
 def middle(gray):
     h, _ = gray.shape
     j = int(h / 2)
     y = gray[j, :]
     return y
-    
-    
+
+
 @simple_block
 def center(gray):
     _, w = gray.shape
@@ -24,17 +25,22 @@ def midcen(gray):
     midcen = np.hstack((mid[::2], cen[::2]))
     return midcen
 
+
 @simple_block
 def grid24(gray): return grid(gray, 24)
+
 
 @simple_block
 def grid16(gray): return grid(gray, 16)
 
+
 @simple_block
 def grid8(gray): return grid(gray, 8)
 
+
 @simple_block
 def grid20(gray): return grid(gray, 20)
+
 
 def grid(gray, interval):
     """ Extract a grid of pixels"""
@@ -57,7 +63,7 @@ def patch32s4(gray):
     s = 4
     return gray[x:x + w * s:s,
                 y:y + h * s:s]
-    
-    
-    
-    
+
+
+
+

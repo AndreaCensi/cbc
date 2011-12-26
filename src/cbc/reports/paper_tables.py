@@ -1,5 +1,5 @@
 from . import np
-from reprep.out.platex import Latex
+from reprep.output.platex import Latex
 import os
 
 tex_algo = [
@@ -23,19 +23,24 @@ tex_algo = [
     ('CBC3dr50w', '\\SBSErw'),
     ('CBC2dr50w', '\\SBSErw'),
     ('CBC2dr10w', '\\SBSErw'),
-] 
+]
+
 
 def tc(dim, fov_deg, func, noise):
-    dim = {2:"$\\Sone$", 3:"$\\Stwo$"}[dim]
+    dim = {2: "$\\Sone$", 3: "$\\Stwo$"}[dim]
     return '\\tc{%s}{%d}{\\%s}{\\%s}' % (dim, fov_deg, func, noise)
+
 
 def tce(dim, kind, num, func, noise):
 #%    return 'Euclidean %s %s %s %s %s' % (dim, kind, num, func, noise)
     dim = "$\\mathbb{R}^%s$" % dim
     return '\\tce{%s}{%d}{\\%s}' % (dim, num, func)
 
+
 def sicktc(which, quantity):
-    which = {0:'front', 1:'rear', 2:'both'}[which]
+    which = {0: 'front',
+             1: 'rear',
+             2: 'both'}[which]
     #if which == 'front' and quantity != 'yinfsim':
     if quantity != 'yinfsim':
         return "\\sicktcb{\\%s}{\\%s}" % (which, quantity)
@@ -50,7 +55,7 @@ tex_tc = [
  ('sick_front-y_dot_sign_corr', sicktc(0, 'ydotsigncorr')),
  ('sick_front-max', sicktc(0, 'scoremax'), 0),
  ('sick_front-mix', sicktc(0, 'scoremix')),
- 
+
  ('sick_rear-y_infsim', sicktc(1, 'yinfsim'), 0),
  ('sick_rear-y_corr', sicktc(1, 'ycorr'), 0),
  ('sick_rear-y_dot_corr', sicktc(1, 'ydotcorr'), 0),
@@ -66,7 +71,7 @@ tex_tc = [
  ('sick_both-y_dot_sign_corr', sicktc(2, 'ydotsigncorr'), 0),
  ('sick_both-max', sicktc(2, 'scoremax'), 0),
  ('sick_both-mix', sicktc(2, 'scoremix'), 0),
- 
+
 ]
 
 tex_tc.extend([
@@ -110,38 +115,38 @@ tex_tc.extend([
 
 for noise in ['zero', 'noisy']:
     tex_tc.extend([
-    ('rand-3D-fov45-pow3_sat-%s' % noise , tc(3, 45, 'powa', noise)) ,
-    ('rand-3D-fov45-pow7_sat-%s' % noise , tc(3, 45, 'powb', noise)) ,
-    ('rand-3D-fov45-linear01-%s' % noise , tc(3, 45, 'lin', noise)),
-    ('rand-3D-fov90-pow3_sat-%s' % noise , tc(3, 90, 'powa', noise), 0),
-    ('rand-3D-fov90-pow7_sat-%s' % noise , tc(3, 90, 'powb', noise), 0),
-    ('rand-3D-fov90-linear01-%s' % noise , tc(3, 90, 'lin', noise), 0),
-    ('rand-3D-fov270-pow3_sat-%s' % noise , tc(3, 270, 'powa', noise), 0),
-    ('rand-3D-fov270-pow7_sat-%s' % noise , tc(3, 270, 'powb', noise)),
-    ('rand-3D-fov270-linear01-%s' % noise , tc(3, 270, 'lin', noise)),
-    ('rand-3D-fov360-pow3_sat-%s' % noise , tc(3, 360, 'powa', noise), 0),
-    ('rand-3D-fov360-pow7_sat-%s' % noise , tc(3, 360, 'powb', noise), 0),
-    ('rand-3D-fov360-linear01-%s' % noise , tc(3, 360, 'lin', noise), 0),
-    
-    ('rand-2D-fov270-pow3_sat-%s' % noise , tc(2, 270, 'powa', noise), 0),
-    ('rand-2D-fov270-pow7_sat-%s' % noise , tc(2, 270, 'powb', noise), 0),
-    ('rand-2D-fov270-linear01-%s' % noise , tc(2, 270, 'lin', noise), 0),
-    ('rand-2D-fov315-pow3_sat-%s' % noise , tc(2, 315, 'powa', noise)),
-    ('rand-2D-fov315-pow7_sat-%s' % noise , tc(2, 315, 'powb', noise)),
-    ('rand-2D-fov315-linear01-%s' % noise , tc(2, 315, 'lin', noise)),
-    ('rand-2D-fov360-pow3_sat-%s' % noise , tc(2, 360, 'powa', noise), 0),
-    ('rand-2D-fov360-pow7_sat-%s' % noise , tc(2, 360, 'powb', noise)),
-    ('rand-2D-fov360-linear01-%s' % noise , tc(2, 360, 'lin', noise)),
-     
-    ('rand-2D-fov45-pow3_sat-%s' % noise , tc(2, 45, 'powa', noise)),
-    ('rand-2D-fov45-pow7_sat-%s' % noise , tc(2, 45, 'powb', noise)),
-    ('rand-2D-fov45-linear01-%s' % noise , tc(2, 45, 'lin', noise)),
-    ('rand-2D-fov90-pow3_sat-%s' % noise , tc(2, 90, 'powa', noise), 0),
-    ('rand-2D-fov90-pow7_sat-%s' % noise , tc(2, 90, 'powb', noise)),
-    ('rand-2D-fov90-linear01-%s' % noise , tc(2, 90, 'lin', noise)),
-    
-    ('rand-2D-fov315-pow3f-%s' % noise , tc(2, 315, 'powaf', noise)),
-    ('rand-2D-fov315-pow7f-%s' % noise , tc(2, 315, 'powbf', noise))
+    ('rand-3D-fov45-pow3_sat-%s' % noise, tc(3, 45, 'powa', noise)),
+    ('rand-3D-fov45-pow7_sat-%s' % noise, tc(3, 45, 'powb', noise)),
+    ('rand-3D-fov45-linear01-%s' % noise, tc(3, 45, 'lin', noise)),
+    ('rand-3D-fov90-pow3_sat-%s' % noise, tc(3, 90, 'powa', noise), 0),
+    ('rand-3D-fov90-pow7_sat-%s' % noise, tc(3, 90, 'powb', noise), 0),
+    ('rand-3D-fov90-linear01-%s' % noise, tc(3, 90, 'lin', noise), 0),
+    ('rand-3D-fov270-pow3_sat-%s' % noise, tc(3, 270, 'powa', noise), 0),
+    ('rand-3D-fov270-pow7_sat-%s' % noise, tc(3, 270, 'powb', noise)),
+    ('rand-3D-fov270-linear01-%s' % noise, tc(3, 270, 'lin', noise)),
+    ('rand-3D-fov360-pow3_sat-%s' % noise, tc(3, 360, 'powa', noise), 0),
+    ('rand-3D-fov360-pow7_sat-%s' % noise, tc(3, 360, 'powb', noise), 0),
+    ('rand-3D-fov360-linear01-%s' % noise, tc(3, 360, 'lin', noise), 0),
+
+    ('rand-2D-fov270-pow3_sat-%s' % noise, tc(2, 270, 'powa', noise), 0),
+    ('rand-2D-fov270-pow7_sat-%s' % noise, tc(2, 270, 'powb', noise), 0),
+    ('rand-2D-fov270-linear01-%s' % noise, tc(2, 270, 'lin', noise), 0),
+    ('rand-2D-fov315-pow3_sat-%s' % noise, tc(2, 315, 'powa', noise)),
+    ('rand-2D-fov315-pow7_sat-%s' % noise, tc(2, 315, 'powb', noise)),
+    ('rand-2D-fov315-linear01-%s' % noise, tc(2, 315, 'lin', noise)),
+    ('rand-2D-fov360-pow3_sat-%s' % noise, tc(2, 360, 'powa', noise), 0),
+    ('rand-2D-fov360-pow7_sat-%s' % noise, tc(2, 360, 'powb', noise)),
+    ('rand-2D-fov360-linear01-%s' % noise, tc(2, 360, 'lin', noise)),
+
+    ('rand-2D-fov45-pow3_sat-%s' % noise, tc(2, 45, 'powa', noise)),
+    ('rand-2D-fov45-pow7_sat-%s' % noise, tc(2, 45, 'powb', noise)),
+    ('rand-2D-fov45-linear01-%s' % noise, tc(2, 45, 'lin', noise)),
+    ('rand-2D-fov90-pow3_sat-%s' % noise, tc(2, 90, 'powa', noise), 0),
+    ('rand-2D-fov90-pow7_sat-%s' % noise, tc(2, 90, 'powb', noise)),
+    ('rand-2D-fov90-linear01-%s' % noise, tc(2, 90, 'lin', noise)),
+
+    ('rand-2D-fov315-pow3f-%s' % noise, tc(2, 315, 'powaf', noise)),
+    ('rand-2D-fov315-pow7f-%s' % noise, tc(2, 315, 'powbf', noise))
 ])
 
 tex_tc.append(('fly', '\\flydataset'))
@@ -151,7 +156,7 @@ for i in range(len(tex_tc)):
     if len(tup) == 2:
         tex_tc[i] = (tup[0], tup[1], 1)
 
-tex_tc = [ (a, b) for (a, b, c) in tex_tc if c >= 0]
+tex_tc = [(a, b) for (a, b, c) in tex_tc if c >= 0]
 
 
 def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
@@ -159,7 +164,7 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
     print('   tc: %r' % tc_ids)
     print(' algo: %r' % alg_ids)
     has_ground_truth = 'cheat' in alg_ids or 'echeat' in alg_ids
-    
+
     if 'cheat' in alg_ids: cheater = 'cheat'
     if 'echeat' in alg_ids: cheater = 'echeat'
 
@@ -169,14 +174,14 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
             for alg_id in alg_ids:
                 res = deps[(tc_id, alg_id)]
                 res['spearman_score'] = res['spearman'] / max_spearman
-    
+
     def tablevar(var, format='%.2f', not_found=np.NaN): #@ReservedAssignment
         def getter(tc_id, alg_id):
             res = deps[(tc_id, alg_id)]
             if var in res:
                 return format % res[var]
             else:
-                print('Warning: value not found (tc: %s, alg: %s, var: %s)' % 
+                print('Warning: value not found (tc: %s, alg: %s, var: %s)' %
                       (tc_id, alg_id, var))
                 return not_found
         return getter
@@ -186,27 +191,27 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
             **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.4f')))
 
     has_angles_corr = 'angles_corr' in  deps.values()[0]['iterations'][0]
-    
+
     if has_angles_corr:
         write_table(table_dir, comb_id, 'angcorr',
             **generic_table(tc_ids, alg_ids, tablevar('angles_corr', '%.4f')))
-    
-    
+
+
     write_table(table_dir, comb_id, 'spear',
             **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.4f')))
-    
+
     write_table(table_dir, comb_id, 'diameter',
             **generic_table(tc_ids, alg_ids, tablevar('diameter', '%.4f'), sign=0))
 
     write_table(table_dir, comb_id, 'diameter_deg',
             **generic_table(tc_ids, alg_ids, tablevar('diameter_deg', '%.2f'), sign=0))
-    
+
 #    write_table(comb_id, 'abs_rel_error_deg',
 #            **generic_table(tc_ids, alg_ids, tablevar('abs_rel_error_deg', '%.4f'), sign=0))
-    
+
     write_table(table_dir, comb_id, 'procustes_deg',
             **generic_table(tc_ids, alg_ids, tablevar('error_deg', '%.2f'), sign= -1))
-    
+
     write_table(table_dir, comb_id, 'procustes',
             **generic_table(tc_ids, alg_ids, tablevar('error'), sign= -1))
 
@@ -215,27 +220,27 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
 
     write_table(table_dir, comb_id, 'rel_error_deg',
             **generic_table(tc_ids, alg_ids, tablevar('rel_error_deg', '%.2f'), sign= -1))
-    
+
     write_table(table_dir, comb_id, 'scaled_error',
             **generic_table(tc_ids, alg_ids, tablevar('scaled_error', '%.4f'), sign= -1))
 
     write_table(table_dir, comb_id, 'scaled_error_deg',
             **generic_table(tc_ids, alg_ids, tablevar('scaled_error_deg', '%.2f'), sign= -1))
-    
+
     write_table(table_dir, comb_id, 'scaled_rel_error_deg',
             **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error_deg', '%.2f'),
                             sign= -1))
 
     write_table(table_dir, comb_id, 'scaled_rel_error',
             **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error', '%.3f'), sign= -1))
-    
-    
+
+
 def write_table(table_dir, comb_id, table_id, data, rows, cols):
-    
+
     directory = os.path.expanduser('%s/%s/' % (table_dir, comb_id))
     if not os.path.exists(directory):
         os.makedirs(directory)
-        
+
     filename = os.path.join(directory, '%s.tex' % table_id)
     print('Writing table to %r.' % filename)
     with Latex.fragment(filename, directory) as fragment:
@@ -263,7 +268,9 @@ def make_tex_command_name(s):
     s = s.replace('_', '').replace('-', '')
     for i in range(10):
         s = s.replace('%d' % i, '')
-    return s
+
+    tex = '\\%s' % s
+    return tex
 
 def generic_table(tc_ids, alg_ids, get_element,
                   sorted=True, mark_lower=True, sign=None): #@ReservedAssignment
@@ -285,20 +292,20 @@ def generic_table(tc_ids, alg_ids, get_element,
             name_not_found(alg_id)
 
     # Only select the one we care and in the right order
-    known = dict(tex_tc) 
+    known = dict(tex_tc)
     tc_ids = [tc_id for tc_id, _ in known.items() if tc_id in tc_ids] + \
             [tc_id for tc_id in tc_ids if not tc_id in known]
                 # now add the others
-    alg_ids = [alg_id for alg_id, _ in tex_algo if alg_id in alg_ids] 
-        
+    alg_ids = [alg_id for alg_id, _ in tex_algo if alg_id in alg_ids]
+
     print('Using only test cases: %r' % tc_ids)
     print('Using only algorithms: %r' % alg_ids)
     rows = [get_tc_tex_name(tc_id) for tc_id in tc_ids]
     cols = [dict(tex_algo)[alg_id] for alg_id in alg_ids]
-    
+
     if 'cheat' in alg_ids: cheater = 'cheat'
     if 'echeat' in alg_ids: cheater = 'echeat'
-    
+
     def make_row(tc_id):
         entries = [ get_element(tc_id, alg_id) for alg_id in alg_ids ]
         if mark_lower:
@@ -313,15 +320,15 @@ def generic_table(tc_ids, alg_ids, get_element,
                 values_min = min(selected)
             else:
                 reference = dict(zip(alg_ids, entries))[cheater]
-                f = lambda x: np.abs(float(reference) - float(x))  
+                f = lambda x: np.abs(float(reference) - float(x))
                 values = [ f(x) for (algo, x) in zip(alg_ids, entries)]
                 selected = [f(x) for (algo, x) in zip(alg_ids, entries)
                             if algo not in avoid]
                 values_max = min(selected)
                 values_min = max(selected)
-                
+
             for i in range(len(entries)):
-                if alg_ids[i] in avoid: continue 
+                if alg_ids[i] in avoid: continue
                 if values[i] == values_max:
                     mark = 'markbest'
                 elif values[i] == values_min:
@@ -330,12 +337,12 @@ def generic_table(tc_ids, alg_ids, get_element,
                     mark = None
                 if mark and mark_best:
                     entries[i] = '\\%s{%s}' % (mark, entries[i])
-                    
-        return entries 
-    
-    data = [make_row(tc_id) for tc_id in tc_ids] 
-     
-    return dict(data=data, rows=rows, cols=cols)        
 
- 
- 
+        return entries
+
+    data = [make_row(tc_id) for tc_id in tc_ids]
+
+    return dict(data=data, rows=rows, cols=cols)
+
+
+

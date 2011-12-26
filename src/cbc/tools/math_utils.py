@@ -2,44 +2,48 @@ from . import np, contract, new_contract
 from ..tools import distribution_radius
 
 
-
 def create_histogram_2d(x, y, resolution):
     edges = np.linspace(-1, 1, resolution)
-    H, xe, ye = np.histogram2d(x.flatten(), y.flatten(), bins=(edges, edges)) #@UnusedVariable
+    H, _, _ = np.histogram2d(x.flatten(), y.flatten(), bins=(edges, edges))
     return H
 
 new_contract('cosines', 'array[NxN](>=-1,<=+1)')
 new_contract('angles', 'array[N](>=-3.15,<+3.15)')
 new_contract('distances', 'array[NxN](>=0,<=+3.16)')
 
+
 @contract(theta='array[N]', returns='array[2xN], directions')
 def directions_from_angles(theta):
     return np.vstack((np.cos(theta), np.sin(theta)))
 
+
 @contract(S='array[KxN], directions', returns='array[N], angles')
 def angles_from_directions(S):
     if S.shape[0] > 2: # TODO: make contract
-        assert (S[2, :] == 0).all()  
+        assert (S[2, :] == 0).all()
     return np.arctan2(S[1, :], S[0, :])
+
 
 @contract(S='array[KxN], directions', returns='array[NxN], cosines')
 def cosines_from_directions(S):
     C = np.dot(S.T, S)
     return np.clip(C, -1, 1, C)
 
+
 @contract(C='array[NxN], cosines', returns='array[NxN], distances')
 def distances_from_cosines(C):
     return np.real(np.arccos(C))
 
+
 @contract(D='distances', returns='cosines')
-def cosines_from_distances(D): 
+def cosines_from_distances(D):
     return np.cos(D)
+
 
 @contract(S='directions', returns='distances')
 def distances_from_directions(S):
     C = cosines_from_directions(S)
     return distances_from_cosines(C)
-
 
 
 def scale_score(x):
@@ -59,14 +63,13 @@ def compute_relative_error(true_S, S, neighbours_deg=20):
 
     C = cosines_from_directions(S)
     D = np.arccos(C)
-    
+
     nvalid = (1 * valid).sum()
     errors = np.abs((D - true_D))
     errors_sum = (errors * valid).sum()
-    
+
     average_error = errors_sum / nvalid
     return average_error
-    
 
 
 def cov2corr(covariance, zero_diagonal=False):
@@ -85,12 +88,13 @@ def cov2corr(covariance, zero_diagonal=False):
     sigma = np.sqrt(covariance.diagonal())
     M = outer(sigma, sigma)
     correlation = covariance / M
-    
+
     if zero_diagonal:
         for i in range(covariance.shape[0]):
             correlation[i, i] = 0
-    
+
     return correlation
+
 
 @contract(S='directions', returns='direction')
 def mean_directions(S):
@@ -105,6 +109,7 @@ def mean_directions(S):
     else:
         return x / xn
 
+
 @contract(S='directions', returns='float,>0,<=6.29')
 def compute_diameter(S):
     return 2 * distribution_radius(S)
@@ -117,8 +122,8 @@ def compute_diameter(S):
 #    diameter = differences.max() - differences.min()
 #    return diameter
 #    
-    
-         
+
+
 @contract(x='array[N]', ref='array[N]', mod='int', returns='array[N]')
 def find_closest_multiple(x, ref, mod):
     ''' Find the closest multiple of x (wrt mod) to the element in ref. '''
@@ -127,14 +132,14 @@ def find_closest_multiple(x, ref, mod):
         if c > mod / 2:
             c -= mod
         return c
-    
+
     res = np.empty_like(x)
     for i in range(x.size):
         xi = x.flat[i]
         refi = ref.flat[i]
-        res.flat[i] = refi + neg_mod(xi - refi, mod)   
+        res.flat[i] = refi + neg_mod(xi - refi, mod)
     return res
-    
+
 
 @contract(x='array,shape(x)', y='array,shape(x)', returns='float,<=1,>=-1')
 def correlation_coefficient(x, y):

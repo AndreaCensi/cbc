@@ -1,14 +1,9 @@
 from . import (util_plot_euclidean_coords2d, zero_diagonal,
     plot_and_display_coords, add_order_comparison_figure, util_plot_xy_generic,
-    add_distance_vs_sim_figure)
+    add_distance_vs_sim_figure, util_plot_3D_points, np, Report)
 from ..algorithms import SPHERICAL, EUCLIDEAN
 from ..tools import (scale_score, find_closest_multiple, euclidean_distances,
     distances_from_directions, cosines_from_directions, angles_from_directions)
-
-from . import util_plot_3D_points, np, Report
-
-
-
 
 LABEL_D = 'distance'
 LABEL_D_ORDER = 'order(distance)'
@@ -17,9 +12,10 @@ LABEL_TRUE_D = 'order(true distance)'
 LABEL_R = 'similarity'
 LABEL_R_ORDER = 'order(similarity)'
 
+
 def create_report_iterations(exc_id, results):
     r = Report(exc_id)
-        
+
     has_ground_truth = 'true_S' in results and results['true_S'] is not None
 
     if results['geometry'] == SPHERICAL:
@@ -28,13 +24,14 @@ def create_report_iterations(exc_id, results):
             r.add_child(create_report_generic_iterations(results))
         else:
             r.add_child(create_report_generic_iterations_observable(results))
-            
+
     if results['geometry'] == EUCLIDEAN:
         if has_ground_truth:
             r.add_child(create_report_final_solution_euclidean(results))
             r.add_child(create_report_generic_iterations_euclidean(results))
 #        else:
-#            r.add_child(create_report_generic_iterations_observable_euclidean(results))
+#            r.add_child(
+#               create_report_generic_iterations_observable_euclidean(results))
     return r
 
 
@@ -53,10 +50,11 @@ def create_report_final_solution(results):
     R_order = scale_score(R)
 
     ########
-    r = Report('final_solution')    
+    r = Report('final_solution')
     f = r.figure('unobservable_measures',
-                 caption='Comparisons with ground truth (unobservable)', cols=4)
-    
+                 caption='Comparisons with ground truth (unobservable)',
+                 cols=4)
+
     if S_aligned.shape[0] == 2:
         solutions_comparison_plots(r, f, true_S, S_aligned)
         util_plot_euclidean_coords2d(r, f, 'S', S)
@@ -65,27 +63,32 @@ def create_report_final_solution(results):
 
     if S_aligned.shape[0] == 3:
         util_plot_3D_points(r, f, 'S_aligned', S_aligned, caption='S aligned')
-        util_plot_3D_points(r, f, 'S', S, caption='S')
+
+        if S.shape[0] == 3:
+            util_plot_3D_points(r, f, 'S', S, caption='S')
         util_plot_3D_points(r, f, 'true_S', true_S, caption='true_S')
 
+    f2 = r.figure('observable_measures', cols=3,
+                  caption='Computable measures')
 
-    f2 = r.figure('observable_measures', cols=3, caption='Computable measures')
-     
-    add_order_comparison_figure(r, 'D_order_vs_R_order', f2, 'Order comparison (results)',
+    add_order_comparison_figure(r, 'D_order_vs_R_order', f2,
+                                'Order comparison (results)',
                                 D_order, R_order, LABEL_D_ORDER, LABEL_R_ORDER)
-   
+
     add_order_comparison_figure(r, 'true_D_order_vs_R_order', f2,
                                 'Order comparison (ground truth)',
-                                true_D_order, R_order, LABEL_TRUE_D_ORDER, LABEL_R_ORDER)
+                                true_D_order, R_order, LABEL_TRUE_D_ORDER,
+                                LABEL_R_ORDER)
 
     add_distance_vs_sim_figure(r, 'D_vs_R', f2, 'Kernel',
                                 D, R, LABEL_D, LABEL_R)
-    
+
     add_distance_vs_sim_figure(r, 'true_D_vs_R', f2, 'Kernel',
                                 true_D, R, LABEL_TRUE_D, LABEL_R)
 
     return r
-        
+
+
 def create_report_final_solution_euclidean(results):
     R = results['R']
     S = results['S']
@@ -95,30 +98,34 @@ def create_report_final_solution_euclidean(results):
     R_order = scale_score(R)
     D_order = scale_score(-D)
     true_D_order = scale_score(-true_D)
-    ndim = S.shape[0] 
+    ndim = S.shape[0]
     #########
     r = Report('final_solution')
-    
+
     f = r.figure('unobservable_measures',
-                 caption='Comparisons with ground truth (unobservable)', cols=4)
-    
-    if ndim == 2: 
+                 caption='Comparisons with ground truth (unobservable)',
+                 cols=4)
+
+    if ndim == 2:
         util_plot_euclidean_coords2d(r, f, 'S_aligned', S)
         util_plot_euclidean_coords2d(r, f, 'true_S', true_S)
-                
+
     f2 = r.figure('order comparisons', cols=3)
 
-    add_order_comparison_figure(r, 'D_order_vs_R_order', f2, 'Order comparison (results)',
+    add_order_comparison_figure(r, 'D_order_vs_R_order', f2,
+                                'Order comparison (results)',
                                 D_order, R_order, LABEL_D_ORDER, LABEL_R_ORDER)
-   
-    add_order_comparison_figure(r, 'true_D_order_vs_R_order', f2, 'Order comparison (ground truth)',
-                                true_D_order, R_order, LABEL_TRUE_D_ORDER, LABEL_R_ORDER)
-    
+
+    add_order_comparison_figure(r, 'true_D_order_vs_R_order', f2,
+                                'Order comparison (ground truth)',
+                                true_D_order, R_order,
+                                LABEL_TRUE_D_ORDER, LABEL_R_ORDER)
+
     add_distance_vs_sim_figure(r, 'D_vs_R', f2, 'Kernel',
                                 D, R, LABEL_D, LABEL_R)
     add_distance_vs_sim_figure(r, 'true_D_vs_R', f2, 'Kernel',
                                 true_D, R, LABEL_TRUE_D, LABEL_R)
-    
+
     return r
 
 
@@ -134,14 +141,14 @@ def solutions_comparison_plots(r, f, true_S, S_aligned):
         for i in range(len(theta)):
             pylab.plot([0, 1], [true_theta[i], theta[i]], '-')
     f.sub('sol_compare', 'Estimated (left) and true (right) angles.')
-     
+
     with r.plot('theta_compare') as pylab:
         pylab.plot(true_theta, theta, '.')
         pylab.xlabel('true angles (deg)')
         pylab.ylabel('estimated angles (deg)')
         pylab.axis('equal')
     f.sub('theta_compare', 'True vs estimated angles.')
-         
+
 
 def create_report_generic_iterations(results):
     ''' Black box plots for generic algorithm. '''
@@ -161,24 +168,26 @@ def create_report_generic_iterations(results):
     f.data('R', R).display('posneg', max_value=1).add_to(f, 'Given R')
     f.data('R0', zero_diagonal(R)).display('posneg', max_value=1).\
         add_to(f, 'Given R (diagonal set to 0).')
-    
+
     r.data('R_order', R_order).display('scale').add_to(f, 'Order for R')
-    
+
     util_plot_xy_generic(r, f, 'r_vs_c',
                          true_C.flat, R.flat,
                          'real cosine', 'correlation measure',
                          'Unknown function cosine -> correlation')
 # 
 
-    r.data('true_C', true_C).display('posneg', max_value=1).add_to(f, 'ground truth cosine matrix')
-    r.data('gt_dist', true_dist).display('scale').add_to(f, 'ground truth distance matrix')
+    r.data('true_C', true_C).display('posneg', max_value=1).add_to(f,
+                                                'ground truth cosine matrix')
+    r.data('gt_dist', true_dist).display('scale').add_to(f,
+                                            'ground truth distance matrix')
 
     cols = 3
     if ndim == 2: cols += 1
-    
+
     fit = r.figure(cols=cols)
-    
-    for i, it in enumerate(iterations): 
+
+    for i, it in enumerate(iterations):
         S = it['S']
         D = distances_from_directions(S)
         D_order = scale_score(-D)
@@ -191,13 +200,13 @@ def create_report_generic_iterations(results):
             theta_deg = np.degrees(angles_from_directions(S_aligned))
             theta_deg = find_closest_multiple(theta_deg, true_theta_deg, 360)
 
-        rit = r.node('iteration%d' % i) 
+        rit = r.node('iteration%d' % i)
 
         plot_and_display_coords(rit, fit, 'S', S,
-                                'Guess for coordinates (errors %.2f / %.2f deg)' % 
+                                'Guess for coordinates (errors %.2f / %.2f deg)' %
                                 (error_deg , rel_error_deg))
 
-        
+
         add_order_comparison_figure(rit, 'D_order_vs_R_order', fit,
                                     'Order comparison (results)',
                                 D_order, R_order, LABEL_D_ORDER, LABEL_R_ORDER)
@@ -214,7 +223,7 @@ def create_report_generic_iterations(results):
                 pylab.ylabel('estimated angles (deg)')
                 pylab.axis('equal')
             rit.last().add_to(fit, 'True vs estimated angles.')
-          
+
     return r
 
 
@@ -222,25 +231,25 @@ def create_report_generic_iterations(results):
 def create_report_generic_iterations_euclidean(results):
     ''' Black box plots for generic algorithm. '''
     R = results['R']
-    true_S = results['true_S'] 
+    true_S = results['true_S']
     true_D = euclidean_distances(true_S)
 
     true_D_order = scale_score(-true_D)
     iterations = results['iterations']
     R_order = scale_score(R)
-    #######
-    
+
+
     r = Report('generic_iterations')
-    
+
     f = r.figure(cols=3, caption='Data and ground truth')
     f.data('R', R).display('posneg', max_value=1).add_to(f, 'Given R')
     f.data('R0', zero_diagonal(R)).display('posneg', max_value=1).\
         add_to(f, 'Given R (diagonal set to 0).')
-    
+
     r.data('R_order', R_order).display('scale').add_to(f, 'Order for R')
-    
+
     util_plot_xy_generic(r=r, f=f, nid='true_D_vs_R', x=true_D.flat, y=R.flat,
-                        xlabel=LABEL_TRUE_D, ylabel=LABEL_R,
+                         xlabel=LABEL_TRUE_D, ylabel=LABEL_R,
                          caption='Unknown function distance -> correlation')
     util_plot_xy_generic(r=r, f=f, nid='true_D_order_vs_R_order',
                          x=true_D_order.flat, y=R_order.flat,
@@ -248,18 +257,18 @@ def create_report_generic_iterations_euclidean(results):
                          caption='Distance Oderd vs Correlation order')
 
     fit = r.figure(cols=3)
-    
-    for i, it in enumerate(iterations): 
+
+    for i, it in enumerate(iterations):
         S = it['S']
         D = euclidean_distances(S)
-        D_order = scale_score(D) 
+        D_order = scale_score(D)
 
-        rit = r.node('iteration%d' % i) 
+        rit = r.node('iteration%d' % i)
 
         plot_and_display_coords(rit, fit, 'S', S, 'Guess for coordinates')
 
         # TODO: add aligned
-        
+
 #        util_plot_xy_generic(r=rit, f=fit, nid='D[i]_vs_R', x=D.flat, y=R.flat,
 #                         xlabel='distance (k=%d)' % i, ylabel='correlation',
 #                         caption='Unknown function distance -> correlation')
@@ -291,18 +300,18 @@ def create_report_generic_iterations_observable(results):
     f.data('R', R).display('posneg', max_value=1).add_to(f, 'Given R')
     f.data('R0', zero_diagonal(R)).display('posneg', max_value=1).\
         add_to(f, 'Given R (diagonal set to 0).')
-    
+
     r.data('R_order', R_order).display('scale').add_to(f, 'Order for R')
-     
-    cols = 3 
-    
+
+    cols = 3
+
     fit = r.figure(cols=cols)
-    
-    for i, it in enumerate(iterations): 
+
+    for i, it in enumerate(iterations):
         S = it['S']
         C = cosines_from_directions(S)
         C_order = scale_score(C)
-        rit = r.node('iteration%d' % i) 
+        rit = r.node('iteration%d' % i)
 
 #        def display_coords(nid, coords, caption=None):    
 #            n = rit.data(nid, coords)
@@ -311,8 +320,8 @@ def create_report_generic_iterations_observable(results):
 #            fit.sub(n, caption=caption)
 #        display_coords('S', S,
 #                       'Guess for coordinates')
-        
-        
+
+
         plot_and_display_coords(rit, fit, 'S', S, 'Guess for coordinates')
 #        
         util_plot_xy_generic(r=rit, f=fit, nid='r_vs_est_c',
@@ -324,9 +333,9 @@ def create_report_generic_iterations_observable(results):
                      x=C_order.flat, y=R_order.flat,
                      xlabel='estimated cosine (order)',
                      ylabel='correlation measure (order)',
-                     caption='order comparison (spearman: %f robust: %f)' % 
+                     caption='order comparison (spearman: %f robust: %f)' %
                             (it['spearman'], it['spearman_robust']))
-          
+
     return r
 
 

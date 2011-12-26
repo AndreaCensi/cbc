@@ -2,15 +2,16 @@
 from contracts import contract
 from file_utils import should_exist
 from procgraph import pg
+from tc_1_join_signals import log_load_from_hdf, log_write_to_hdf
 from tc_utils import filter_S, desc, filter_S_keep_dim
 from tc_vars import Const
+import Image
 import cPickle as pickle
 import itertools
 import numpy as np
 import os
 import scipy.io
-import Image
-from tc_1_join_signals import log_load_from_hdf, log_write_to_hdf
+
 
 def should_process(id_video, id_filter):
     f = Const.filters[id_filter]
@@ -18,12 +19,13 @@ def should_process(id_video, id_filter):
         if id_video in f['only']:
             return True
         else:
-            print('Skipping combination %r %r (only: %s) ' % 
+            print('Skipping combination %r %r (only: %s) ' %
                   (id_video, id_filter, f['only']))
             return False
     else:
-        return True  
-    
+        return True
+
+
 def main():
     from compmake import comp, compmake_console, use_filesystem
     use_filesystem(os.path.join(Const.signals_dir, 'compmake'))
@@ -31,27 +33,30 @@ def main():
         if should_process(id_video, id_filter):
             comp(extract_signals, id_video, id_filter,
                  job_id='extract-%s-%s' % (id_video, id_filter))
-            
+
     compmake_console()
 
-def find_stem(s): 
+
+def find_stem(s):
     ''' Removes numbers from a string '''
     for i in range(10):
         s = s.replace('%d' % i, '')
     return s
 
+
 def extract_signals(id_video, id_filter):
     filter_function = Const.filters[id_filter]['filter']
     ndim = Const.filters[id_filter]['ndim']
     assert ndim in [2, 3]
-    
+
     mp4 = os.path.join(Const.data_dir, '%s.mp4' % id_video)
     should_exist(mp4)
-    
+
     stem = find_stem(id_video)
-    
+
     # TODO: use stem
-    calibration = os.path.join(Const.data_dir, Const.CALIBRATION_PATTERN % stem)
+    calibration = os.path.join(Const.data_dir,
+                               Const.CALIBRATION_PATTERN % stem)
     if os.path.exists(calibration):
         S = get_groundtruth(calibration)
     else:
@@ -72,9 +77,9 @@ def extract_signals(id_video, id_filter):
     signal_dir = os.path.join(Const.signals_dir, signal_name)
     if not os.path.exists(signal_dir):
         os.makedirs(signal_dir)
-    
+
     # copy signal
-    signal_file = os.path.join(signal_dir, Const.SIGNAL_FILE) 
+    signal_file = os.path.join(signal_dir, Const.SIGNAL_FILE)
 
     if mask is None:
         # No mask, creting normal file
@@ -88,15 +93,15 @@ def extract_signals(id_video, id_filter):
         y0 = y[0]
         desc('y0', y0)
         desc('mask_select', mask_select)
-        
+
         y0_sel = y0[mask_select]
         desc('y0_sel', y0_sel)
         print('Number selected: %s' % np.sum(mask_select))
         y_sel = y[..., mask_select]
         desc('y_sel', y_sel)
-        
+
         log_write_to_hdf(signal_file, y_sel)
-    
+
     should_exist(signal_file)
 
     if S is not None:
@@ -109,39 +114,39 @@ def extract_signals(id_video, id_filter):
             desc('true_S', true_S)
             true_S = true_S[:, mask_select]
             desc('true_S (after mask)', true_S)
-            
+
         write_arrays_to_pickle(
                  os.path.join(signal_dir, Const.GT_FILE),
-                 {'true_S': true_S}              
+                 {'true_S': true_S}
         )
     else:
         print('No ground truth found.')
-     
+
 
 def write_arrays_to_pickle(filename, data):
     print('Writing on file %r.' % filename)
     for k, v in data.items():
         if isinstance(v, np.ndarray):
-            print('- %20s: %10s %s' % (k, v.dtype, v.shape))  
+            print('- %20s: %10s %s' % (k, v.dtype, v.shape))
     with open(filename, 'wb') as f:
         pickle.dump(data, f)
-    
+
 
 def extract_data(video, filter_name, hdf):
-    if os.path.exists(hdf): 
+    if os.path.exists(hdf):
         return
 
     print('  Creating %r...' % hdf)
     pg('extract_some',
         config={'file': video, 'filter': filter_name, 'hdf': hdf})
 
-    
+
 @contract(returns='array[HxWx3]')
 def get_groundtruth(calibration):
     # Load groundtruth
     data = scipy.io.loadmat(calibration)
     if 'S' in data:
-        S = data['S']  
+        S = data['S']
         return S
     elif 'X' in data:
         # print 'X shape: %s' % str(data['X'].shape)
@@ -163,17 +168,17 @@ def get_mask(filename):
     ''' Loads the mask from a .png file. '''
     data = np.array(Image.open(filename))
     print('Loaded mask size  %s %s' % (data.dtype, str(data.shape)))
-    data = data[:, :, 1] 
+    data = data[:, :, 1]
     threshold = np.mean(data)
     print('data mean: %s' % threshold)
     data = data > threshold
-    print(' selected: %d / %d = %.1f%%' % 
+    print(' selected: %d / %d = %.1f%%' %
           (np.sum(data), data.size, np.sum(data) * 100.0 / data.size))
     return data
-        
-    
+
+
 if __name__ == '__main__':
     main()
-    
-    
-    
+
+
+

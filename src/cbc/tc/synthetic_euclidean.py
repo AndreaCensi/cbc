@@ -5,8 +5,9 @@ from contracts import decorate
 import itertools
 
 
-
 kernels = []
+
+
 def k(f):
     signature = dict(d='array(>=0,<=pi),shape(x)',
                      returns='array(>=-1,<=+1),shape(x)')
@@ -15,6 +16,7 @@ def k(f):
     return f2
 
 DIAMETER = np.pi
+
 
 # Kernels are functions from cosine -> correlation ([-1,1]->[-1,1])
 # The should be able to operate on arrays and return arrays
@@ -44,20 +46,20 @@ def get_euclidean_test_cases():
     all_names = [f.__name__ for f in kernels]
     assert len(all_names) == len(np.unique(all_names)), \
         'Repeated names for kernels: %s' % all_names
-    
+
     tcs = {}
 
     ticker = Ticker('Generating synthetic euclidean cases')
     def add_test_case(tcid, function, args):
         ticker(tcid)
         tcs[tcid] = (function, args)
-    
+
     num = 180
     dims = [2, 3]
     dist_noise = 0.01
 #    dist_noise = 0
     wiggle_noise = 0.03
-    
+
     for kernel, ndim in itertools.product(kernels, dims):
         tcid = 'E%d-rand-n%d-%s' % (ndim, num, kernel.__name__)
         func = generate_random_euclidean_test_case
@@ -87,7 +89,7 @@ def generate_random_euclidean_test_case(tcid, num, ndim, kernel, dist_noise):
     S = S * np.sqrt(DIAMETER)
     D = euclidean_distances(S)
     D2 = add_distance_noise(D, dist_noise)
-    R2 = kernel(D2) 
+    R2 = kernel(D2)
     tc = CalibTestCase(tcid, R2, geometry='E')
     tc.set_ground_truth(S, kernel)
     return tc
@@ -97,9 +99,9 @@ def generate_grid_euclidean_test_case(tcid, num, ndim, kernel, wiggle_noise, dis
     side = int(np.ceil(np.sqrt(num)))
     num = side * side
     k = 0
-    
+
     def wiggle(): return np.random.randn() * wiggle_noise
-    
+
     S = np.zeros((ndim, num))
     for i, j in itertools.product(range(side), range(side)):
         S[0, k] = (i - side / 2.0) / side + wiggle()
@@ -108,7 +110,7 @@ def generate_grid_euclidean_test_case(tcid, num, ndim, kernel, wiggle_noise, dis
     S = S * np.sqrt(DIAMETER)
     D = euclidean_distances(S)
     D2 = add_distance_noise(D, dist_noise)
-    R2 = kernel(D2) 
+    R2 = kernel(D2)
     tc = CalibTestCase(tcid, R2, geometry='E')
     tc.set_ground_truth(S, kernel)
     return tc
