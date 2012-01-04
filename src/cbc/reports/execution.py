@@ -81,10 +81,10 @@ def create_report_final_solution(results):
                                 LABEL_R_ORDER)
 
     add_distance_vs_sim_figure(r, 'D_vs_R', f2, 'Kernel',
-                                D, R, LABEL_D, LABEL_R)
+                                D, R, LABEL_D, LABEL_R, degrees=True)
 
     add_distance_vs_sim_figure(r, 'true_D_vs_R', f2, 'Kernel',
-                                true_D, R, LABEL_TRUE_D, LABEL_R)
+                                true_D, R, LABEL_TRUE_D, LABEL_R, degrees=True)
 
     return r
 
@@ -96,8 +96,8 @@ def create_report_final_solution_euclidean(results):
     true_S = results['true_S']
     true_D = euclidean_distances(true_S)
     R_order = scale_score(R)
-    D_order = scale_score(-D)
-    true_D_order = scale_score(-true_D)
+    D_order = scale_score(D)
+    true_D_order = scale_score(true_D)
     ndim = S.shape[0]
     #########
     r = Report('final_solution')
@@ -122,9 +122,11 @@ def create_report_final_solution_euclidean(results):
                                 LABEL_TRUE_D_ORDER, LABEL_R_ORDER)
 
     add_distance_vs_sim_figure(r, 'D_vs_R', f2, 'Kernel',
-                                D, R, LABEL_D, LABEL_R)
+                                D, R, LABEL_D, LABEL_R,
+                                 degrees=False)
     add_distance_vs_sim_figure(r, 'true_D_vs_R', f2, 'Kernel',
-                                true_D, R, LABEL_TRUE_D, LABEL_R)
+                                true_D, R, LABEL_TRUE_D, LABEL_R,
+                                degrees=False)
 
     return r
 
@@ -183,7 +185,8 @@ def create_report_generic_iterations(results):
                                             'ground truth distance matrix')
 
     cols = 3
-    if ndim == 2: cols += 1
+    if ndim == 2:
+        cols += 1
 
     fit = r.figure(cols=cols)
 
@@ -203,9 +206,8 @@ def create_report_generic_iterations(results):
         rit = r.node('iteration%d' % i)
 
         plot_and_display_coords(rit, fit, 'S', S,
-                                'Guess for coordinates (errors %.2f / %.2f deg)' %
-                                (error_deg , rel_error_deg))
-
+                        'Guess for coordinates (errors %.2f / %.2f deg)' %
+                        (error_deg, rel_error_deg))
 
         add_order_comparison_figure(rit, 'D_order_vs_R_order', fit,
                                     'Order comparison (results)',
@@ -227,7 +229,6 @@ def create_report_generic_iterations(results):
     return r
 
 
-
 def create_report_generic_iterations_euclidean(results):
     ''' Black box plots for generic algorithm. '''
     R = results['R']
@@ -237,7 +238,6 @@ def create_report_generic_iterations_euclidean(results):
     true_D_order = scale_score(-true_D)
     iterations = results['iterations']
     R_order = scale_score(R)
-
 
     r = Report('generic_iterations')
 
@@ -269,14 +269,6 @@ def create_report_generic_iterations_euclidean(results):
 
         # TODO: add aligned
 
-#        util_plot_xy_generic(r=rit, f=fit, nid='D[i]_vs_R', x=D.flat, y=R.flat,
-#                         xlabel='distance (k=%d)' % i, ylabel='correlation',
-#                         caption='Unknown function distance -> correlation')
-#        util_plot_xy_generic(r=rit, f=fit, nid='D[i]_order_vs_R_order',
-#                         x=D_order.flat, y=R_order.flat,
-#                         xlabel='distance order (k=%d)' % i, ylabel='correlation',
-#                         caption='Distance Order vs Correlation order')
-
         add_order_comparison_figure(rit, 'D_order_vs_R_order', fit,
                                     'Order comparison (results)',
                                 D_order, R_order, LABEL_D_ORDER, LABEL_R_ORDER)
@@ -287,14 +279,12 @@ def create_report_generic_iterations_euclidean(results):
     return r
 
 
-
 def create_report_generic_iterations_observable(results):
     r = Report('generic_iterations_observable')
     R = results['R']
     R_order = scale_score(R)
 
     iterations = results['iterations']
-
 
     f = r.figure(cols=3, caption='Data and ground truth')
     f.data('R', R).display('posneg', max_value=1).add_to(f, 'Given R')
@@ -312,15 +302,6 @@ def create_report_generic_iterations_observable(results):
         C = cosines_from_directions(S)
         C_order = scale_score(C)
         rit = r.node('iteration%d' % i)
-
-#        def display_coords(nid, coords, caption=None):    
-#            n = rit.data(nid, coords)
-#            with n.plot('plot') as pylab:
-#                plot_coords(pylab, coords)
-#            fit.sub(n, caption=caption)
-#        display_coords('S', S,
-#                       'Guess for coordinates')
-
 
         plot_and_display_coords(rit, fit, 'S', S, 'Guess for coordinates')
 #        

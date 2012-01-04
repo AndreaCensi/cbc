@@ -21,8 +21,7 @@ import reprep
 
 
 join = os.path.join
-# cbc_main --data_sick cbc_submission_data/sick.pickle \                                            
-#          --data_fly  cbc_submission_data/fly.pickle \
+# cbc_main 
 #          --set 'paper*'  \
 #          --outdir cbc_main_output
 

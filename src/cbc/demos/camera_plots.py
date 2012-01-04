@@ -25,7 +25,6 @@ def main():
     imshape = (100, 100) # XXX
     toimg = lambda x: x.reshape(imshape)
 
-
     # find indices
     ref_sensel = np.zeros(num_ref, dtype='int')
     for i in range(num_ref):
@@ -82,9 +81,6 @@ def main():
     r.data('Rf', Rf).display('posneg').add_to(f)
     r.data('R2', R2).display('posneg').add_to(f)
 
-
-
-
     S = reduced_rank_embed(R, 4)
 
     r.add_child(show_some_correlations(R, toimg, num=30, cols=6))
@@ -101,10 +97,10 @@ def main():
     Rrgb = colorful_correlation(R, toimg, colors)
     r.data_rgb('Rrgb', Rrgb).add_to(f)
 
-
     filename = 'cbc_demos/camera_plots.html'
     print("Writing to %r." % filename)
     r.to_html(filename)
+
 
 def colorful_correlation(R, toimg, colors):
     h, w = toimg(R[0, :]).shape
@@ -150,6 +146,7 @@ def reduced_rank_embed(R, ndim):
         coords[i, :] = coords[i, :] * np.sqrt(S[i])
     return coords
 
+
 def show_some_correlations(R, toimg, num=30, cols=6):
     r = Report('sensels correlations')
     f = r.figure('Correlations of some sensels.', cols=cols)
@@ -180,7 +177,8 @@ def simplified_algo(R, ndim, iterations, warp=0):
         diameter = base_D.max()
         min_ratio = 0.1
         max_ratio = np.pi / diameter
-        ratios = np.exp(np.linspace(np.log(min_ratio), np.log(max_ratio), warp))
+        ratios = np.exp(np.linspace(np.log(min_ratio),
+                                    np.log(max_ratio), warp))
         scores = []
         guesses = []
         for ratio in ratios:
@@ -192,7 +190,8 @@ def simplified_algo(R, ndim, iterations, warp=0):
             guesses.append(Sw)
             print('Ratio %5f score %.5f' % (ratio, score))
         best = np.argmax(scores)
-        print('Best warp: %d (%f) score %.5f' % (best, ratios[best], scores[best]))
+        print('Best warp: %d (%f) score %.5f' %
+              (best, ratios[best], scores[best]))
         S = guesses[best]
     return S
 

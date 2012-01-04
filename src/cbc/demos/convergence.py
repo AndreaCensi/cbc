@@ -89,19 +89,18 @@ def main():
             r1 = np.degrees(distribution_radius(S1))
             r1w = np.degrees(distribution_radius(S1w))
             r2 = np.degrees(distribution_radius(S2))
-            yield dict(R0=r0, R1=r1, R1w=r1w, R2=r2, e1=e1, e2=e2, s1=s1, s2=s2,
+            yield dict(R0=r0, R1=r1, R1w=r1w, R2=r2, e1=e1, e2=e2,
+                       s1=s1, s2=s2,
                        s1w=s1w, e1w=e1w)
 
     results = list(seq())
     data = dict((k, np.array([d[k] for d in results])) for k in results[0])
-
 
     r = Report('demo-convergence')
 
     api1 = 'pi1'
     api1w = 'pi1w'
     api2 = 'pi2'
-
 
     sets = [(data['R0'] < 90, 'r.'), (data['R0'] >= 90, 'g.')]
 
@@ -202,7 +201,6 @@ def main():
         pylab.ylabel('average error (deg)')
         pylab.legend()
     r.last().add_to(f)
-
 
     filename = 'cbc_demos/convergence.html'
     print("Writing to %r." % filename)

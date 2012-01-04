@@ -6,9 +6,10 @@ SPHERICAL = 'S'
 EUCLIDEAN = 'E'
 GEOMETRIES = [SPHERICAL, EUCLIDEAN]
 
+
 # TODO: decorator
 class CalibTestCase(object):
-    
+
     @contract(tcid=str, R='array[NxN]')
     def __init__(self, tcid, R, geometry=SPHERICAL, attrs={}):
         assert geometry in GEOMETRIES
@@ -18,7 +19,7 @@ class CalibTestCase(object):
         self.geometry = geometry
         self.attrs = attrs
 
-    @contract(S='array[(2|3)xN]', kernel='None|Callable')        
+    @contract(S='array[(2|3)xN]', kernel='None|Callable')
     def set_ground_truth(self, S, kernel):
         self.has_ground_truth = True
         self.true_S = S
@@ -28,13 +29,13 @@ class CalibTestCase(object):
         if self.is_euclidean():
             self.true_D = euclidean_distances(self.true_S)
         self.true_kernel = kernel
-        
+
     def is_spherical(self):
         return self.geometry == SPHERICAL
-    
+
     def is_euclidean(self):
         return self.geometry == EUCLIDEAN
-    
+
     def write(self, dirname):
         from . import tc_write_11
         true_S = self.true_S if self.has_ground_truth else None

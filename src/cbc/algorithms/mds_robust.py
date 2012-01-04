@@ -1,6 +1,5 @@
-from . import CalibAlgorithm, np
+from . import CalibAlgorithm, np, EUCLIDEAN
 from ..tools import scale_score, mds, euclidean_distances
-from .base import EUCLIDEAN
 
 
 class MDS_robust(CalibAlgorithm):

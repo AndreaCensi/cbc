@@ -2,7 +2,7 @@
 from . import contract, np
 from ..tools import create_histogram_2d
 from cbc.demos.simplified_source import correlation_coefficient
-from reprep.plot_utils.spines import set_spines_look_A
+from reprep.plot_utils import set_spines_look_A
 
 
 fsize = 1.57
@@ -26,15 +26,6 @@ def util_plot_euclidean_coords2d(report, f, nid, S, caption=None):
 
 
 plot_and_display_coords = util_plot_euclidean_coords2d
-#def plot_and_display_coords(r, f, nid, coords, caption=None):
-#    print('plot_and_display_coords(%s)' % nid)
-#    n = r.data(nid, coords)
-#    with n.plot('plot', figsize=(fsize, fsize)) as pylab:
-#        pylab.plot(coords[0, :], coords[1, :], '.', rasterized=True)
-#        pylab.axis('equal')
-#        pylab.xlabel('x1')
-#        pylab.ylabel('x2')
-#    f.sub(n, caption=caption)
 
 
 def util_plot_xy_generic(r, f, nid, x, y, xlabel, ylabel, caption):
@@ -55,15 +46,26 @@ def azi_elev_from_directions(S):
     return Z
 
 
+def add_textdegree(val):
+    def add_it(x):
+        if x != '':
+            return x + '$^\\circ$'
+        else:
+            return ''
+    return map(add_it, val)
+
+
 def set_xticks_from_seq(pylab, t):
     pos = [a for a, _ in t]
     val = [b for _, b in t]
+    val = add_textdegree(val)
     pylab.xticks(pos, val)
 
 
 def set_yticks_from_seq(pylab, t):
     pos = [a for a, _ in t]
     val = [b for _, b in t]
+    val = add_textdegree(val)
     pylab.yticks(pos, val)
 
 
@@ -100,10 +102,10 @@ def util_plot_3D_points(report, f, nid, S, caption=None):
 
         max_azi_deg = np.max(A_deg)
         max_ele_deg = np.max(E_deg)
-        print('max_azi_deg', max_azi_deg)
-        print('max_ele', np.max(E_deg))
+        #print('max_azi_deg', max_azi_deg)
+        #print('max_ele', np.max(E_deg))
         if max_azi_deg < 60: # mino
-            print('config mino')
+            #print('config mino')
             set_xticks_from_seq(pylab,
                                 [#(-45, '-45'), 
                                  (-30, '-30'), (-15, ''), (0, '0'),
@@ -113,7 +115,7 @@ def util_plot_3D_points(report, f, nid, S, caption=None):
                                 )
             MA = 30
         elif max_azi_deg < 90: # GOPRO
-            print('config gopro')
+            #print('config gopro')
             set_xticks_from_seq(pylab,
                                 [(-90, '-90'), (-75, ''), (-60, ''),
                                  (-45, '-45'),
@@ -124,7 +126,7 @@ def util_plot_3D_points(report, f, nid, S, caption=None):
             MA = 95
 
         else: # omni
-            print('config omni')
+            #print('config omni')
             set_xticks_from_seq(pylab,
                                 [(-180, '-180'), (-135, ''), (-90, '-90'),
                                  (-45, ''), (0, '0'),
@@ -161,8 +163,16 @@ def util_plot_3D_points(report, f, nid, S, caption=None):
     report.last().add_to(f, caption)
 
 
+def get_plot_params(nsamples):
+    if nsamples < 10000:
+        return dict(markersize=0.5, alpha=0.2, rasterized=False)
+    else:
+        return dict(markersize=1, alpha=0.01, rasterized=True)
+        #return dict(markersize=0.4, alpha=0.05, rasterized=True)
+
+
 def add_distance_vs_sim_figure(report, nid, figure, caption,
-                                D, R, xlabel, ylabel):
+                                D, R, xlabel, ylabel, degrees=False):
     print('add_distance_vs_sim_figure(%s)' % nid)
 
     D = np.array(D.flat)
@@ -171,17 +181,19 @@ def add_distance_vs_sim_figure(report, nid, figure, caption,
     with report.plot(nid, figsize=(fsize, fsize)) as pylab:
         set_spines_look_A(pylab)
 
-        # try 's'
-        pylab.plot(D, R, 'bs', markersize=0.5, alpha=0.2, rasterized=True)
+        plot_params = get_plot_params(nsamples=D.size)
+        print(' using plot params: %s' % plot_params)
+        pylab.plot(D, R, 'bs', **plot_params)
         pylab.xlabel(xlabel)
         pylab.ylabel(ylabel)
         pylab.axis([D.min(), D.max(), R.min(), R.max()])
         m = D.max()
-        #pylab.gca().yaxis.set_label_coords(-0.20, 0.5)
 
         def set_ticks(t, M):
             pos = [a for a, _ in t]
             val = [b for _, b in t]
+            if degrees:
+                val = add_textdegree(val)
             pylab.xticks(np.deg2rad(pos), val)
             pylab.axis([0, np.deg2rad(M), -0.3, +1])
 
@@ -222,22 +234,25 @@ def add_order_comparison_figure(report, nid, figure, caption,
     assert y_order.max() == n - 1
     with report.plot(nid, figsize=(fsize, fsize)) as pylab:
         set_spines_look_A(pylab)
-        pylab.plot(x_order, y_order, 'm.', markersize=1,
-                   alpha=0.05, rasterized=True)
+
+        pylab.plot(x_order, y_order, 'ms', **get_plot_params(x_order.size))
+
         pylab.xlabel(xlabel)
         pylab.ylabel(ylabel)
         pylab.xticks([0, n - 1], ['0', '$n-1$'])
         pylab.yticks([0, n - 1], ['0', '$n-1$'])
         r = correlation_coefficient(x_order, y_order)
-        pylab.annotate('corr. = %.4f' % r, xy=(0.35, 0.85), # 0.25 for other 
+
+        pylab.annotate('corr. = %.4f' % r,
+                       va='top',
+                       ha='right',
+                       xy=(0.95, 0.95), # 0.25 for other
                        xycoords='figure fraction')
+
         pylab.axis([0, n - 1, 0, n - 1])
 
-        # before spines
-        #pylab.gca().xaxis.set_label_coords(0.5, -0.05)
-        #pylab.gca().yaxis.set_label_coords(-0.05, 0.5)
-        pylab.gca().xaxis.set_label_coords(0.5, -0.15)
-        pylab.gca().yaxis.set_label_coords(-0.15, 0.5)
+        pylab.gca().xaxis.set_label_coords(0.5, -0.25)
+        pylab.gca().yaxis.set_label_coords(-0.25, 0.5)
 
     report.last().add_to(figure, caption)
 

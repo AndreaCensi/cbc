@@ -1,7 +1,7 @@
+from . import np
 from ..tools import (best_embedding_on_sphere,
     overlap_error_after_orthogonal_transform)
 from collections import namedtuple
-import numpy as np
 
 
 def random_sample(n, k):

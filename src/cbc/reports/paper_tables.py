@@ -165,8 +165,10 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
     print(' algo: %r' % alg_ids)
     has_ground_truth = 'cheat' in alg_ids or 'echeat' in alg_ids
 
-    if 'cheat' in alg_ids: cheater = 'cheat'
-    if 'echeat' in alg_ids: cheater = 'echeat'
+    if 'cheat' in alg_ids:
+        cheater = 'cheat'
+    if 'echeat' in alg_ids:
+        cheater = 'echeat'
 
     if has_ground_truth:
         for tc_id in tc_ids:
@@ -188,7 +190,8 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
 
     if has_ground_truth:
         write_table(table_dir, comb_id, 'spearn',
-            **generic_table(tc_ids, alg_ids, tablevar('spearman_score', '%.4f')))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('spearman_score', '%.4f')))
 
     has_angles_corr = 'angles_corr' in  deps.values()[0]['iterations'][0]
 
@@ -196,43 +199,53 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
         write_table(table_dir, comb_id, 'angcorr',
             **generic_table(tc_ids, alg_ids, tablevar('angles_corr', '%.4f')))
 
-
     write_table(table_dir, comb_id, 'spear',
-            **generic_table(tc_ids, alg_ids, tablevar('spearman', '%.4f')))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('spearman', '%.4f')))
 
     write_table(table_dir, comb_id, 'diameter',
-            **generic_table(tc_ids, alg_ids, tablevar('diameter', '%.4f'), sign=0))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('diameter', '%.4f'), sign=0))
 
     write_table(table_dir, comb_id, 'diameter_deg',
-            **generic_table(tc_ids, alg_ids, tablevar('diameter_deg', '%.2f'), sign=0))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('diameter_deg', '%.2f'), sign=0))
 
 #    write_table(comb_id, 'abs_rel_error_deg',
-#            **generic_table(tc_ids, alg_ids, tablevar('abs_rel_error_deg', '%.4f'), sign=0))
+#            **generic_table(tc_ids, alg_ids, 
+#     tablevar('abs_rel_error_deg', '%.4f'), sign=0))
 
     write_table(table_dir, comb_id, 'procustes_deg',
-            **generic_table(tc_ids, alg_ids, tablevar('error_deg', '%.2f'), sign= -1))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('error_deg', '%.2f'), sign=(-1)))
 
     write_table(table_dir, comb_id, 'procustes',
-            **generic_table(tc_ids, alg_ids, tablevar('error'), sign= -1))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('error'), sign=(-1)))
 
     write_table(table_dir, comb_id, 'rel_error',
-            **generic_table(tc_ids, alg_ids, tablevar('rel_error', '%.4f'), sign= -1))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('rel_error', '%.4f'), sign=(-1)))
 
     write_table(table_dir, comb_id, 'rel_error_deg',
-            **generic_table(tc_ids, alg_ids, tablevar('rel_error_deg', '%.2f'), sign= -1))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('rel_error_deg', '%.2f'), sign=(-1)))
 
     write_table(table_dir, comb_id, 'scaled_error',
-            **generic_table(tc_ids, alg_ids, tablevar('scaled_error', '%.4f'), sign= -1))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('scaled_error', '%.4f'), sign=(-1)))
 
     write_table(table_dir, comb_id, 'scaled_error_deg',
-            **generic_table(tc_ids, alg_ids, tablevar('scaled_error_deg', '%.2f'), sign= -1))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('scaled_error_deg', '%.2f'), sign=(-1)))
 
     write_table(table_dir, comb_id, 'scaled_rel_error_deg',
-            **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error_deg', '%.2f'),
-                            sign= -1))
+            **generic_table(tc_ids, alg_ids,
+                        tablevar('scaled_rel_error_deg', '%.2f'), sign=(-1)))
 
     write_table(table_dir, comb_id, 'scaled_rel_error',
-            **generic_table(tc_ids, alg_ids, tablevar('scaled_rel_error', '%.3f'), sign= -1))
+            **generic_table(tc_ids, alg_ids,
+                            tablevar('scaled_rel_error', '%.3f'), sign=(-1)))
 
 
 def write_table(table_dir, comb_id, table_id, data, rows, cols):
@@ -249,7 +262,9 @@ def write_table(table_dir, comb_id, table_id, data, rows, cols):
     filename = os.path.join(directory, '%s_nohead.tex' % table_id)
     print('Writing table to %r.' % filename)
     with Latex.fragment(filename, directory) as fragment:
-        fragment.tabular_simple(data, row_desc=rows, col_desc=cols, write_col_desc=False)
+        fragment.tabular_simple(data, row_desc=rows, col_desc=cols,
+                                write_col_desc=False)
+
 
 def name_not_found(name):
     print('Name %r not found.' % name)
@@ -257,12 +272,14 @@ def name_not_found(name):
 #    print(line)
     #raise Exception(msg)
 
+
 def get_tc_tex_name(s):
     names = dict(tex_tc)
     if s in names:
         return names[s]
     else:
         return make_tex_command_name(s)
+
 
 def make_tex_command_name(s):
     s = s.replace('_', '').replace('-', '')
@@ -272,8 +289,9 @@ def make_tex_command_name(s):
     tex = '\\%s' % s
     return tex
 
+
 def generic_table(tc_ids, alg_ids, get_element,
-                  sorted=True, mark_lower=True, sign=None): #@ReservedAssignment
+                  sorted=True, mark_lower=True, sign=None):#@ReservedAssignment
     if sign is None:
         sign = +1
     if sign == 0:
@@ -303,32 +321,37 @@ def generic_table(tc_ids, alg_ids, get_element,
     rows = [get_tc_tex_name(tc_id) for tc_id in tc_ids]
     cols = [dict(tex_algo)[alg_id] for alg_id in alg_ids]
 
-    if 'cheat' in alg_ids: cheater = 'cheat'
-    if 'echeat' in alg_ids: cheater = 'echeat'
+    if 'cheat' in alg_ids:
+        cheater = 'cheat'
+    if 'echeat' in alg_ids:
+        cheater = 'echeat'
 
     def make_row(tc_id):
-        entries = [ get_element(tc_id, alg_id) for alg_id in alg_ids ]
+        entries = [get_element(tc_id, alg_id) for alg_id in alg_ids]
         if mark_lower:
             # re-convert two numbers
             # do not consider these for the stats:
             avoid = ['rand2d', 'rand3d', 'cheat', 'echeat']
             if sign in [+1, -1]:
-                values = [sign * float(x) for (algo, x) in zip(alg_ids, entries)]
-                selected = [sign * float(x) for (algo, x) in zip(alg_ids, entries)
+                values = [sign * float(x)
+                          for (algo, x) in zip(alg_ids, entries)]
+                selected = [sign * float(x)
+                            for (algo, x) in zip(alg_ids, entries)
                             if algo not in avoid]
                 values_max = max(selected)
                 values_min = min(selected)
             else:
                 reference = dict(zip(alg_ids, entries))[cheater]
                 f = lambda x: np.abs(float(reference) - float(x))
-                values = [ f(x) for (algo, x) in zip(alg_ids, entries)]
+                values = [f(x) for (algo, x) in zip(alg_ids, entries)]
                 selected = [f(x) for (algo, x) in zip(alg_ids, entries)
                             if algo not in avoid]
                 values_max = min(selected)
                 values_min = max(selected)
 
             for i in range(len(entries)):
-                if alg_ids[i] in avoid: continue
+                if alg_ids[i] in avoid:
+                    continue
                 if values[i] == values_max:
                     mark = 'markbest'
                 elif values[i] == values_min:

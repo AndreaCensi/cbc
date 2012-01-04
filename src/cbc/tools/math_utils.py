@@ -57,6 +57,7 @@ def scale_score(x):
 
 def compute_relative_error(true_S, S, neighbours_deg=20):
     ''' Returns the average error in radians between points. '''
+    # TODO: make default to consider all (URG compute_relative_error)
     true_C = cosines_from_directions(true_S)
     true_D = np.arccos(true_C)
     valid = true_D < np.radians(neighbours_deg)

@@ -89,7 +89,8 @@ class CalibAlgorithm(object):
         """ Records one iteration of the algorithm """
 
         for x in ['self']:
-            if x in data: del data[x]
+            if x in data:
+                del data[x]
 
         S = data['S']
         check_multiple([('array[NxN]', self.R), ('array[*xN]', S)])
@@ -101,8 +102,6 @@ class CalibAlgorithm(object):
             C = cosines_from_directions(S)
             C_order = scale_score(C)
             data['spearman'] = correlation_coefficient(C_order, self.R_order)
-
-            # data['RCorder_diff'] = np.abs(C_order - self.R_order).sum() / C_order.size
 
             valid = self.R_order > self.R.size * 0.6
             data['spearman_robust'] = correlation_coefficient(C_order[valid],
@@ -145,15 +144,20 @@ class CalibAlgorithm(object):
 
             # only valid in 2d
             if K == 2:
-                true_angles_deg = np.degrees(angles_from_directions(self.true_S))
-                angles_deg = np.degrees(angles_from_directions(data['S_aligned']))
-                angles_deg = find_closest_multiple(angles_deg, true_angles_deg, 360)
-                data['angles_corr'] = correlation_coefficient(true_angles_deg, angles_deg)
+                true_angles_deg = \
+                    np.degrees(angles_from_directions(self.true_S))
+                angles_deg = \
+                    np.degrees(angles_from_directions(data['S_aligned']))
+                angles_deg = \
+                    find_closest_multiple(angles_deg, true_angles_deg, 360)
+                data['angles_corr'] = \
+                    correlation_coefficient(true_angles_deg, angles_deg)
 
             D = distances_from_directions(S)
             true_D = distances_from_directions(self.true_S)
 
-            scaled_rel_error, scaled_scale = scaled_error(D, true_D, also_scale=True)
+            scaled_rel_error, scaled_scale = scaled_error(D, true_D,
+                                                          also_scale=True)
             data['scaled_rel_error'] = scaled_rel_error
             data['scaled_scale'] = scaled_scale
             data['scaled_rel_error_deg'] = np.degrees(data['scaled_rel_error'])
@@ -163,9 +167,11 @@ class CalibAlgorithm(object):
             true_D = euclidean_distances(self.true_S)
 
             data['rel_error'] = np.abs(D - true_D).mean()
-            data['scaled_rel_error'], scale = scaled_error(D, true_D, also_scale=True)
+            data['scaled_rel_error'], scale = scaled_error(D, true_D,
+                                                           also_scale=True)
 
             scaled_S = scale * S
+
             def remove_mean(x):
                 k, n = x.shape
                 m = np.tile(x.mean(axis=1).reshape((k, 1)), (1, n))
@@ -182,10 +188,12 @@ class CalibAlgorithm(object):
                 mean_euclidean_distance_after_orthogonal_transform(
                             remove_mean(S), remove_mean(self.true_S))
 
-
-        def varstat(x, format='%.3f', label=None, sign= +1): #@ReservedAssignment
-            if label is None: label = x[:5]
-            if not x in data: return ' %s: /' % label
+        def varstat(x, format='%.3f', #@ReservedAssignment
+                    label=None, sign=(+1)):
+            if label is None:
+                label = x[:5]
+            if not x in data:
+                return ' %s: /' % label
             current = data[x]
             s = ' %s: %s' % (label, format % current)
 
@@ -207,12 +215,15 @@ class CalibAlgorithm(object):
                   varstat('spearman_robust', '%.8f', label='sp_rob'))
 
         if self.is_spherical():
-            status += (varstat('error_deg', '%5.3f', sign= -1) +
-                      varstat('rel_error_deg', '%5.3f', sign= -1) +
-                      varstat('scaled_rel_error_deg', '%5.3fd', sign= -1, label='s_r_err'))
+            status += (varstat('error_deg', '%5.3f', sign=(-1)) +
+                      varstat('rel_error_deg', '%5.3f', sign=(-1)) +
+                      varstat('scaled_rel_error_deg', '%5.3fd', sign=(-1),
+                              label='s_r_err'))
         if self.is_euclidean():
-            status += (varstat('scaled_error', '%5.3f', sign= -1, label='s_err') +
-                       varstat('scaled_rel_error_deg', '%5.3fd', sign= -1, label='s_r_err'))
+            status += (
+                varstat('scaled_error', '%5.3f', sign=(-1), label='s_err') +
+                varstat('scaled_rel_error_deg', '%5.3fd',
+                         sign=(-1), label='s_r_err'))
 
         print(status)
 
@@ -221,7 +232,7 @@ class CalibAlgorithm(object):
     def seems_to_have_converged(self, min_ratio=0.1):
         if len(self.iterations) < 3:
             return False
-        last = [ self.iterations[i]['spearman'] for i in [-3, -2, -1]]
+        last = [self.iterations[i]['spearman'] for i in [-3, -2, -1]]
         delta1 = last[-3] - last[-2]
         delta2 = last[-2] - last[-1]
         ratio = delta2 / delta1
@@ -230,7 +241,6 @@ class CalibAlgorithm(object):
             return True
         else:
             return False
-
 
     def param(self, name, value, desc=None): #@UnusedVariable XXX:
         self.params[name] = value
