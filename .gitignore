@@ -3,3 +3,4 @@
 cbc_demos
 src/cbc/test_cases/ec.mat
 src/cbc/test_cases/fly.pickle
+*.pgc
