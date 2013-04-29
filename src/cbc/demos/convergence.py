@@ -12,7 +12,7 @@ import numpy as np
 def simplified_algo(R, iterations, warp=0):
     S = best_embedding_on_sphere(R, ndim=3)
     R_order = scale_score(R).astype('int16')
-    for i in range(iterations): #@UnusedVariable
+    for i in range(iterations):  # @UnusedVariable
         C = np.dot(S.T, S)
         C_sorted = np.sort(C.flat)
         R = C_sorted[R_order]
@@ -62,12 +62,12 @@ def main():
         for radius_deg, i in itertools.product(radii, range(K)):
             print radius_deg, i
             # Generate a random symmetric matrix
-            #x = np.random.rand(N, N)
+            # x = np.random.rand(N, N)
             S = random_directions_bounded(3, np.radians(radius_deg), N)
             C = np.dot(S.T, S)
             alpha = 1
             f = lambda x: np.exp(-alpha * (1 - x))
-            #f = lambda x : x
+            # f = lambda x : x
             R = f(C)
             # Normalize in [0,1]
             R1 = (R - R.min()) / (R.max() - R.min())

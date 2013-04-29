@@ -11,7 +11,7 @@ class CBC_robust(CalibAlgorithm):
         warp = self.params['warp']
         trust_top_perc = self.params['trust_top_perc']
         starting = self.params.get('starting', [1, 2])
-        measure = self.params['measure'] # = 'spearman_robust'
+        measure = self.params['measure']  # = 'spearman_robust'
 
         # Score of each datum -- must be computed only once
         R_order = scale_score(R).astype('int32')
@@ -58,7 +58,7 @@ class CBC_robust(CalibAlgorithm):
         all_spearman = list(x[measure] for x in self.iterations)
         best_scores = np.argsort(measure_sign * np.array(all_spearman))
         best_iteration = self.iterations[best_scores[0]]
-        print('Best so far: #%d (according to %s %d)' %
+        print('Best so far: #%d (according to %s %d)' % 
               (best_scores[0], measure, measure_sign))
         return best_iteration
 
@@ -68,7 +68,7 @@ class CBC_robust(CalibAlgorithm):
 
         R_percentile = R_order * 100.0 / R_order.size
 
-        for iteration in range(num_iterations): #@UnusedVariable
+        for iteration in range(num_iterations):  # @UnusedVariable
             guess_for_C = cosines_from_directions(current_guess_for_S)
             guess_for_C_sorted = np.sort(guess_for_C.flat)
             new_estimated_C = guess_for_C_sorted[R_order]

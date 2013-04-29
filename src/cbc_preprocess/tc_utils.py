@@ -1,6 +1,7 @@
 from contracts import contract
 from geometry import rotation_from_axes_spec
 import numpy as np
+from procgraph import simple_block
 
 
 @contract(S='array[HxWx3]', ndim='K,(2|3)', returns='array[KxN]')
@@ -15,7 +16,7 @@ def flatten_S(S, ndim):
     else:
         return true_S
 
-
+@simple_block
 def as_1d(x):
     if x.ndim == 2:
         H, W = x.shape
@@ -60,7 +61,7 @@ def project_2d(S):
 
 
 @contract(returns='array[(2|3)xN]')
-def filter_S(S, filter, ndim): #@ReservedAssignment
+def filter_S(S, filter, ndim):  # @ReservedAssignment
     ''' 
         Filters the ground truth. 
         If ndim==2, a 3D S will be projected down to 2D.
@@ -98,7 +99,7 @@ def reshape(y, true_S):
     print('-     y0: %s' % str(y0.shape))
     print('- true_S: %s' % str(true_S.shape))
     if y0.size * 3 != true_S.size:
-        raise Exception('Incompatible dimensions %s %s' %
+        raise Exception('Incompatible dimensions %s %s' % 
                         (y0.shape, true_S.shape))
 
     if len(y.shape) == 3:

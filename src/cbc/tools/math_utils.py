@@ -8,8 +8,8 @@ def create_histogram_2d(x, y, resolution):
     return H
 
 new_contract('cosines', 'array[NxN](>=-1,<=+1)')
-new_contract('angles', 'array[N](>=-3.15,<+3.15)')
-new_contract('distances', 'array[NxN](>=0,<=+3.16)')
+# new_contract('angles', 'array[N](>=-pi,<pi)')
+new_contract('distances', 'array[NxN](>=0,<=pi)')
 
 
 @contract(theta='array[N]', returns='array[2xN], directions')

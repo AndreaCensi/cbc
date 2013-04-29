@@ -9,14 +9,12 @@ def middle(gray):
     y = gray[j, :]
     return y
 
-
 @simple_block
 def center(gray):
     _, w = gray.shape
     i = int(w / 2)
     y = gray[:, i]
     return y
-
 
 @simple_block
 def midcen(gray):
@@ -27,27 +25,33 @@ def midcen(gray):
 
 
 @simple_block
-def grid24(gray): return grid(gray, 24)
+def grid24(gray): 
+    return grid(gray, 24)
 
 
 @simple_block
-def grid16(gray): return grid(gray, 16)
+def grid16(gray): 
+    return grid(gray, 16)
 
 
 @simple_block
-def grid8(gray): return grid(gray, 8)
+def grid8(gray): 
+    return grid(gray, 8)
 
 
 @simple_block
-def grid20(gray): return grid(gray, 20)
+def grid20(gray): 
+    return grid(gray, 20)
 
 
 def grid(gray, interval):
     """ Extract a grid of pixels"""
-    h, w = gray.shape
+    h, w = gray.shape[:2]
     x = range(0, h, interval)
     y = range(0, w, interval)
-    return gray[x, :][:, y]
+    res = gray[x, :][:, y]
+    
+    return res
 
 @simple_block
 def patch32(gray):
@@ -63,6 +67,7 @@ def patch32s4(gray):
     s = 4
     return gray[x:x + w * s:s,
                 y:y + h * s:s]
+
 
 
 

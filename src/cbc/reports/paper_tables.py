@@ -1,5 +1,5 @@
 from . import np
-from reprep.output.platex import Latex
+# from reprep.output.platex import Latex
 import os
 
 tex_algo = [
@@ -8,7 +8,7 @@ tex_algo = [
     ('emds2', '\\eMDS'),
     ('embed2', '\\sMDS'),
     ('embed3', '\\sMDS'),
-    #('CBC2d', '\\SBSE'),
+    # ('CBC2d', '\\SBSE'),
     ('eCBC2d', '\\SBSE'),
     ('CBC2d', '\\SBSE'),
     ('CBC3d', '\\SBSE'),
@@ -16,7 +16,7 @@ tex_algo = [
     ('eCBC3dw', '\\SBSEw'),
     ('CBC3dw', '\\SBSEw'),
     ('CBC2dw', '\\SBSEw'),
-    #('CBC3d', '\\SBSE'),
+    # ('CBC3d', '\\SBSE'),
     ('CBC3dr50', '\\SBSEr'),
     ('CBC2dr10', '\\SBSEr'),
     ('CBC2dr50', '\\SBSEr'),
@@ -32,7 +32,7 @@ def tc(dim, fov_deg, func, noise):
 
 
 def tce(dim, kind, num, func, noise):
-#%    return 'Euclidean %s %s %s %s %s' % (dim, kind, num, func, noise)
+# %    return 'Euclidean %s %s %s %s %s' % (dim, kind, num, func, noise)
     dim = "$\\mathbb{R}^%s$" % dim
     return '\\tce{%s}{%d}{\\%s}' % (dim, num, func)
 
@@ -41,7 +41,7 @@ def sicktc(which, quantity):
     which = {0: 'front',
              1: 'rear',
              2: 'both'}[which]
-    #if which == 'front' and quantity != 'yinfsim':
+    # if which == 'front' and quantity != 'yinfsim':
     if quantity != 'yinfsim':
         return "\\sicktcb{\\%s}{\\%s}" % (which, quantity)
     else:
@@ -81,7 +81,7 @@ tex_tc.extend([
     ('mino4_centerart-y_corr', '\\tcCameraCenterArt'),
 ])
 #
-#for s in [
+# for s in [
 #          
 #    ]:
 #    safe = s.replace('_','').replace('-','')
@@ -89,11 +89,11 @@ tex_tc.extend([
 #    tex_tc.extend([s,            
 #    ('mino-grid24-corr_m', '\\tcMino')
 #    
-#add_tex_name( 'GOPRb-grid24-corr_m')
-#add_tex_name('omni-grid8-corr_m')
-#add_tex_name('mino-grid24-corr_m')
-#add_tex_name('mino-grid24-corr_m')
-#add_tex_name('mino-grid24-corr_m')
+# add_tex_name( 'GOPRb-grid24-corr_m')
+# add_tex_name('omni-grid8-corr_m')
+# add_tex_name('mino-grid24-corr_m')
+# add_tex_name('mino-grid24-corr_m')
+# add_tex_name('mino-grid24-corr_m')
 #
 #                                        ,
 #                                         ,
@@ -177,13 +177,13 @@ def create_tables_for_paper(table_dir, comb_id, tc_ids, alg_ids, deps):
                 res = deps[(tc_id, alg_id)]
                 res['spearman_score'] = res['spearman'] / max_spearman
 
-    def tablevar(var, format='%.2f', not_found=np.NaN): #@ReservedAssignment
+    def tablevar(var, format='%.2f', not_found=np.NaN):  # @ReservedAssignment
         def getter(tc_id, alg_id):
             res = deps[(tc_id, alg_id)]
             if var in res:
                 return format % res[var]
             else:
-                print('Warning: value not found (tc: %s, alg: %s, var: %s)' %
+                print('Warning: value not found (tc: %s, alg: %s, var: %s)' % 
                       (tc_id, alg_id, var))
                 return not_found
         return getter
@@ -270,7 +270,7 @@ def name_not_found(name):
     print('Name %r not found.' % name)
 #    line = """tex_tc.append((%r, '\\??'))""" % name
 #    print(line)
-    #raise Exception(msg)
+    # raise Exception(msg)
 
 
 def get_tc_tex_name(s):
@@ -291,7 +291,7 @@ def make_tex_command_name(s):
 
 
 def generic_table(tc_ids, alg_ids, get_element,
-                  sorted=True, mark_lower=True, sign=None):#@ReservedAssignment
+                  sorted=True, mark_lower=True, sign=None):  # @ReservedAssignment
     if sign is None:
         sign = +1
     if sign == 0:

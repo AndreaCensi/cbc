@@ -80,5 +80,10 @@ def get_list_of_algorithms():
                                     'warp': True,
                                     'measure': 'spearman'})),
 
+        ('CBC_quick', (CBC_robust, {'ndim': 3, 'num_iterations': 15,
+                                    'warp': True, 'starting': [1],
+                                    'trust_top_perc': 40,
+                                    'measure': 'spearman'}))
+
         ])
 

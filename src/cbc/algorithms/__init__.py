@@ -1,5 +1,5 @@
 from .. import np, contract, logger, nottest, pickle, new_contract
-
+from .warp_fit_code import warp_fit
 from .base import *
 from .cbc import *
 from .cheat import *

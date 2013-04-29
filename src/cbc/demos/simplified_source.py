@@ -10,7 +10,7 @@ in this file. At least, they should be able to clarify doubts from reading
 the pseudocode. Note that some steps are simplified.
 
 '''
-#@PydevCodeAnalysisIgnore
+# @PydevCodeAnalysisIgnore
 import numpy as np
 
 
@@ -32,7 +32,7 @@ def SBSE(Y, ndim, a, iterations=10, nwarp=10, min_ratio=0.1):
     S = SSE(C0, ndim) 
     
     # Inner loop
-    for i in range(iterations): # For simplicity, fixed iterations
+    for i in range(iterations):  # For simplicity, fixed iterations
         C = cosines_from_directions(S)
         C_sorted = np.sort(C.flat)
         Cp = C_sorted[Y_order]
@@ -44,7 +44,8 @@ def SBSE(Y, ndim, a, iterations=10, nwarp=10, min_ratio=0.1):
     max_ratio = np.pi / diameter
     ratios = np.exp(np.linspace(np.log(min_ratio), np.log(max_ratio), nwarp))
     
-    scores = []; guesses = []
+    scores = []
+    guesses = []
     for ratio in ratios:
         Cwarp = np.cos(base_D * ratio)
         Sw = SSE(Cwarp, ndim)
@@ -70,7 +71,7 @@ def order(x):
 
 def cosines_from_directions(S):
     C = np.dot(S.T, S)
-    return np.clip(C, -1, 1, C) # recover from numerical errors
+    return np.clip(C, -1, 1, C)  # recover from numerical errors
 
 def correlation_coefficient(x, y):
     ''' Returns the correlation between two sequences. '''

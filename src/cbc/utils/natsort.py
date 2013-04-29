@@ -39,6 +39,6 @@ def natsorted(seq, kcmp=natcmp, key=None):
     "Returns a copy of seq, sorted by natural string sort."
     # convert set -> list
     temp = list(seq)
-    natsort(temp, cmp, key)
+    natsort(temp, kcmp, key)
     return temp
 

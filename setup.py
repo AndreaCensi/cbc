@@ -10,11 +10,12 @@ setup(name='CBC',
         entry_points={
          'console_scripts': [
            'cbc_main  = cbc.manager.calib_main:main',
-           'camera_plots = cbc.demos.camera_plots:main'
+           'camera_plots = cbc.demos.camera_plots:main',
+           'cbc-live-demo  = cbc_demo:cbc_live_demo_main',
            ]
         },
-        install_requires=['RepRep>=2,<3', 
-                          'nose', # conf_tools
+        install_requires=['RepRep>=2,<3',
+                          'nose',  # conf_tools
                           'PyGeometry>=1.1,<2',
                           'ConfTools>=1',
                           'compmake>=2,<3',
