@@ -1,7 +1,7 @@
---- model cv_demo_grid
+--- model cbc_demo_grid
 config cam = 0
 # config algo = 'embed3'
-config algo 
+config algo = 'embed2'
 
 import cbc_demo
 import cbc_preprocess
@@ -12,28 +12,23 @@ rgb -> |resize width=320 height=320| -> im -> |rgb2gray| -> lum
 
 im -> |grid20| -> |display_small name='input'|
 
-lum -> |grid20| -> yg -> |as_1d| -> y0
+lum -> |grid20| -> yg -> |as_1d| -> |astype dtype='float32'| -> y0
 
-y0 -> |derivative| -> y 
+#y0 -> |derivative| -> y 
+y0 -> |identity| -> y 
 
-y -> |covariance| -> |wait n=10| -> |sieve n=50| -> P
+y -> |covariance_rem| -> |wait n=10| -> |sieve n=100| -> P
 P -> |cov2corr|-> R 
 
 
 R -> |cbc algo=$algo| -> res
 
 res -> |cbc_display_dist| -> |cv_display name='Estimated distribution'|
+
 res -> |cbc_display_f| -> |cv_display name='Estimated similarity vs distance'|
 
 R ->|posneg|->|cv_display name='Similarity'|
-P -> |info|
 
-#yg -> |flatten| -> y
-#yg -> |display_small name='y'|
-
-
-# yg -> |expectation| -> |scale min_color=[0,0,0] max_color=[1,1,1]| -> |display_small name |
- 
 
 --- model display_small
 input yg

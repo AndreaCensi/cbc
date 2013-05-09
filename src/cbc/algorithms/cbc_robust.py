@@ -1,6 +1,7 @@
 from . import CalibAlgorithm, np, warp_fit
 from ..tools import (scale_score, best_embedding_on_sphere,
     cosines_from_directions, distances_from_cosines)
+import warnings
 
 
 class CBC_robust(CalibAlgorithm):
@@ -44,7 +45,10 @@ class CBC_robust(CalibAlgorithm):
         if warp and ndim > 2:
             C = best_iteration['C']
             D = distances_from_cosines(C)
-            r = warp_fit(D, min_ratio=0.1, max_ratio=2, nratios=100,
+            warnings.warn('Check this')
+            nratios = 100
+            nratios = 10
+            r = warp_fit(D, min_ratio=0.1, max_ratio=2, nratios=nratios,
                   nlandmarks=300, ndim=ndim, true_S=self.true_S)
             print('Solved: ratio=%f error_deg=%s' % (r.ratio, r.error_deg))
             self.iteration(dict(S=r.S, phase='%s_warp_fit' % phase,

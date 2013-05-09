@@ -33,6 +33,10 @@ def grid24(gray):
 def grid16(gray): 
     return grid(gray, 16)
 
+@simple_block
+def grid10(gray): 
+    return grid(gray, 10)
+
 
 @simple_block
 def grid8(gray): 
