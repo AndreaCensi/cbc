@@ -1,6 +1,9 @@
 --- model cbc_demo_grid2
+# You can change below to use derivative
 config cam = 0
 config algo = 'embed3'
+config wait_initial = 100
+config interval = 100
 
 import cbc_demo
 import cbc_preprocess
@@ -15,10 +18,11 @@ im20 -> |rgb2gray| -> lum
 
 lum -> |as_1d| -> y0
 
-#y0 -> |derivative| -> y 
+# Change to 
+# y0 -> |derivative| -> y 
 y0 -> |identity| -> y 
 
-y -> |covariance_rem| -> |wait n=10| -> |sieve n=100| -> P
+y -> |covariance_rem| -> |wait n=$wait_initial| -> |sieve n=$interval| -> P
 P -> |cov2corr|-> R 
 
 
